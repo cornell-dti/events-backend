@@ -12,3 +12,8 @@ def eventDetail(request,event_id):
     event_set = Event.objects.get(pk=event_id)
     serializer = EventSerialize(event_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
+
+def locationDetail(request,location_id):
+    location_set = Location.objects.get(pk=location_id)
+    serializer = EventSerialize(event_set,many=False)
+    return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
