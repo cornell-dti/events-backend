@@ -49,3 +49,9 @@ class Users(models.Model):
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
     data_added = models.DateField(auto_now_add = True)
     url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
+
+class Attendance(models.Model):
+    user_id = models.ForeignKey('Users', on_delete=CASCADE)
+    event_id = models.ForeignKey('Event', on_delete=CASCADE)
+    num_interested = models.IntegerField()
+    num_going = models.IntegerField()
