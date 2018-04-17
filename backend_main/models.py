@@ -14,12 +14,12 @@ UPLOAD_USER_IMAGE = None
 class Event(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
-    start_date = models.DateField
-    end_date = models.DateField
-    start_time = models.DateTimeField
-    end_time = models.DateTimeField
-    num_attendees = models.IntegerField
-    is_public = models.BooleanField
+    start_date = models.DateField()
+    end_date = models.DateField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    num_attendees = models.IntegerField()
+    is_public = models.BooleanField()
     organizer = models.ForeignKey('Org', on_delete=CASCADE)
 
 class Tags(models.Model):
