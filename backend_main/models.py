@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import datetime
+import reversion
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
@@ -8,6 +9,7 @@ MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
 
 # Create your models here.
+@reversion.register()
 class Event(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
@@ -40,3 +42,9 @@ class Location(models.Model):
     building = models.CharField(max_length = MAX_NAME_LENGTH)
     room = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
+
+class Users(models.Model):
+    name = models.CharField(max_length = MAX_NAME_LENGTH)
+    contact_number = models.IntegerField()
+    contact_email = models.
+    url =
