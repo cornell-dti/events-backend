@@ -7,6 +7,7 @@ MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
 MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
+UPLOAD_USER_IMAGE = None
 
 # Create your models here.
 @reversion.register()
@@ -45,6 +46,6 @@ class Location(models.Model):
 
 class Users(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
-    contact_number = models.IntegerField()
-    contact_email = models.
-    url =
+    contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
+    data_added = models.DateField(auto_now_add = True)
+    url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
