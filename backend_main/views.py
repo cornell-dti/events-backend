@@ -25,13 +25,7 @@ def changesInEvents(timestamp, start_time, end_time):
 
 def outdatedEvents(timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = timestamp)
-
-
-
-    # version_set = Version.objects.get_for_model(models.Event, model_db=None)
-    # changes = set()
-    # for obj in version_set:
-    #     revised_obj = Revision.get(pk = obj.reversion)
-    #     if revised_obj.date_created >= timestamp:
-    #         change.add(int(obj.object_id))
-    # return list(changes)
+    unique_set  = history_set.distinct('id')
+    pks = unique_set.values_list('id', flat=True).order_by('id')
+    changed_events = Event.objects.filter(pk__in = pks, start_date__gte = start_time, end_date__lte =  end_time)
+     
