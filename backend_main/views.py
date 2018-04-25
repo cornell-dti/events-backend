@@ -22,12 +22,21 @@ def locationDetail(request,location_id):
 def changesInEvents(timestamp, start_time, end_time):
     outdated_events = outdatedEvents(timestamp)
 
-
 def outdatedEvents(timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = timestamp)
 
-
-
+def changesInOrgs(timestamp, start_time, end_time):
+    outdated_orgs = outdatedOrgs(timestamp)
+    
+def outdatedOrgs(timestamp, start_time,end_time):
+    org_updates = Org.history.filter(timestamp__gte = timestamp);
+    org_updates = org_updates.distinct('id');
+    
+    org_list = org_updates.values_list('id');
+    changed_orgs = Org.objects.filter(pk__in=org_list, start_date__gte=start_time,end_date__gte=end_time);
+                                               
+    
+    
     # version_set = Version.objects.get_for_model(models.Event, model_db=None)
     # changes = set()
     # for obj in version_set:
