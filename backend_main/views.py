@@ -1,4 +1,4 @@
-# serializers.py
+# views.py
 # Jessica Zhao, Adit Gupta, Arnav Ghosh
 # 21st June 2018
 
@@ -13,6 +13,8 @@ from rest_framework import status
 from .models import Org, Event
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer,
                         UpdatedEventsSerializer, UpdatedOrgSerializer
+
+import dateutil.parser
 
 def eventDetail(request,event_id):
     event_set = Event.objects.get(pk=event_id)
@@ -30,7 +32,8 @@ def orgDetail(request,org_id):
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def changesInOrgs(timestamp):
-    outdated_orgs, all_deleted = outdatedOrgs(timestamp)
+    old_timestamp = dateutil.parser.parse(timestamp)
+    outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
     json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
     serializer = UpdatedOrgSerializer(updated = json_orgs, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
@@ -47,7 +50,10 @@ def outdatedOrgs(timestamp):
     return changed_orgs, all_deleted_pks
                                                
 def changesInEvents(timestamp, start_time, end_time):
-    outdated_events, all_deleted = outdatedEvents(timestamp, start_time, end_time)
+    old_timestamp = dateutil.parser.parse(timestamp)
+    start_time = dateutil.parser.parse(start_time)
+    end_time = dateutil.parser.parse(end_time)
+    outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
     json_events = JSONRenderer().render(EventSerializer(outdated_events, many = True).data)
     serializer = UpdatedEventsSerializer(updated = json_events, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
