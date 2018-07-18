@@ -1,1 +1,1 @@
-web: gunicorn flow.wsgi --log-file -
+web: gunicorn events_backend.wsgi --log-file -
