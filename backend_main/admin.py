@@ -1,3 +1,10 @@
-from django.contrib import admin
+# admin.py
+# Arnav Ghosh
+# 16th July 2018
 
-# Register your models here.
+from django.contrib import admin
+from .models import Org, Event, Location
+
+admin.site.register(Org)a
+admin.site.register(Event)
+admin.site.register(Location)
