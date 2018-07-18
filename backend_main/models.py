@@ -55,3 +55,7 @@ class Attendance(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     num_interested = models.IntegerField()
     num_going = models.IntegerField()
+
+class Trial(models.Model):
+    name = models.CharField(max_length = MAX_NAME_LENGTH)
+    history = HistoricalRecords()
