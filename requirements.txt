@@ -1,0 +1,12 @@
+Django==2.0.1
+djangorestframework==3.3.3
+django-simple-history==2.0
+whitenoise==3.3.0
+gunicorn==19.7.1
+psycopg2==2.6.1
+Pillow==3.2.0
+dj_database_url==0.4.2
+python-decouple==3.0
+boto==2.40.0
+django-storages==1.5.2
+unicodecsv==0.14.1
