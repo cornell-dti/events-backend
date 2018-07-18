@@ -1,5 +1,5 @@
 Django==2.0.1
-djangorestframework==3.3.3
+djangorestframework==3.8.2
 django-simple-history==2.0
 whitenoise==3.3.0
 gunicorn==19.7.1
