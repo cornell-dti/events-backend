@@ -17,17 +17,17 @@ import dateutil.parser
 
 def eventDetail(request,event_id):
     event_set = Event.objects.get(pk=event_id)
-    serializer = EventSerialize(event_set,many=False)
+    serializer = EventSerializer(event_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def locationDetail(request,location_id):
     location_set = Location.objects.get(pk=location_id)
-    serializer = EventSerialize(location_set,many=False)
+    serializer = LocationSerializer(location_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def orgDetail(request,org_id):
     org_set = Location.objects.get(pk=org_id)
-    serializer = EventSerializer(org_set,many=False)
+    serializer = OrgSerializer(org_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def changesInOrgs(timestamp):
