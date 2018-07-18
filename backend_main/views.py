@@ -10,7 +10,7 @@ from django.utils import timezone
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
-from .models import Org, Event
+from .models import Org, Event, Location
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
 
 import dateutil.parser
@@ -26,7 +26,7 @@ def locationDetail(request,location_id):
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def orgDetail(request,org_id):
-    org_set = Location.objects.get(pk=org_id)
+    org_set = Org.objects.get(pk=org_id)
     serializer = OrgSerializer(org_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
