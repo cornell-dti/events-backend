@@ -20,7 +20,7 @@ class Event(models.Model):
     num_attendees = models.IntegerField()
     is_public = models.BooleanField()
     organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
-    location = models.ForeignKey('Location', on_delete=models.SET_NULL, null=True)
+    location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
 
 class Tags(models.Model):
