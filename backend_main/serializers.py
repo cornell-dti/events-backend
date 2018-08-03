@@ -6,7 +6,7 @@ from rest_framework import serializers
 from .models import Org, Event, Location, Event_Tags
 
 class EventSerializer(serializers.ModelSerializer):
-	tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
     
     class Meta:
         model = Event
