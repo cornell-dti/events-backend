@@ -35,6 +35,7 @@ class Org(models.Model):
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
     verified = models.BooleanField()
+    history = HistoricalRecords()
 
 class Event_Org(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
@@ -48,7 +49,7 @@ class Location(models.Model):
 class Users(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
-    data_added = models.DateField(auto_now_add = True)
+    date_added = models.DateField(auto_now_add = True)
     url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
 
 class Attendance(models.Model):
@@ -56,7 +57,3 @@ class Attendance(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     num_interested = models.IntegerField()
     num_going = models.IntegerField()
-
-class Trial(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    history = HistoricalRecords()
