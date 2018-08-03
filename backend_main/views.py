@@ -37,7 +37,7 @@ def changesInOrgs(request, in_timestamp):
     serializer = UpdatedOrgSerializer(updated = json_orgs, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
-def outdatedOrgs(request, in_timestamp):
+def outdatedOrgs(in_timestamp):
     org_updates = Org.history.filter(timestamp__gte = in_timestamp)
     org_updates = org_updates.distinct('id')
 
@@ -57,7 +57,7 @@ def changesInEvents(request, in_timestamp, start_time, end_time):
     serializer = UpdatedEventsSerializer(updated = json_events, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
-def outdatedEvents(request, in_timestamp, start_time, end_time):
+def outdatedEvents(in_timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = in_timestamp)
     unique_set  = history_set.distinct('id')
 
