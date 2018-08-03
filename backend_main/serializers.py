@@ -3,14 +3,15 @@
 # 21st June 2018
 
 from rest_framework import serializers
-from .models import Org, Event, Location
+from .models import Org, Event, Location, Event_Tags
 
 class EventSerializer(serializers.ModelSerializer):
+	tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
     
     class Meta:
         model = Event
         fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
-        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location')
+        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'tags')
         
 class LocationSerializer(serializers.ModelSerializer):
 	
