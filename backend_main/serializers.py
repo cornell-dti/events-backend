@@ -14,7 +14,7 @@ class EventSerializer(serializers.ModelSerializer):
         	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'tags')
         
 class LocationSerializer(serializers.ModelSerializer):
-	
+
 	class Meta:
 		model = Location
 		fields = ('pk', 'building','room', 'place_id')
