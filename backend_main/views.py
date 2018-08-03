@@ -30,15 +30,15 @@ def orgDetail(request,org_id):
     serializer = OrgSerializer(org_set,many=False)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
-def changesInOrgs(timestamp):
-    old_timestamp = dateutil.parser.parse(timestamp)
+def changesInOrgs(in_timestamp):
+    old_timestamp = dateutil.parser.parse(in_timestamp)
     outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
     json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
     serializer = UpdatedOrgSerializer(updated = json_orgs, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
-def outdatedOrgs(timestamp):
-    org_updates = Org.history.filter(timestamp__gte = timestamp)
+def outdatedOrgs(in_timestamp):
+    org_updates = Org.history.filter(timestamp__gte = in_timestamp)
     org_updates = org_updates.distinct('id')
 
     org_list = org_updates.values_list('id')
@@ -48,8 +48,8 @@ def outdatedOrgs(timestamp):
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
                                                
-def changesInEvents(timestamp, start_time, end_time):
-    old_timestamp = dateutil.parser.parse(timestamp)
+def changesInEvents(in_timestamp, start_time, end_time):
+    old_timestamp = dateutil.parser.parse(in_timestamp)
     start_time = dateutil.parser.parse(start_time)
     end_time = dateutil.parser.parse(end_time)
     outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
@@ -57,8 +57,8 @@ def changesInEvents(timestamp, start_time, end_time):
     serializer = UpdatedEventsSerializer(updated = json_events, deleted = all_deleted, timestamp = timezone.now())
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
-def outdatedEvents(timestamp, start_time, end_time):
-    history_set = Event.history.filter(history_date__gte = timestamp)
+def outdatedEvents(in_timestamp, start_time, end_time):
+    history_set = Event.history.filter(history_date__gte = in_timestamp)
     unique_set  = history_set.distinct('id')
 
     pks = unique_set.values_list('id', flat=True).order_by('id')

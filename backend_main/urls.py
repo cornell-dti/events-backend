@@ -11,10 +11,10 @@ urlpatterns = [
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.eventDetail, name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.orgDetail, name='Organizer Details'),
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.locationDetail, name='Location Details'),
-	url(r'^feed/events/timestamp=(?P<timestamp>{0})&start=(?P<start_time>{0})&end=(?P<end_time>{0})/$'.format(dateRegex), 
+	url(r'^feed/events/timestamp=(?P<in_timestamp>{0})&start=(?P<start_time>{0})&end=(?P<end_time>{0})/$'.format(dateRegex), 
 		views.changesInEvents, 
 		name='Updated Event Feed'),
-	url(r'^feed/org/timestamp=(?P<timestamp>{0})/$'.format(dateRegex), views.changesInOrgs, name='Updated Organizer Feed')
+	url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.changesInOrgs, name='Updated Organizer Feed')
 
 	# url(r'^$', views.index, name='index'),
 	# url(r'^feed/(?P<day>[1-9]|[12][0-9]|3[01])/$', views.feed, name='feed by date'),
