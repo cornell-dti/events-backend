@@ -27,7 +27,7 @@ class Tags(models.Model):
     name = models.CharField(max_length = MAX_TAG_LENGTH)
 
 class Event_Tags(models.Model):
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, , related_name = "event_tag_ids")
+    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tag_ids")
     tags_id = models.ForeignKey('Tags',on_delete=models.CASCADE)
 
 class Org(models.Model):
