@@ -6,13 +6,13 @@ from rest_framework import serializers
 from .models import Org, Event, Location, Event_Tags
 
 class EventSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
+    event_tag_ids = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
     
     class Meta:
         model = Event
-        exclude = ('history',)
-        #fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
-        #	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'tags')
+        #exclude = ('history',)
+        fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
+        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'event_tag_ids')
         
 class LocationSerializer(serializers.ModelSerializer):
 
