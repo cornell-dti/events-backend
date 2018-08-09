@@ -33,7 +33,8 @@ def orgDetail(request,org_id):
 def changesInOrgs(request, in_timestamp):
     old_timestamp = dateutil.parser.parse(in_timestamp)
     outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
-    json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+    #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+    json_orgs = OrgSerializer(outdated_orgs, many = True).data
     serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
     #print(test)
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
