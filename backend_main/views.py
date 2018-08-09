@@ -47,7 +47,6 @@ def outdatedOrgs(in_timestamp):
     changed_orgs = Org.objects.filter(pk__in=org_list)
     present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
-    print(test)
     return changed_orgs, all_deleted_pks
                                                
 def changesInEvents(request, in_timestamp, start_time, end_time):
@@ -55,13 +54,13 @@ def changesInEvents(request, in_timestamp, start_time, end_time):
     start_time = dateutil.parser.parse(start_time)
     end_time = dateutil.parser.parse(end_time)
     outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-    json_events = JSONRenderer().render(EventSerializer(outdated_events, many = True).data)
-    serializer = UpdatedEventsSerializer(updated = json_events, deleted = all_deleted, timestamp = timezone.now())
+    json_events = EventSerializer(outdated_events, many = True).data
+    serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def outdatedEvents(in_timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = in_timestamp)
-    unique_set  = history_set.distinct('id')
+    unique_set  = history_set.distinct('id').order_by('id')
 
     pks = unique_set.values_list('id', flat=True).order_by('id')
     #TODO: What if not in list
