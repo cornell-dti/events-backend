@@ -3,16 +3,16 @@
 # 21st June 2018
 
 from rest_framework import serializers
-from .models import Org, Event, Location, Event_Tags
+from .models import Org, Event, Location, Tag, Event_Tags
 
 class EventSerializer(serializers.ModelSerializer):
-    event_tag_ids = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
+    event_tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
     
     class Meta:
         model = Event
         #exclude = ('history',)
         fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
-        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'event_tag_ids')
+        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'event_tags')
         
 class LocationSerializer(serializers.ModelSerializer):
 
@@ -25,6 +25,12 @@ class OrgSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Org
 		fields = ('pk', 'name','description', 'contact', 'verified')
+
+class TagSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Tags
+		fields = ("pk", "name")
 
 class UpdatedEventsSerializer(serializers.Serializer):
 	updated = serializers.JSONField() #pass in serialized events

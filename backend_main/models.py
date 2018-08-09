@@ -23,11 +23,11 @@ class Event(models.Model):
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
 
-class Tags(models.Model):
+class Tag(models.Model):
     name = models.CharField(max_length = MAX_TAG_LENGTH)
 
 class Event_Tags(models.Model):
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tag_ids")
+    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
     tags_id = models.ForeignKey('Tags',on_delete=models.CASCADE)
 
 class Org(models.Model):
