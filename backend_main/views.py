@@ -10,8 +10,8 @@ from django.utils import timezone
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
-from .models import Org, Event, Location
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
+from .models import Org, Event, Location, Tag
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagsSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
 
 import dateutil.parser
 
@@ -68,3 +68,18 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
     all_deleted_pks = list(set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
+
+def singleTag(request, tag_id):
+    return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK,safe=False)
+
+def allTags(request):
+    return JsonResponse(tagDetail(tag_id, True).data,status=status.HTTP_200_OK,safe=False)
+
+def tagDetail(tag_id, all=False):
+    tags = Tag.objects.all()
+    if all:
+        serializer = TagsSerializer(tags, many=True)
+    else:
+        serialzer = TagsSerializer(tags.filter(pk = tag_id), many=False)
+
+    return serializer
