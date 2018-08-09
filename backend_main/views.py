@@ -38,7 +38,7 @@ def changesInOrgs(request, in_timestamp):
     return JsonResponse(serializer.data,status=status.HTTP_200_OK,safe=False)
 
 def outdatedOrgs(in_timestamp):
-    org_updates = Org.history.filter(timestamp__gte = in_timestamp)
+    org_updates = Org.history.filter(history_date__gte = in_timestamp)
     org_updates = org_updates.distinct('id')
 
     org_list = org_updates.values_list('id')
