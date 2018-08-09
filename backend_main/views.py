@@ -44,7 +44,7 @@ def outdatedOrgs(in_timestamp):
     org_list = org_updates.values_list('id').order_by('id')
     #TODO: What if not in list
     changed_orgs = Org.objects.filter(pk__in=org_list)
-    present_pks = Org.objects.filter(pk__in = org_list).value_list('pk', flat = True)
+    present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
                                                
