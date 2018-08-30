@@ -8,6 +8,10 @@ from . import views
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 
 urlpatterns = [
+	path('post/org', views.post_org, name='post_org'),
+	path('post/event', views.post_event, name='post_event'),
+	path('post/org/<int:pk>/edit/', views.post_org_edit, name='post_edit'),
+	path('post/event/<int:pk>/edit/', views.post_event_edit, name='post_edit'),
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.eventDetail, name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.orgDetail, name='Organizer Details'),
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.locationDetail, name='Location Details'),
