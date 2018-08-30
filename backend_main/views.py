@@ -87,46 +87,46 @@ def tagDetail(tag_id, all=False):
 
 def post_org(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = OrgForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm()
+        form = OrgForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
-def post_event(request):
+def post_tag(request):
     if request.method == "POST":
-        form = PostForm(request.POST)
+        form = TagForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm()
+        form = TagForm()
     return render(request, 'blog/post_edit.html', {'form': form})
 
 def post_org_edit (request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = OrgForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm(instance=post)
+        form = OrgForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
 
-def post_event_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+# def post_event_edit(request, pk):
+#     post = get_object_or_404(Post, pk=pk)
+#     if request.method == "POST":
+#         form = PostForm(request.POST, instance=post)
+#         if form.is_valid():
+#             post = form.save(commit=False)
+#             post.save()
+#             return redirect('post_detail', pk=post.pk)
+#     else:
+#         form = PostForm(instance=post)
+#     return render(request, 'blog/post_edit.html', {'form': form})
