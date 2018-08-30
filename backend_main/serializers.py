@@ -29,7 +29,7 @@ class OrgSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
 
 	class Meta:
-		model = Tags
+		model = Tag
 		fields = ("pk", "name")
 
 class UpdatedEventsSerializer(serializers.Serializer):

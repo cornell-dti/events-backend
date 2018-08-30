@@ -11,8 +11,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
 from .models import Org, Event, Location, Tag
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagsSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
-from .forms import PostForm
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
+from .forms import OrgForm, TagForm
 
 import dateutil.parser
 
@@ -79,9 +79,9 @@ def allTags(request):
 def tagDetail(tag_id, all=False):
     tags = Tag.objects.all()
     if all:
-        serializer = TagsSerializer(tags, many=True)
+        serializer = TagSerializer(tags, many=True)
     else:
-        serialzer = TagsSerializer(tags.filter(pk = tag_id), many=False)
+        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
 
