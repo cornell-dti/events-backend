@@ -59,7 +59,7 @@ class Attendance(models.Model):
 
 class Media(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
-    file = models.FileField(upload_to="all_images", blank = False)
+    file = models.FileField(upload_to="cu_events_images", blank = False)
     uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
 
 class Event_Media(models.Model):
