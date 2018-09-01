@@ -90,7 +90,7 @@ def tagDetail(tag_id, all=False):
     return serializer
 
 def imageDetail(request, img_id):
-    media = media.objects.filter(pk = img_id)[0].file.name 
+    media = Media.objects.filter(pk = img_id)[0].file.name 
     name, extension = os.path.splitext(media)
     s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
     s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
