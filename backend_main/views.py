@@ -80,9 +80,9 @@ def singleTag(request, tag_id):
     return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK,safe=False)
 
 def allTags(request):
-    return JsonResponse(tagDetail(tag_id, True).data,status=status.HTTP_200_OK,safe=False)
+    return JsonResponse(tagDetail(all=True).data,status=status.HTTP_200_OK,safe=False)
 
-def tagDetail(tag_id, all=False):
+def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()
     if all:
         serializer = TagsSerializer(tags, many=True)
