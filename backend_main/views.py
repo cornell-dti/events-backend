@@ -16,7 +16,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
 from .models import Org, Event, Location, Tag, Media
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagsSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
 
 import os
 
