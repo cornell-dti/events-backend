@@ -11,9 +11,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.utils import timezone
+from django.conf import settings
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
+from rest_framework.response import Response
 
 from .models import Org, Event, Location, Tag, Media
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
