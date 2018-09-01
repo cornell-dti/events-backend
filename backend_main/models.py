@@ -9,7 +9,6 @@ MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
 UPLOAD_USER_IMAGE = None
 
-# Create your models here.
 class Event(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
@@ -57,3 +56,16 @@ class Attendance(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     num_interested = models.IntegerField()
     num_going = models.IntegerField()
+
+class Media(models.Model):
+    name = models.CharField(max_length = MAX_NAME_LENGTH)
+    file = models.FileField(upload_to="all_images", blank = False)
+    uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
+
+class Event_Media(models.Model):
+    event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
+    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+
+class Org_Media(models.Model):
+    org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
+    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
