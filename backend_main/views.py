@@ -85,9 +85,9 @@ def allTags(request):
 def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()
     if all:
-        serializer = TagsSerializer(tags, many=True)
+        serializer = TagSerializer(tags, many=True)
     else:
-        serialzer = TagsSerializer(tags.filter(pk = tag_id), many=False)
+        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
 
