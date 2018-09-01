@@ -4,6 +4,8 @@
 
 from rest_framework import serializers
 from .models import Org, Event, Location, Tag, Event_Tags
+from django.contrib.auth.models import User
+
 
 class EventSerializer(serializers.ModelSerializer):
     event_tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
@@ -41,3 +43,11 @@ class UpdatedOrgSerializer(serializers.Serializer):
 	updated = serializers.JSONField() #pass in serialized events
 	deleted = serializers.ListField()
 	timestamp = serializers.DateTimeField()
+
+class UserSerializer(serializers.ModelSerializer):
+	org = serializers.PrimaryKeyRelatedField(many=True, queryset=Org.objects.all())
+	owner = serializers.ReadOnlyField(source='owner.username')
+
+	class Meta:
+		model = User
+		fields = ('id', 'username', 'org', 'owner')
