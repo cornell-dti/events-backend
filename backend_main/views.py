@@ -3,7 +3,8 @@
 # 21st June 2018
 
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.utils import timezone
 
@@ -12,7 +13,7 @@ from rest_framework import status
 
 from .models import Org, Event, Location, Tag
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
-from .forms import OrgForm, TagForm
+from .forms import OrgForm, TagForm, EventForm, LocationForm
 
 import dateutil.parser
 
@@ -85,16 +86,32 @@ def tagDetail(tag_id, all=False):
 
     return serializer
 
+def post_detail_org(request, pk):
+    post = get_object_or_404(Org, pk=pk)
+    return render(request, 'post_detail_org.html', {'post': post})
+
+def post_detail_tag(request, pk):
+    post = get_object_or_404(Tag, pk=pk)
+    return render(request, 'post_detail_tag.html', {'post': post})
+
+def post_detail_event(request, pk):
+    post = get_object_or_404(Event, pk=pk)
+    return render(request, 'post_detail_event.html', {'post': post})
+
+def post_detail_location(request, pk):
+    post = get_object_or_404(Location, pk=pk)
+    return render(request, 'post_detail_location.html', {'post': post})
+
 def post_org(request):
     if request.method == "POST":
         form = OrgForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail_org', pk=post.pk)
     else:
         form = OrgForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
+    return render(request, 'post_edit.html', {'form': form})
 
 def post_tag(request):
     if request.method == "POST":
@@ -102,22 +119,44 @@ def post_tag(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail_tag', pk=post.pk)
     else:
         form = TagForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
+    return render(request, 'post_edit.html', {'form': form})
 
-def post_org_edit (request, pk):
-    post = get_object_or_404(Post, pk=pk)
+def post_event(request):
+    if request.method == "POST":
+        form = EventForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_event', pk=post.pk)
+    else:
+        form = EventForm()
+    return render(request, 'post_edit.html', {'form': form})
+
+def post_location(request):
+    if request.method == "POST":
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_location', pk=post.pk)
+    else:
+        form = LocationForm()
+    return render(request, 'post_edit.html', {'form': form})
+
+def post_edit_org(request, pk):
+    post = get_object_or_404(Org, pk=pk)
     if request.method == "POST":
         form = OrgForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail_org', pk=post.pk)
     else:
         form = OrgForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+    return render(request, 'post_edit.html', {'form': form})
 
 # def post_event_edit(request, pk):
 #     post = get_object_or_404(Post, pk=pk)
