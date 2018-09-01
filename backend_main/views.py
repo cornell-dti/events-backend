@@ -16,14 +16,10 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 
 from .models import Org, Event, Location, Tag
-<<<<<<< HEAD
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer
-from .forms import OrgForm, TagForm
 from .permissions import IsOwnerOrReadOnly
-=======
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
 from .forms import OrgForm, TagForm, EventForm, LocationForm
->>>>>>> add-forms
+
 
 import dateutil.parser
 
