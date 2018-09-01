@@ -2,6 +2,11 @@
 # Jessica Zhao, Adit Gupta, Arnav Ghosh
 # 21st June 2018
 
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+
+import dateutil.parser
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
@@ -10,11 +15,10 @@ from django.utils import timezone
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
-from .models import Org, Event, Location, Tag
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
-from .forms import OrgForm, TagForm
+from .models import Org, Event, Location, Tag, Media
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagsSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
 
-import dateutil.parser
+import os
 
 def eventDetail(request,event_id):
     event_set = Event.objects.get(pk=event_id)
@@ -79,54 +83,18 @@ def allTags(request):
 def tagDetail(tag_id, all=False):
     tags = Tag.objects.all()
     if all:
-        serializer = TagSerializer(tags, many=True)
+        serializer = TagsSerializer(tags, many=True)
     else:
-        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
+        serialzer = TagsSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
 
-def post_org(request):
-    if request.method == "POST":
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = OrgForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
-
-def post_tag(request):
-    if request.method == "POST":
-        form = TagForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = TagForm()
-    return render(request, 'blog/post_edit.html', {'form': form})
-
-def post_org_edit (request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = OrgForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = OrgForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
-
-# def post_event_edit(request, pk):
-#     post = get_object_or_404(Post, pk=pk)
-#     if request.method == "POST":
-#         form = PostForm(request.POST, instance=post)
-#         if form.is_valid():
-#             post = form.save(commit=False)
-#             post.save()
-#             return redirect('post_detail', pk=post.pk)
-#     else:
-#         form = PostForm(instance=post)
-#     return render(request, 'blog/post_edit.html', {'form': form})
+def imageDetail(request, img_id):
+    media = media.objects.filter(pk = img_id)[0].file.name 
+    name, extension = os.path.splitext(media)
+    s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
+    s3key = s3bucket.get_key(media)
+    response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
+    response['Content-Disposition'] = 'inline; filename=' + media
+    return response

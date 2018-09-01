@@ -18,8 +18,10 @@ urlpatterns = [
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.locationDetail, name='Location Details'),
 	url(r'^tag/(?P<tag_id>[0-9]+)/$', views.singleTag, name='Single Tag Details'),
 	url(r'^tag/all/$', views.allTags, name='Single Tag Details'),
+	url(r'^media/(?P<img_id>[0-9]+)/$', views.imageDetail, name='Media Detail'),
 	url(r'^feed/events/timestamp=(?P<in_timestamp>{0})&start=(?P<start_time>{0})&end=(?P<end_time>{0})/$'.format(dateRegex), 
 		views.changesInEvents, 
 		name='Updated Event Feed'),
 	url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.changesInOrgs, name='Updated Organizer Feed')
+
 ]
