@@ -17,7 +17,7 @@ class Event(models.Model):
     end_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    num_attendees = models.IntegerField()
+    num_attendees = models.IntegerField(default = 0)
     is_public = models.BooleanField()
     organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
@@ -28,7 +28,7 @@ class Tag(models.Model):
 
 class Event_Tags(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
-    tags_id = models.ForeignKey('Tags',on_delete=models.CASCADE)
+    tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)

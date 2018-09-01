@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="post">
+        {% if post.name %}
+            <div class="date">
+                {{ post.name }}
+            </div>
+        {% endif %}
+        <h1>{{ post.id }}</h1>
+    </div>
+{% endblock %}
