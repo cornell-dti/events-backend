@@ -115,12 +115,16 @@ def createToken(request, mobile_id):
     else:
         #validate firebase ID
         try:
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
         except:
-            return HttpResponseBadRequest("Invalid Mobile Token ID")
+            return HttpResponseBadRequest(idinfo)
 
         #generate token
-        token = Token.objects.create(user=instance)
-        return Response({'token': token.key}, status=HTTP_200_OK)
+        user = User.objects.create_user(username=mobile_id,
+                                        password='')
+        user.set_unusable_password()
+        user.save()
+        token = Token.objects.create(user=user)
+        return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
 
