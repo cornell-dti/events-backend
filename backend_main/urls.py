@@ -23,6 +23,6 @@ urlpatterns = [
 		views.changesInEvents, 
 		name='Updated Event Feed'),
 	url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.changesInOrgs, name='Updated Organizer Feed'),
-	url(r'^app/generate_token/(?P<mobile_id>.*)$', views.createToken, name='Create Mobile Token'),
+	url(r'^generate_token/(?P<mobile_id>.*)$', views.createToken, name='Create Mobile Token'),
 
 ]
