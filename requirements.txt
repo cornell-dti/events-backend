@@ -12,3 +12,4 @@ django-storages==1.5.2
 unicodecsv==0.14.1
 python-dateutil==2.6.1
 google-auth==1.5.1
+requests==2.18.4
