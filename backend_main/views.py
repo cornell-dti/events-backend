@@ -7,15 +7,21 @@ from boto.s3.key import Key
 
 import dateutil.parser
 
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.template import loader
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth.models import User
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+from rest_framework.decorators import permission_classes
 from rest_framework.renderers import JSONRenderer
-from rest_framework import status
+from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 from .models import Org, Event, Location, Tag, Media
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
@@ -100,3 +106,21 @@ def imageDetail(request, img_id):
     response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
     response['Content-Disposition'] = 'inline; filename=' + media
     return response
+
+@permission_classes((permissions.AllowAny, ))
+def createToken(request, mobile_id):
+    userSet = User.objects.filter(username=mobile_id)
+    if userSet.exists():
+            return HttpResponseBadRequest("Token Already Assigned to User")
+    else:
+        #validate firebase ID
+        try:
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+        except:
+            return HttpResponseBadRequest("Invalid Mobile Token ID")
+
+        #generate token
+        token = Token.objects.create(user=instance)
+        return Response({'token': token.key}, status=HTTP_200_OK)
+
+
