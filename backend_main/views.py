@@ -9,6 +9,8 @@ from django.template import loader
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+
+from rest_framework.decorators import permission_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from rest_framework import generics
@@ -17,7 +19,7 @@ from rest_framework import permissions
 
 from .models import Org, Event, Location, Tag
 from .permissions import IsOwnerOrReadOnly
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer
 from .forms import OrgForm, TagForm, EventForm, LocationForm
 
 
@@ -108,16 +110,8 @@ def post_detail_location(request, pk):
     post = get_object_or_404(Location, pk=pk)
     return render(request, 'post_detail_location.html', {'post': post})
 
-def post_org(request):
-    if request.method == "POST":
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_org', pk=post.pk)
-    else:
-        form = OrgForm()
-    return render(request, 'post_edit.html', {'form': form})
+# @permission_classes((permissions.IsAuthenticated))
+
 
 def post_tag(request):
     if request.method == "POST":
@@ -189,5 +183,19 @@ class Authentication(APIView):
 
     def perform_create(self, serializer):
         serializer.save(owner = self.request.user)
+
+class OrgFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = OrgForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_org', pk=post.pk)
+        else:
+            form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
 
 
