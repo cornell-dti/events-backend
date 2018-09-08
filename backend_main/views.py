@@ -110,41 +110,20 @@ def post_detail_location(request, pk):
     post = get_object_or_404(Location, pk=pk)
     return render(request, 'post_detail_location.html', {'post': post})
 
-# @permission_classes((permissions.IsAuthenticated))
+
+# def post_tag(request):
+#     if request.method == "POST":
+#         form = TagForm(request.POST)
+#         if form.is_valid():
+#             post = form.save(commit=False)
+#             post.save()
+#             return redirect('post_detail_tag', pk=post.pk)
+#     else:
+#         form = TagForm()
+#     return render(request, 'post_edit.html', {'form': form})
 
 
-def post_tag(request):
-    if request.method == "POST":
-        form = TagForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_tag', pk=post.pk)
-    else:
-        form = TagForm()
-    return render(request, 'post_edit.html', {'form': form})
 
-def post_event(request):
-    if request.method == "POST":
-        form = EventForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_event', pk=post.pk)
-    else:
-        form = EventForm()
-    return render(request, 'post_edit.html', {'form': form})
-
-def post_location(request):
-    if request.method == "POST":
-        form = LocationForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_location', pk=post.pk)
-    else:
-        form = LocationForm()
-    return render(request, 'post_edit.html', {'form': form})
 
 def post_edit_org(request, pk):
     post = get_object_or_404(Org, pk=pk)
@@ -196,6 +175,48 @@ class OrgFormView(APIView):
                 return redirect('post_detail_org', pk=post.pk)
         else:
             form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class TagFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = TagForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_tag', pk=post.pk)
+        else:
+            form = TagForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class EventFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = EventForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_event', pk=post.pk)
+        else:
+            form = EventForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class LocationFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = LocationForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_location', pk=post.pk)
+        else:
+            form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
 
 
