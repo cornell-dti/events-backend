@@ -10,7 +10,7 @@ from . import views
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 
 urlpatterns = [
-	path('post/org/', views.post_org, name='post_org'),
+	path('post/org/', views.OrgFormView.as_view(), name='post_org'),
 	path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
 	path('post/org/<int:pk>/edit/', views.post_edit_org, name='post_edit_org'),
 
