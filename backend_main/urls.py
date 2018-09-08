@@ -14,12 +14,13 @@ urlpatterns = [
 	path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
 	path('post/org/<int:pk>/edit/', views.post_edit_org, name='post_edit_org'),
 
-	path('post/tag/', views.post_tag, name='post_tag'),
+	path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
 	path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
-	path('post/event/', views.post_event, name='post_event'),
+
+	path('post/event/', views.EventFormView.as_view(), name='post_event'),
 	path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
 
-	path('post/location/', views.post_location, name='post_location'),
+	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
 	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 
 
