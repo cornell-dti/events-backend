@@ -69,8 +69,6 @@ class Users(models.Model):
 class Attendance(models.Model):
     user_id = models.ForeignKey('Users', on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
-    num_interested = models.IntegerField()
-    num_going = models.IntegerField()
 
     def __str__(self):
         return self.num_going
