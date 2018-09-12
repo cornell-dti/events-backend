@@ -127,4 +127,15 @@ def createToken(request, mobile_id):
         token = Token.objects.create(user=user)
         return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
+@permission_classes((permissions.IsAuthenticated, ))
+def incrementAttendance(request):
+    event = Event.objects.filter(request.data["event"])[0]
+    attendingSet = Attendance.objects.filter(id=request.META.get("HTTP_AUTHORIZATION"), cor_event = event)
+    if not attendingSet.exists():
+        attendance = Attendance(id=request.META.get("HTTP_AUTHORIZATION"), cor_event = event)
+        attendance.save()
+        event.num_attendees += 1
+
+    return Response(status=status.HTTP_200_OK)
+
 

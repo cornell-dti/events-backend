@@ -27,6 +27,8 @@ SECRET_KEY = config('SECRET_KEY')
 
 GOOGLE_BACKEND_CLIENT_ID = config('GOOGLE_BACKEND_CLIENT_ID')
 
+CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
