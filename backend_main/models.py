@@ -1,14 +1,17 @@
+# models.py
+# Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
+# 17th Sept. 2018
+
+import datetime
 from django.db import models
 from django.utils import timezone
-import datetime
-from simple_history.models import HistoricalRecords
 from django.contrib.auth.models import User
+from simple_history.models import HistoricalRecords
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
 MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
-UPLOAD_USER_IMAGE = None
 MAX_TOKEN_LENGTH = 2056
 
 class Event(models.Model):
@@ -37,6 +40,9 @@ class Event_Tags(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "{0} - {1}".format(self.event_id, self.tags_id)
+
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
@@ -51,13 +57,16 @@ class Event_Org(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "{0} - {1}".format(self.org_id, self.event_id)
+
 class Location(models.Model):
     building = models.CharField(max_length = MAX_NAME_LENGTH)
     room = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 
     def __str__(self):
-        return self.room + " " + self.building
+        return "{0}, {1}".format(self.room, self.building)
 
 class UserID(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -69,7 +78,7 @@ class Attendance(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0}, {1}".format(self.user_id, self.event_id)
+        return "{0} - {1}".format(self.user_id, self.event_id)
 
 class Media(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
