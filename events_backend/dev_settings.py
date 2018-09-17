@@ -11,20 +11,20 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from .settings_secrets import HIDDEN_SECRET_KEY, HIDDEN_GOOGLE_BACKEND_CLIENT_ID
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '***REMOVED***'
+SECRET_KEY = HIDDEN_SECRET_KEY
 
 CSRF_COOKIE_SECURE = False
 
-GOOGLE_BACKEND_CLIENT_ID = '***REMOVED***'
+GOOGLE_BACKEND_CLIENT_ID = HIDDEN_GOOGLE_BACKEND_CLIENT_ID
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'events_backend.urls'

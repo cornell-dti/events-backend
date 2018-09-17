@@ -1,6 +1,6 @@
 # urls.py
-# Arnav Ghosh
-# 18th July 2018
+# Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
+# 17th Sept. 2018
 
 from django.conf.urls import url
 from django.urls import path
