@@ -109,11 +109,21 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     all_deleted_pks = list(set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
-def singleTag(request, tag_id):
-    return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK)
+class SingleTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
-def allTags(request):
-    return JsonResponse(tagDetail(all=True).data,status=status.HTTP_200_OK)
+    def get(self, request, tag_id, format=None):
+        return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK)
+
+class AllTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, format=None):
+        return JsonResponse(tagDetail(all=True).data,status=status.HTTP_200_OK)
 
 def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()
@@ -124,42 +134,50 @@ def tagDetail(tag_id=0, all=False):
 
     return serializer
 
-def imageDetail(request, img_id):
-    media = Media.objects.filter(pk = img_id)[0].file.name
-    name, extension = os.path.splitext(media)
-    s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-    s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
-    s3key = s3bucket.get_key(media)
-    response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
-    response['Content-Disposition'] = 'inline; filename=' + media
-    return response
+class ImageDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, img_id, format=None):
+        media = Media.objects.filter(pk = img_id)[0].file.name
+        name, extension = os.path.splitext(media)
+        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
+        s3key = s3bucket.get_key(media)
+        response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
+        response['Content-Disposition'] = 'inline; filename=' + media
+        return response
 
 #TODO: Different table for firebaseIDs, better practices?
-@permission_classes((permissions.AllowAny, ))
-def createToken(request, mobile_id):
-    userIDSet = UserID.objects.filter(token=mobile_id)
-    if userIDSet.exists():
-            return HttpResponseBadRequest("Token Already Assigned to User")
-    else:
-        #validate firebase ID
-        #try:
-        #    idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
-        #except:
-        #    return HttpResponseBadRequest(idinfo)
+class ObtainToken(APIView):
+    #TODO: alter classes to token and admin?
+    permission_classes = (permissions.AllowAny, )
 
-        #generate username
-        username = generateUserName()
-        user = User.objects.create_user(username=username,
-                                        password='')
-        user.set_unusable_password()
-        user.save()
+    def get(self, request, mobile_id, format=None):
+        userIDSet = UserID.objects.filter(token=mobile_id)
+        if userIDSet.exists():
+                return HttpResponseBadRequest("Token Already Assigned to User")
+        else:
+            #validate firebase ID
+            #try:
+            #    idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+            #except:
+            #    return HttpResponseBadRequest(idinfo)
 
-        newUserID = UserID(user = user, token = mobile_id)
-        newUserID.save()
+            #generate username
+            username = generateUserName()
+            user = User.objects.create_user(username=username,
+                                            password='')
+            user.set_unusable_password()
+            user.save()
 
-        #generate token
-        token = Token.objects.create(user=user)
-        return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+            newUserID = UserID(user = user, token = mobile_id)
+            newUserID.save()
+
+            #generate token
+            token = Token.objects.create(user=user)
+            return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
 class IncrementAttendance(APIView):
     authentication_classes = (TokenAuthentication, )
