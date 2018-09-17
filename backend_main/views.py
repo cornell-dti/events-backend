@@ -25,7 +25,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 
 from .models import Org, Event, Location, Tag, Media, Attendance, UserID
-from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer
+from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
+                            TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer)
 
 import os
 
@@ -39,23 +40,38 @@ class EventDetail(APIView):
         serializer = EventSerializer(event_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-def locationDetail(request,location_id):
-    location_set = Location.objects.get(pk=location_id)
-    serializer = LocationSerializer(location_set,many=False)
-    return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+class LocationDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
-def orgDetail(request,org_id):
-    org_set = Org.objects.get(pk=org_id)
-    serializer = OrgSerializer(org_set,many=False)
-    return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+    def get(self, request, location_id, format=None):
+        location_set = Location.objects.get(pk=location_id)
+        serializer = LocationSerializer(location_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-def changesInOrgs(request, in_timestamp):
-    old_timestamp = dateutil.parser.parse(in_timestamp)
-    outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
-    #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
-    json_orgs = OrgSerializer(outdated_orgs, many = True).data
-    serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
-    return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+class OrgDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, org_id, format=None):
+        org_set = Org.objects.get(pk=org_id)
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class OrgFeed(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, in_timestamp, format=None):
+        old_timestamp = dateutil.parser.parse(in_timestamp)
+        outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
+        #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+        json_orgs = OrgSerializer(outdated_orgs, many = True).data
+        serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
     org_updates = Org.history.filter(history_date__gte = in_timestamp)
@@ -68,14 +84,19 @@ def outdatedOrgs(in_timestamp):
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
-def changesInEvents(request, in_timestamp, start_time, end_time):
-    old_timestamp = dateutil.parser.parse(in_timestamp)
-    start_time = dateutil.parser.parse(start_time)
-    end_time = dateutil.parser.parse(end_time)
-    outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-    json_events = EventSerializer(outdated_events, many = True).data
-    serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
-    return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+class EventFeed(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, in_timestamp, start_time, end_time, format=None):
+        old_timestamp = dateutil.parser.parse(in_timestamp)
+        start_time = dateutil.parser.parse(start_time)
+        end_time = dateutil.parser.parse(end_time)
+        outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
+        json_events = EventSerializer(outdated_events, many = True).data
+        serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedEvents(in_timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = in_timestamp)

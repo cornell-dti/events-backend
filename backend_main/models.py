@@ -64,15 +64,6 @@ class UserID(models.Model):
     token = models.CharField(max_length = MAX_TOKEN_LENGTH)
     #TODO: can a token be stored as a string
 
-# class Users(models.Model):
-#     name = models.CharField(max_length = MAX_NAME_LENGTH)
-#     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
-#     date_added = models.DateField(auto_now_add = True)
-#     url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
-
-#     def __str__(self):
-#         return self.name
-
 class Attendance(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
