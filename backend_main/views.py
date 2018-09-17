@@ -1,27 +1,27 @@
 # views.py
-# Jessica Zhao, Adit Gupta, Arnav Ghosh
-# 21st June 2018
+# Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
+# 17th Sept. 2018
 
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 import dateutil.parser
 
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils import timezone
-from django.conf import settings
-from django.contrib.auth.models import User
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from rest_framework import permissions, status
+from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 
 from .models import Org, Event, Location, Tag, Media, Attendance, UserID
