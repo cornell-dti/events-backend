@@ -2,12 +2,14 @@ from django.db import models
 from django.utils import timezone
 import datetime
 from simple_history.models import HistoricalRecords
+from django.contrib.auth.models import User
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
 MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
 UPLOAD_USER_IMAGE = None
+MAX_TOKEN_LENGTH = 2056
 
 class Event(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
@@ -57,21 +59,26 @@ class Location(models.Model):
     def __str__(self):
         return self.room + " " + self.building
 
-class Users(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
-    date_added = models.DateField(auto_now_add = True)
-    url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
+class UserID(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length = MAX_TOKEN_LENGTH)
+    #TODO: can a token be stored as a string
 
-    def __str__(self):
-        return self.name
+# class Users(models.Model):
+#     name = models.CharField(max_length = MAX_NAME_LENGTH)
+#     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
+#     date_added = models.DateField(auto_now_add = True)
+#     url = models.ImageField(upload_to = UPLOAD_USER_IMAGE)
+
+#     def __str__(self):
+#         return self.name
 
 class Attendance(models.Model):
-    user_id = models.ForeignKey('Users', on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.num_going
+        return "{0}, {1}".format(self.user_id, self.event_id)
 
 class Media(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
