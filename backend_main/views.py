@@ -31,7 +31,7 @@ import os
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
     def get(self, request, event_id, format=None):
