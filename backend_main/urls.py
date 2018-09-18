@@ -3,16 +3,26 @@
 # 17th Sept. 2018
 
 from django.conf.urls import url
+from django.conf.urls import include
 from django.urls import path
 from . import views
 
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 
 urlpatterns = [
-	#path('post/org', views.post_org, name='post_org'),
-	#path('post/tag', views.post_tag, name='post_tag'),
-	#path('post/org/<int:pk>/edit/', views.post_org_edit, name='post_edit'),
-	#path('post/event/<int:pk>/edit/', views.post_event_edit, name='post_edit'),
+	path('post/org/', views.OrgFormView.as_view(), name='post_org'),
+	path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
+	path('post/org/<int:pk>/edit/', views.post_edit_org, name='post_edit_org'),
+
+	path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
+	path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
+
+	path('post/event/', views.EventFormView.as_view(), name='post_event'),
+	path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
+
+	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
+	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
+
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.LocationDetail.as_view(), name='Location Details'),
@@ -24,6 +34,11 @@ urlpatterns = [
 		name='Updated Event Feed'),
 	url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.OrgFeed.as_view(), name='Updated Organizer Feed'),
 	url(r'^generate_token/(?P<mobile_id>.*)/$', views.ObtainToken.as_view(), name='Create Mobile Token'),
-	url(r'^attendance/$', views.IncrementAttendance.as_view(), name="Update Attendance")
+	url(r'^attendance/$', views.IncrementAttendance.as_view(), name="Update Attendance"),
+
+	url(r'^users/$', views.UserList.as_view()),
+	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
+	url(r'^api-auth/', include('rest_framework.urls')),
 
 ]
+
