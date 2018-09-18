@@ -3,13 +3,10 @@
 # 21st June 2018
 
 from rest_framework import serializers
-<<<<<<< HEAD
+
 from .models import Org, Event, Location, Tag, Event_Tags, Event_Media
-=======
-from .models import Org, Event, Location, Tag, Event_Tags
 from django.contrib.auth.models import User
 
->>>>>>> authentication
 
 class EventSerializer(serializers.ModelSerializer):
     event_tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
