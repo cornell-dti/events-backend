@@ -58,7 +58,7 @@ class AllLocationDetail(APIView):
     def get(self, request, format=None):
         location_set = Location.objects.all()
         serializer = LocationSerializer(location_set,many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
 class OrgDetail(APIView):
     #TODO: alter classes to token and admin?
