@@ -273,15 +273,21 @@ class OrgFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        if request.method == "POST":
-            form = OrgForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.save()
-                return redirect('post_detail_org', pk=post.pk)
-        else:
-            form = OrgForm()
+        form = OrgForm()
         return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = OrgForm(request.POST)
+        if form.is_valid():
+            o = Org()
+            o.name = form.cleaned_data['name']
+            o.description = form.cleaned_data['description']
+            o.contact = form.cleaned_data['contact']
+            o.verified = form.cleaned_data['verified']
+            o.owner = request.user
+
+            o.save()
+            return redirect('post_detail_org', pk=o.pk)
 
 class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
