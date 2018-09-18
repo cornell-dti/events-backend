@@ -110,21 +110,6 @@ def post_detail_location(request, pk):
     post = get_object_or_404(Location, pk=pk)
     return render(request, 'post_detail_location.html', {'post': post})
 
-
-# def post_tag(request):
-#     if request.method == "POST":
-#         form = TagForm(request.POST)
-#         if form.is_valid():
-#             post = form.save(commit=False)
-#             post.save()
-#             return redirect('post_detail_tag', pk=post.pk)
-#     else:
-#         form = TagForm()
-#     return render(request, 'post_edit.html', {'form': form})
-
-
-
-
 def post_edit_org(request, pk):
     post = get_object_or_404(Org, pk=pk)
     if request.method == "POST":
