@@ -40,7 +40,7 @@ class EventDetail(APIView):
         serializer = EventSerializer(event_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-class LocationDetail(APIView):
+class SingleLocationDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
@@ -48,6 +48,16 @@ class LocationDetail(APIView):
     def get(self, request, location_id, format=None):
         location_set = Location.objects.get(pk=location_id)
         serializer = LocationSerializer(location_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class AllLocationDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+
+    def get(self, request, format=None):
+        location_set = Location.objects.all()
+        serializer = LocationSerializer(location_set,many=True)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class OrgDetail(APIView):
@@ -115,7 +125,9 @@ class SingleTagDetail(APIView):
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
     def get(self, request, tag_id, format=None):
-        return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK)
+        tag = Tag.objects.filter(pk = tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class AllTagDetail(APIView):
     #TODO: alter classes to token and admin?
@@ -123,16 +135,9 @@ class AllTagDetail(APIView):
     permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
 
     def get(self, request, format=None):
-        return JsonResponse(tagDetail(all=True).data,status=status.HTTP_200_OK)
-
-def tagDetail(tag_id=0, all=False):
-    tags = Tag.objects.all()
-    if all:
+        tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-    else:
-        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
-
-    return serializer
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
@@ -180,7 +185,7 @@ class ObtainToken(APIView):
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
 class IncrementAttendance(APIView):
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
