@@ -7,6 +7,9 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters.html import HtmlFormatter
+from pygments import highlight
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
@@ -21,7 +24,7 @@ class Event(models.Model):
     end_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    num_attendees = models.IntegerField()
+    num_attendees = models.IntegerField(default = 0)
     is_public = models.BooleanField()
     organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
@@ -43,12 +46,27 @@ class Event_Tags(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
+
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
     verified = models.BooleanField()
     history = HistoricalRecords()
+    owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
+    # highlighted = models.TextField(default='test')
+
+    # def save(self, *args, **kwargs):
+    #     '''
+    #         Want to use pygments library to make highlighted HTML representation of code
+    #     '''
+    #     lexer = get_lexer_by_name(self.language)
+    #     linenos = 'table' if self.linenos else False
+    #     options = {'title': self.title} if self.title else {}
+    #     formatter = HtmlFormatter(style=self.style, linenos=linenos, full=True, **options)
+    #     self.highlighted = highlight(self.code, lexer, formatter)
+    #     super(Org, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name

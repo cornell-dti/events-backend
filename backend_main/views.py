@@ -2,6 +2,7 @@
 # Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
 # 17th Sept. 2018
 
+
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
@@ -10,23 +11,30 @@ import dateutil.parser
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.shortcuts import render
 from django.utils import timezone
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
+from django.template import loader
+
+
+from rest_framework.renderers import JSONRenderer
+
+from .permissions import IsOwnerOrReadOnly
+from .forms import OrgForm, TagForm, EventForm, LocationForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from rest_framework import permissions, status
+from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import permission_classes, authentication_classes
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Org, Event, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
-                            TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer)
+                            TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 
 import os
 
@@ -206,3 +214,114 @@ def extractToken(header):
 def generateUserName():
     #Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
     return "user{0}".format(User.objects.latest('pk').pk + 1)
+
+def post_detail_org(request, pk):
+    post = get_object_or_404(Org, pk=pk)
+    return render(request, 'post_detail_org.html', {'post': post})
+
+def post_detail_tag(request, pk):
+    post = get_object_or_404(Tag, pk=pk)
+    return render(request, 'post_detail_tag.html', {'post': post})
+
+def post_detail_event(request, pk):
+    post = get_object_or_404(Event, pk=pk)
+    return render(request, 'post_detail_event.html', {'post': post})
+
+def post_detail_location(request, pk):
+    post = get_object_or_404(Location, pk=pk)
+    return render(request, 'post_detail_location.html', {'post': post})
+
+def post_edit_org(request, pk):
+    post = get_object_or_404(Org, pk=pk)
+    if request.method == "POST":
+        form = OrgForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_org', pk=post.pk)
+    else:
+        form = OrgForm(instance=post)
+    return render(request, 'post_edit.html', {'form': form})
+
+def post_event_edit(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = PostForm(instance=post)
+    return render(request, 'blog/post_edit.html', {'form': form})
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class Authentication(APIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    def perform_create(self, serializer):
+        serializer.save(owner = self.request.user)
+
+class OrgFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = OrgForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_org', pk=post.pk)
+        else:
+            form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class TagFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = TagForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_tag', pk=post.pk)
+        else:
+            form = TagForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class EventFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = EventForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_event', pk=post.pk)
+        else:
+            form = EventForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+class LocationFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        if request.method == "POST":
+            form = LocationForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_location', pk=post.pk)
+        else:
+            form = LocationForm()
+        return render(request, 'post_edit.html', {'form': form})
+
