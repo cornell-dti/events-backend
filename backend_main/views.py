@@ -335,4 +335,3 @@ class LocationFormView(APIView):
         else:
             form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
-
