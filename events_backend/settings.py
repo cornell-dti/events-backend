@@ -26,6 +26,8 @@ GOOGLE_BACKEND_CLIENT_ID = config('GOOGLE_BACKEND_CLIENT_ID')
 
 CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
 
+X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework.authtoken',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 MIDDLEWARE = [
