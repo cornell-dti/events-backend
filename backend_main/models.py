@@ -54,19 +54,6 @@ class Org(models.Model):
     verified = models.BooleanField()
     history = HistoricalRecords()
     owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
-    # highlighted = models.TextField(default='test')
-
-    # def save(self, *args, **kwargs):
-    #     '''
-    #         Want to use pygments library to make highlighted HTML representation of code
-    #     '''
-    #     lexer = get_lexer_by_name(self.language)
-    #     linenos = 'table' if self.linenos else False
-    #     options = {'title': self.title} if self.title else {}
-    #     formatter = HtmlFormatter(style=self.style, linenos=linenos, full=True, **options)
-    #     self.highlighted = highlight(self.code, lexer, formatter)
-    #     super(Org, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return self.name

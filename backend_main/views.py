@@ -313,7 +313,7 @@ class EventFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        form = EventForm()
+        form = EventForm(request.user)
         return render(request, 'post_edit.html', {'form': form})
 
     def post(self, request):
