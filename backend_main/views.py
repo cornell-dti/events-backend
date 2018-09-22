@@ -262,11 +262,11 @@ def post_event_edit(request, pk):
     return render(request, 'blog/post_edit.html', {'form': form})
 
 class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
 
 class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
 
 class Authentication(APIView):
