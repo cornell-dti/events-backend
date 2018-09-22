@@ -289,7 +289,6 @@ class OrgFormView(APIView):
             o.name = form.cleaned_data['name']
             o.description = form.cleaned_data['description']
             o.contact = form.cleaned_data['contact']
-            o.verified = form.cleaned_data['verified']
             o.owner = request.user
 
             o.save()
