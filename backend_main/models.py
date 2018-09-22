@@ -51,7 +51,7 @@ class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
-    verified = models.BooleanField()
+    verified = models.BooleanField(default = False)
     history = HistoricalRecords()
     owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
 
