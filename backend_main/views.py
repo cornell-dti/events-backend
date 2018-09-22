@@ -299,43 +299,43 @@ class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        if request.method == "POST":
+        form = TagForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
             form = TagForm(request.POST)
             if form.is_valid():
                 post = form.save(commit=False)
                 post.save()
                 return redirect('post_detail_tag', pk=post.pk)
-        else:
-            form = TagForm()
-        return render(request, 'post_edit.html', {'form': form})
 
 class EventFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        if request.method == "POST":
-            form = EventForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.save()
-                return redirect('post_detail_event', pk=post.pk)
-        else:
-            form = EventForm()
+        form = EventForm()
         return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = EventForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_event', pk=post.pk)
 
 class LocationFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        if request.method == "POST":
-            form = LocationForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.save()
-                return redirect('post_detail_location', pk=post.pk)
-        else:
-            form = LocationForm()
+        form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
+    
+    def post(self, request):
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_location', pk=post.pk)
 
 #=============================================
 
