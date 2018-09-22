@@ -329,7 +329,7 @@ class LocationFormView(APIView):
     def get(self, request):
         form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
-    
+
     def post(self, request):
         form = LocationForm(request.POST)
         if form.is_valid():
