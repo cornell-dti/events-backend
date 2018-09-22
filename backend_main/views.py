@@ -337,7 +337,7 @@ class LocationFormView(APIView):
             form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
 
-=============================================
+#=============================================
 
 def signup(request):
     if request.method == 'POST':
