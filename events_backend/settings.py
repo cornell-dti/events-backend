@@ -30,6 +30,8 @@ X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
 
 CSP_FRAME_SRC = (config('CSP_FRAME_SRC'),)
 
+CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
