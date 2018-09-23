@@ -28,6 +28,8 @@ CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
 
 X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
 
+CSP_FRAME_SRC = (config('CSP_FRAME_SRC'),)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -65,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'events_backend.urls'
