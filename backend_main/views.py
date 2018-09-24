@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework.renderers import JSONRenderer
 
@@ -337,7 +338,7 @@ class LocationFormView(APIView):
             return redirect('post_detail_location', pk=post.pk)
 
 #=============================================
-
+@ensure_csrf_cookie
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
