@@ -32,6 +32,7 @@ CSP_FRAME_SRC = (config('CSP_FRAME_SRC'),)
 
 CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
 CSRF_COOKIE_DOMAIN = config('CSRF_TRUSTED_ORIGINS')
+CSRF_USE_SESSIONS = config('CSRF_USE_SESSIONS')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
