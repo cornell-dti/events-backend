@@ -339,7 +339,7 @@ class LocationFormView(APIView):
             return redirect('post_detail_location', pk=post.pk)
 
 #=============================================
-@method_decorator(ensure_csrf_cookie) #@ensure_csrf_cookie
+@ensure_csrf_cookie
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
