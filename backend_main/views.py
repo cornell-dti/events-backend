@@ -18,6 +18,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 from rest_framework.renderers import JSONRenderer
 
