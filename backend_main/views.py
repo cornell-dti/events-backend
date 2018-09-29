@@ -2,7 +2,6 @@
 # Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
 # 17th Sept. 2018
 
-
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
@@ -17,7 +16,7 @@ from django.utils import timezone
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 
 from rest_framework.renderers import JSONRenderer
