@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="post">
+<<<<<<< HEAD
+      {% csrf_token %}
+=======
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+        {% if post.start_date %}
+            <div class="date">
+                {{ post.start_date }}
+            </div>
+        {% endif %}
+        <a class="btn btn-default" href="{% url 'post_edit_org' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        <h1>{{ post.name }}</h1>
+        <p>{{ post.description|linebreaksbr }}</p>
+    </div>
+<<<<<<< HEAD
+{% endblock %}
+=======
+{% endblock %}
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
