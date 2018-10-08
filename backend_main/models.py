@@ -24,8 +24,13 @@ class Event(models.Model):
     end_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
+<<<<<<< HEAD
+    num_attendees = models.IntegerField(default=0)
+    is_public = models.BooleanField(default=True)
+=======
     num_attendees = models.IntegerField(default = 0)
     is_public = models.BooleanField()
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
     organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
@@ -51,7 +56,11 @@ class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
+<<<<<<< HEAD
+    verified = models.BooleanField(default = False)
+=======
     verified = models.BooleanField()
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
     history = HistoricalRecords()
     owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
 

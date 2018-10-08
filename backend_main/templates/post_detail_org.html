@@ -2,6 +2,10 @@
 
 {% block content %}
     <div class="post">
+<<<<<<< HEAD
+      {% csrf_token %}
+=======
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
         {% if post.start_date %}
             <div class="date">
                 {{ post.start_date }}
@@ -11,4 +15,8 @@
         <h1>{{ post.name }}</h1>
         <p>{{ post.description|linebreaksbr }}</p>
     </div>
+<<<<<<< HEAD
 {% endblock %}
+=======
+{% endblock %}
+>>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
