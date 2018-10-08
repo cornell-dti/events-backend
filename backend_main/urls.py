@@ -5,6 +5,7 @@
 from django.conf.urls import url
 from django.conf.urls import include
 from django.urls import path
+from rest_framework.authtoken import views as authviews
 from . import views
 
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
@@ -38,7 +39,7 @@ urlpatterns = [
 
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
-	url(r'^api-auth/', include('rest_framework.urls')),
+	url(r'^api-auth/', authviews.obtain_auth_token),
 
 ]
 
