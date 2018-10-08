@@ -4,6 +4,7 @@
 
 from django.conf.urls import url
 from django.conf.urls import include
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.urls import path
 from rest_framework.authtoken import views as authviews
 from . import views
@@ -26,7 +27,8 @@ urlpatterns = [
 
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
-	url(r'^loc/(?P<location_id>[0-9]+)/$', views.LocationDetail.as_view(), name='Location Details'),
+	url(r'^loc/(?P<location_id>[0-9]+)/$', views.SingleLocationDetail.as_view(), name='Location Details'),
+	url(r'^loc/all/$', views.AllLocationDetail.as_view(), name='All Location Details'),
 	url(r'^tag/(?P<tag_id>[0-9]+)/$', views.SingleTagDetail.as_view(), name='Single Tag Details'),
 	url(r'^tag/all/$', views.AllTagDetail.as_view(), name='Single Tag Details'),
 	url(r'^media/(?P<img_id>[0-9]+)/$',  views.ImageDetail.as_view(), name='Media Detail'),
@@ -40,6 +42,7 @@ urlpatterns = [
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', authviews.obtain_auth_token),
+	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
 
 ]
 
