@@ -4,10 +4,8 @@
 
 from django.conf.urls import url
 from django.conf.urls import include
-<<<<<<< HEAD
 from django.views.decorators.csrf import ensure_csrf_cookie
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+
 from django.urls import path
 from . import views
 
@@ -29,12 +27,11 @@ urlpatterns = [
 
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
-<<<<<<< HEAD
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.SingleLocationDetail.as_view(), name='Location Details'),
 	url(r'^loc/all/$', views.AllLocationDetail.as_view(), name='All Location Details'),
-=======
-	url(r'^loc/(?P<location_id>[0-9]+)/$', views.LocationDetail.as_view(), name='Location Details'),
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+
+	# url(r'^loc/(?P<location_id>[0-9]+)/$', views.LocationDetail.as_view(), name='Location Details'),
+
 	url(r'^tag/(?P<tag_id>[0-9]+)/$', views.SingleTagDetail.as_view(), name='Single Tag Details'),
 	url(r'^tag/all/$', views.AllTagDetail.as_view(), name='Single Tag Details'),
 	url(r'^media/(?P<img_id>[0-9]+)/$',  views.ImageDetail.as_view(), name='Media Detail'),
@@ -48,12 +45,6 @@ urlpatterns = [
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', include('rest_framework.urls')),
-<<<<<<< HEAD
 	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
 
 ]
-=======
-
-]
-
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
