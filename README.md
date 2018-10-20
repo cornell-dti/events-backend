@@ -27,7 +27,7 @@ Run
 ```console
 pip install -r requirements.txt
 python manage.py makemigrations
-```.
+```
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
