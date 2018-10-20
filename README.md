@@ -22,7 +22,12 @@ You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, whi
 - Material-UI v.3.0.1.
 
 ### Setup
-Run `python manage.py makemigrations`.
+Run
+
+```console
+pip install -r requirements.txt
+python manage.py makemigrations
+```.
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
