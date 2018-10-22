@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {withStyles} from "@material-ui/core";
+import React, { Component } from 'react';
+import { withStyles } from "@material-ui/core";
 import Button from "@material-ui/core/Button/Button";
 import Icon from "@material-ui/core/Icon/Icon";
 import CreateEvent from "./components/CreateEvent";
@@ -18,41 +18,33 @@ const DEMO_EVENTS = [{
 	num_attendees: 39,
 	is_public: true,
 	organizer: 3,
-	event_tags: [1,2]
+	event_tags: [1, 2]
 }];
 
-class MyEvents extends Component
-{
-	constructor(props) {
-		super(props);
-		this.setState({createEvent: false});
-	}
-	formatTime(time)
-	{
+class MyEvents extends Component {
+	state = { createEvent: false };
+
+	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
 		const hour12 = hour % 12 === 0 ? 12 : hour % 12; //0 o'clock = 12AM
 		const am_pm = hour < 12 ? 'AM' : 'PM';
 		return `${hour12}:${minute} ${am_pm}`;
 	}
-	onCancelCreate()
-	{
-		this.setState({createEvent: false});
+	onCancelCreate() {
+		this.setState({ createEvent: false });
 	}
-	onPublishEvent()
-	{
-		this.setState({createEvent: false});
+	onPublishEvent() {
+		this.setState({ createEvent: false });
 
 	}
-	editEvent(event)
-	{
-		this.setState({createEvent: true});
+	editEvent(event) {
+		this.setState({ createEvent: true });
 	}
-	render()
-	{
-		const {classes} = this.props;
+	render() {
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
-				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({createEvent: true})}>
+				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true })}>
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
@@ -68,8 +60,8 @@ class MyEvents extends Component
 					))}
 				</GridList>
 				<CreateEvent open={this.state.createEvent}
-				             onCancel={this.onCancelCreate.bind(this)}
-				             onPublish={this.onPublishEvent.bind(this)} />
+					onCancel={this.onCancelCreate.bind(this)}
+					onPublish={this.onPublishEvent.bind(this)} />
 			</div>
 		);
 	}

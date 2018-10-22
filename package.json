@@ -45,8 +45,8 @@
     "whatwg-fetch": "2.0.3"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "test": "node scripts/test.js --env=jsdom",
+    "start": "node backend_main/static/scripts/start.js",
+    "test": "node backend_main/static/scripts/test.js --env=jsdom",
     "build": "webpack --config webpack.config.js --progress --colors --mode development",
     "watch": "webpack --config webpack.config.js --watch"
   },

@@ -1,31 +1,24 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from "@material-ui/core/Button/Button";
-import {withStyles} from "@material-ui/core";
+import { withStyles } from "@material-ui/core";
 import AvatarEditor from 'react-avatar-editor';
 import classNames from "classnames";
 
-class ImageUploader extends Component
-{
-	constructor(props) {
-		super(props);
-		this.setState({hasImage: false, image_file: null});
-	}
-	onFileChange(e)
-	{
+class ImageUploader extends Component {
+	state = { hasImage: false, image_file: null };
+
+	onFileChange(e) {
 		const image = e.target.files[0];
 		this.props.onImageChange(image);
-		this.setState({hasImage: true, image_file: image});
+		this.setState({ hasImage: true, image_file: image });
 
 	}
-	onUploadClick()
-	{
+	onUploadClick() {
 		document.getElementById("fileInput").click();
 	}
-	classForShape(shape, classes)
-	{
-		switch(shape)
-		{
+	classForShape(shape, classes) {
+		switch (shape) {
 			case "circle":
 				return classes.circle;
 			case "rectangle":
@@ -35,9 +28,8 @@ class ImageUploader extends Component
 				return null;
 		}
 	}
-	render()
-	{
-		const {classes} = this.props;
+	render() {
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
 				<div className={classes.hidden}>
@@ -46,10 +38,10 @@ class ImageUploader extends Component
 				<Button className={classes.button} onClick={this.onUploadClick}>
 					{this.state.hasImage ? "Change image" : "Upload image"}
 				</Button>
-                {this.state.hasImage
-                    ?
-                    <AvatarEditor image = {this.state.image_file} width={500} height={300} border = {0} />
-                    : null}
+				{this.state.hasImage
+					?
+					<AvatarEditor image={this.state.image_file} width={500} height={300} border={0} />
+					: null}
 			</div>
 		);
 	}
