@@ -45,10 +45,10 @@
     "whatwg-fetch": "2.0.3"
   },
   "scripts": {
-    "start": "node backend_main/static/scripts/start.js",
-    "test": "node backend_main/static/scripts/test.js --env=jsdom",
-    "build": "webpack --config webpack.config.js --progress --colors --mode development",
-    "watch": "webpack --config webpack.config.js --watch"
+    "start": "npm run frontend & npm run copy-settings && python manage.py runserver",
+    "start3": "npm run frontend & npm run copy-settings && python3 manage.py runserver",
+    "frontend": "webpack --config webpack.config.js --watch",
+    "copy-settings": "cp -f events_backend/dev_settings.py events_backend/settings.py"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

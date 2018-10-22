@@ -36,10 +36,8 @@ or
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
-1. Copy contents from `events_backend/dev_settings.py` into `events_backend/settings.py`. Make sure not to commit this change.
-2. Run `npm i` in the project directory to install any additional front-end frameworks.
-3. Run `npm run watch` so any front-end changes are immediately reflected online (hot-reloaded). Keep this terminal window open.
-4. Run `python manage.py runserver` in a separate terminal.
+1. Run `npm i` in the project directory to install any additional front-end frameworks.
+3. Run `npm run start` or `npm run start3`, depending on whether python3 is the default version or not. This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
 
 The front-end website will be located at `127.0.0.1:8000`.
 
