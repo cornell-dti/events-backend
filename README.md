@@ -22,18 +22,23 @@ You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, whi
 - Material-UI v.3.0.1.
 
 ### Setup
-Run
+Run (if typing `python` gives you version 3.x):
+`pip install -r requirements.txt`
 
-```console
-pip install -r requirements.txt
-python manage.py makemigrations
-```
+Otherwise, assuming you have python3 installed, run:
+`pip3 install -r requirements.txt`
+
+Run after copying settings (See [step 1](#everyday))
+`python manage.py makemigrations`
+
+or
+`python3 manage.py makemigrations`
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
 1. Copy contents from `events_backend/dev_settings.py` into `events_backend/settings.py`. Make sure not to commit this change.
 2. Run `npm i` in the project directory to install any additional front-end frameworks.
-3. Run `npm start watch` so any front-end changes are immediately reflected online (hot-reloaded). Keep this terminal window open.
+3. Run `npm run watch` so any front-end changes are immediately reflected online (hot-reloaded). Keep this terminal window open.
 4. Run `python manage.py runserver` in a separate terminal.
 
 The front-end website will be located at `127.0.0.1:8000`.
@@ -61,4 +66,4 @@ The front-end website will be located at `127.0.0.1:8000`.
 We are a part of the O-Week/Events team within **Cornell Design & Tech Initiative**. For more information, see our website [here](https://cornelldti.org/).
 <img src="https://raw.githubusercontent.com/cornell-dti/design/master/Branding/Wordmark/Dark%20Text/Transparent/Wordmark-Dark%20Text-Transparent%403x.png">
 
-_Last updated **10/20/2018**_.
+_Last updated **10/21/2018**_.
