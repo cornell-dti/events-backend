@@ -38,7 +38,7 @@ or
 Before you run anything, do this right after `git pull`:
 1. Copy contents from `events_backend/dev_settings.py` into `events_backend/settings.py`. Make sure not to commit this change.
 2. Run `npm i` in the project directory to install any additional front-end frameworks.
-3. Run `npm start watch` so any front-end changes are immediately reflected online (hot-reloaded). Keep this terminal window open.
+3. Run `npm run watch` so any front-end changes are immediately reflected online (hot-reloaded). Keep this terminal window open.
 4. Run `python manage.py runserver` in a separate terminal.
 
 The front-end website will be located at `127.0.0.1:8000`.
