@@ -1,35 +1,27 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CreatableSelect from "react-select/lib/Creatable";
 import Select from "react-select";
 import MenuItem from "@material-ui/core/MenuItem/MenuItem";
 import TextField from "@material-ui/core/TextField/TextField";
-import {withStyles} from "@material-ui/core";
+import { withStyles } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip/Chip";
 import Paper from "@material-ui/core/Paper/Paper";
 import Typography from "@material-ui/core/Typography/Typography";
 
-class Autocomplete extends Component
-{
-	constructor(props)
-	{
-		super(props);
-		this.setState({selected: null});
-	}
+class Autocomplete extends Component {
+	state = { selected: null };
 
-	onSelect(val)
-	{
-		this.setState({selected: val});
+	onSelect(val) {
+		this.setState({ selected: val });
 		this.props.onUpdate(val);
 	}
-	onChange(val)
-	{
+	onChange(val) {
 		if (this.props.onChange !== undefined)
 			this.props.onChange(val);
 	}
-	render()
-	{
-		const {classes} = this.props;
+	render() {
+		const { classes } = this.props;
 		const Field = this.props.canCreate ? CreatableSelect : Select;
 		return (
 			<Field
@@ -40,7 +32,7 @@ class Autocomplete extends Component
 				options={this.props.data}
 				textFieldProps={{
 					label: this.props.label,
-					InputLabelProps: {shrink: true}
+					InputLabelProps: { shrink: true }
 				}}
 				placeholder={this.props.placeholder}
 				components={components}
@@ -103,7 +95,7 @@ function Option(props) {
 			buttonRef={props.innerRef}
 			selected={props.isFocused}
 			component="div"
-			style={{fontWeight: props.isSelected ? 500 : 400}}
+			style={{ fontWeight: props.isSelected ? 500 : 400 }}
 			{...props.innerProps}>
 			{props.children}
 		</MenuItem>
@@ -200,4 +192,4 @@ const styles = (theme) => ({
 	}
 });
 
-export default withStyles(styles, {withTheme: true})(Autocomplete);
+export default withStyles(styles, { withTheme: true })(Autocomplete);

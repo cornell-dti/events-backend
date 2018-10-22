@@ -28,6 +28,7 @@ scripts/flow/*/.flowconfig
 .grunt
 _SpecRunner.html
 __benchmarks__
+__pycache__
 build/
 remote-repo/
 coverage/
@@ -45,3 +46,5 @@ chrome-user-data
 .vscode
 *.swp
 *.swo
+
+backend_main/static/bundles

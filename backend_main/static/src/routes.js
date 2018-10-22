@@ -6,11 +6,11 @@ import MyEvents from "./MyEvents";
 import Profile from "./Profile";
 
 export default {
-	profile: {route: "/profile", component: Profile},
-	myEvents: {route: "/myEvents", component: MyEvents},
+	profile: { route: "/app/profile", component: Profile },
+	myEvents: { route: "/app/myEvents", component: MyEvents },
 	//onboarding
-	createOrg: {route: "/createOrg", component: CreateOrg},
-	verifyCornellStatus: {route: "/verifyCornellStatus", component: VerifyCornellStatus},
-	verifyOrg: {route: "/verifyOrg", component: VerifyOrg},
-	verifyDone: {route: "/verifyDone", component: VerifyDone}
+	createOrg: { route: "/app/createOrg", component: CreateOrg },
+	verifyCornellStatus: { route: "/app/verifyCornellStatus", component: VerifyCornellStatus },
+	verifyOrg: { route: "/app/verifyOrg", component: VerifyOrg },
+	verifyDone: { route: "/app/verifyDone", component: VerifyDone }
 };

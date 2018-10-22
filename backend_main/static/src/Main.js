@@ -1,23 +1,20 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from "@material-ui/core/AppBar/AppBar";
 import Toolbar from "@material-ui/core/Toolbar/Toolbar";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
-import {withStyles} from "@material-ui/core";
-import {Route, withRouter} from "react-router-dom";
+import { withStyles } from "@material-ui/core";
+import { Route, withRouter } from "react-router-dom";
 import routes from './routes';
 import LinkColorless from "./components/LinkColorless";
 import Logo from "./components/Logo";
 import Landing from "./Landing";
 
-class Main extends Component
-{
-	getNavBar(classes)
-	{
-		switch (this.props.location.pathname)
-		{
-			case "/":
+class Main extends Component {
+	getNavBar(classes) {
+		switch (this.props.location.pathname) {
+			case "/app/":
 				return (
 					<React.Fragment>
 						<Typography variant={"title"} color={"inherit"}>
@@ -30,7 +27,7 @@ class Main extends Component
 						</LinkColorless>
 						<LinkColorless to={routes.createOrg.route}>
 							<Button variant={"outlined"} color={"primary"}
-							        className={classes.button}>
+								className={classes.button}>
 								Sign up
 							</Button>
 						</LinkColorless>
@@ -50,7 +47,7 @@ class Main extends Component
 								My Events
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={"/"}>
+						<LinkColorless to={"/app/"}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>
@@ -62,24 +59,23 @@ class Main extends Component
 		}
 	}
 
-	render()
-	{
-		const {classes} = this.props;
+	render() {
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
 				<AppBar color={"default"}>
 					<Toolbar>
-						<LinkColorless to={"/"} style={{flexGrow: 1}}>
+						<LinkColorless to={"/app/"} style={{ flexGrow: 1 }}>
 							<Logo fontSize={40} />
 						</LinkColorless>
 						{this.getNavBar(classes)}
 					</Toolbar>
 				</AppBar>
-				<div className={classes.appBarSpace}/>
-				{this.props.location.pathname === "/"
+				<div className={classes.appBarSpace} />
+				{this.props.location.pathname === "/app/"
 					? <Landing /> : null}
 				{Object.values(routes).map(obj => <Route key={obj.route} path={obj.route}
-				                                         component={obj.component}/>)}
+					component={obj.component} />)}
 			</div>
 		);
 	}

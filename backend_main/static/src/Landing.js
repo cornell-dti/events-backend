@@ -1,14 +1,12 @@
-import React, {Component} from 'react';
-import {withStyles} from "@material-ui/core";
+import React, { Component } from 'react';
+import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography/Typography";
 import Logo from "./components/Logo";
 
-class Landing extends Component
-{
+class Landing extends Component {
 	//TODO update download links
-	render()
-	{
-		const {classes} = this.props;
+	render() {
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
 				<div className={classes.textContainer}>
@@ -21,11 +19,11 @@ class Landing extends Component
 							<img src={"https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"} />
 						</a>
 						<a href={"/"} className={classes.button}>
-							<img src={"https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg"}/>
+							<img src={"https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg"} />
 						</a>
 					</div>
 				</div>
-				<img src={"./device.png"} className={classes.image} />
+				<img src={"/static/device.png"} className={classes.image} />
 			</div>
 		);
 	}
