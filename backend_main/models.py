@@ -69,11 +69,10 @@ class Event_Org(models.Model):
 
 class Location(models.Model):
     building = models.CharField(max_length = MAX_NAME_LENGTH)
-    room = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 
     def __str__(self):
-        return "{0}, {1}".format(self.room, self.building)
+        return self.building
 
 class UserID(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
