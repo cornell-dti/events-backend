@@ -48,3 +48,4 @@ chrome-user-data
 *.swo
 
 backend_main/static/bundles
+webpack-stats.json
