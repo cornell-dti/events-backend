@@ -22,22 +22,37 @@ You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, whi
 - Material-UI v.3.0.1.
 
 ### Setup
-Run (if typing `python` gives you version 3.x):
-`pip install -r requirements.txt`
+#### Installing requirements
+If typing `python` gives you version 3.x):
+- `pip install -r requirements.txt`
 
-Otherwise, assuming you have python3 installed, run:
-`pip3 install -r requirements.txt`
+Otherwise:
+- `pip3 install -r requirements.txt`
 
-Run after copying settings (See [step 1](#everyday))
-`python manage.py makemigrations`
+#### Copy settings from dev-settings
+Linux/Mac:
+- `npm run copy-settings`
 
-or
-`python3 manage.py makemigrations`
+Windows:
+- `npm run copy-settings-windows`
+
+#### Make migrations
+If typing `python` gives you version 3.x):
+- `python manage.py makemigrations`
+
+Otherwise:
+- `python3 manage.py makemigrations`
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
 1. Run `npm i` in the project directory to install any additional front-end frameworks.
-3. Run `npm run start` or `npm run start3`, depending on whether python3 is the default version or not. This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
+2. Run depending on platform:
+    - Linux/Mac, python 3 is default: `npm run start`
+    - Linux/Mac, python 2 is default: `npm run start3`
+    - Windows, python 3 is default: `npm run start-windows`
+    - Windows, python 2 is default: `npm run start3-windows`
+    
+    This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
 
 The front-end website will be located at `127.0.0.1:8000`.
 

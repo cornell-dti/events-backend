@@ -45,10 +45,15 @@
     "whatwg-fetch": "2.0.3"
   },
   "scripts": {
-    "start": "npm run frontend & npm run copy-settings && python manage.py runserver",
-    "start3": "npm run frontend & npm run copy-settings && python3 manage.py runserver",
+    "start": "npm run frontend & npm run copy-settings && npm run backend",
+    "start3": "npm run frontend & npm run copy-settings && npm run backend3",
+    "start-windows": "start /B npm run frontend && npm run copy-settings-windows && npm run backend",
+    "start3-windows": "start /B npm run frontend && npm run copy-settings-windows && npm run backend3",
     "frontend": "webpack --config webpack.config.js --watch",
-    "copy-settings": "cp -f events_backend/dev_settings.py events_backend/settings.py"
+    "copy-settings": "cp -f events_backend/dev_settings.py events_backend/settings.py",
+    "copy-settings-windows": "xcopy \"events_backend\\dev_settings.py\" \"events_backend\\settings.py\" /Y",
+    "backend": "python manage.py runserver",
+    "backend3": "python3 manage.py runserver"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
