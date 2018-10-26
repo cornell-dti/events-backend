@@ -47,5 +47,5 @@ urlpatterns = [
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', include('rest_framework.urls')),
 	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
-	url(r'^', TemplateView.as_view(template_name="main.html"))
+	url(r'^', TemplateView.as_view(template_name="base.html"))
 ]

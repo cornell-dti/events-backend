@@ -1,19 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="post">
-<<<<<<< HEAD
-      {% csrf_token %}
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
-        {% if post.building %}
-            <div class="date">
-                {{ post.building }}
-            </div>
-        {% endif %}
+<div class="post">
+    {% csrf_token %}
+    {% if post.building %}
+    <div class="date">
+        {{ post.building }}
     </div>
-<<<<<<< HEAD
+    {% endif %}
+</div>
 {% endblock %}
-=======
-{% endblock %}
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894

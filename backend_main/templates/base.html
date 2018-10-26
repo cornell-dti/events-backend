@@ -1,29 +1,31 @@
-{% load static %}
-<html>
-    <head>
-        <title>CUE</title>
-    </head>
-    <body>
-        <div class="page-header">
-            <h1>CUE</h1>
-        <title>Django Girls blog</title>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
-    </head>
-    <body>
-        <div class="page-header">
-            <a href="{% url 'post_org' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
-            <h1><a href="/">Django Girls Blog</a></h1>
-        </div>
-        <div class="content container">
-            <div class="row">
-                <div class="col-md-8">
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
-    </body>
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="minimum-scale=1, width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400,500,600,700" rel="stylesheet">
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiuJAmADGofmKXnGzwMj831gHS2b-u6eo&libraries=places"></script>
+    <!--
+			manifest.json provides metadata used when your web app is added to the
+			homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+		-->
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <title>hello</title>
+</head>
+
+<body>
+    <div id="root"></div>
+    {% render_bundle 'main' %}
+    <div id="django-content">
+	    {% block content %}
+        {% endblock %}
+    </div>
+</body>
+
 </html>
