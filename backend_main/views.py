@@ -19,14 +19,13 @@ from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 
-from rest_framework.renderers import JSONRenderer
-
 from .permissions import IsOwnerOrReadOnly
 from .forms import OrgForm, TagForm, EventForm, LocationForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+from rest_framework.renderers import JSONRenderer
 from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
@@ -40,6 +39,10 @@ from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
 
 import os
 
+#=============================================================
+#                   EVENT INFORMATION
+#=============================================================
+
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, )
@@ -49,6 +52,28 @@ class EventDetail(APIView):
         event_set = Event.objects.get(pk=event_id)
         serializer = EventSerializer(event_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class IncrementAttendance(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, format=None):
+        event = Event.objects.filter(pk=request.data["event"])[0]
+        user = Token.objects.filter(pk=extractToken(request.META.get("HTTP_AUTHORIZATION")))[0].user
+        attendingSet = Attendance.objects.filter(user_id = user, event_id = event)
+
+        if not attendingSet.exists():
+            attendance = Attendance(user_id = user, event_id = event)
+            attendance.save()
+            event.num_attendees += 1
+            event.save()
+
+        return HttpResponse(status=status.HTTP_200_OK)
+        #TODO: if exists then response
+
+#=============================================================
+#                   LOCATION INFORMATION
+#=============================================================
 
 class SingleLocationDetail(APIView):
     #TODO: alter classes to token and admin?
@@ -70,6 +95,10 @@ class AllLocationDetail(APIView):
         serializer = LocationSerializer(location_set,many=True)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
+#=============================================================
+#                ORGANIZATION INFORMATION
+#=============================================================
+
 class OrgDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, )
@@ -79,6 +108,46 @@ class OrgDetail(APIView):
         org_set = Org.objects.get(pk=org_id)
         serializer = OrgSerializer(org_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class OrgEvents(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk = int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
+        event_set = Event.objects.filter(pk__in=org_events_pks)
+        serializer = EventSerializer(event_set,many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
+
+#=============================================================
+#                    TAG INFORMATION
+#=============================================================
+
+class SingleTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, tag_id, format=None):
+        tag = Tag.objects.filter(pk = tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class AllTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+#=============================================================
+#                           FEEDS
+#=============================================================
 
 class OrgFeed(APIView):
     #TODO: alter classes to token and admin?
@@ -103,18 +172,6 @@ def outdatedOrgs(in_timestamp):
     present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
-
-class OrgEvents(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, organizer_id, format=None):
-        org = Org.objects.get(pk = int(organizer_id))
-        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
-        event_set = Event.objects.filter(pk__in=org_events_pks)
-        serializer = EventSerializer(event_set,many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
 
 class EventFeed(APIView):
     #TODO: alter classes to token and admin?
@@ -141,25 +198,9 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     all_deleted_pks = list(set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
-class SingleTagDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, tag_id, format=None):
-        tag = Tag.objects.filter(pk = tag_id)
-        serializer = TagSerializer(tag, many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-
-class AllTagDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, format=None):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+#=============================================================
+#                          MEDIA
+#=============================================================
 
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
@@ -175,6 +216,10 @@ class ImageDetail(APIView):
         response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
         response['Content-Disposition'] = 'inline; filename=' + media
         return response
+
+#=============================================================
+#                        TOKENS
+#=============================================================
 
 #TODO: Different table for firebaseIDs, better practices?
 class ObtainToken(APIView):
@@ -207,23 +252,70 @@ class ObtainToken(APIView):
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
-class IncrementAttendance(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+#=============================================================
+#                        FORMS
+#=============================================================
 
-    def post(self, request, format=None):
-        event = Event.objects.filter(pk=request.data["event"])[0]
-        user = Token.objects.filter(pk=extractToken(request.META.get("HTTP_AUTHORIZATION")))[0].user
-        attendingSet = Attendance.objects.filter(user_id = user, event_id = event)
+class OrgFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
 
-        if not attendingSet.exists():
-            attendance = Attendance(user_id = user, event_id = event)
-            attendance.save()
-            event.num_attendees += 1
-            event.save()
+    def get(self, request):
+        form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
 
-        return HttpResponse(status=status.HTTP_200_OK)
-        #TODO: if exists then response
+    def post(self, request):
+        form = OrgForm(request.POST)
+        if form.is_valid():
+            o = Org()
+            o.name = form.cleaned_data['name']
+            o.description = form.cleaned_data['description']
+            o.contact = form.cleaned_data['contact']
+            o.owner = request.user
+
+            o.save()
+            return redirect('post_detail_org', pk=o.pk)
+
+class TagFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = TagForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+            form = TagForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_tag', pk=post.pk)
+
+class EventFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = EventForm(request.user)
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = EventForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_event', pk=post.pk)
+
+class LocationFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = LocationForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_location', pk=post.pk)
 
 #=============================================================
 #                        HELPERS
@@ -289,67 +381,6 @@ class Authentication(APIView):
 
     def perform_create(self, serializer):
         serializer.save(owner = self.request.user)
-
-class OrgFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = OrgForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            o = Org()
-            o.name = form.cleaned_data['name']
-            o.description = form.cleaned_data['description']
-            o.contact = form.cleaned_data['contact']
-            o.owner = request.user
-
-            o.save()
-            return redirect('post_detail_org', pk=o.pk)
-
-class TagFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = TagForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-            form = TagForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.save()
-                return redirect('post_detail_tag', pk=post.pk)
-
-class EventFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = EventForm(request.user)
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = EventForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_event', pk=post.pk)
-
-class LocationFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = LocationForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = LocationForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_location', pk=post.pk)
 
 #=============================================
 @csrf_exempt
