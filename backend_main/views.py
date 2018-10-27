@@ -52,8 +52,8 @@ class EventDetail(APIView):
 
 class SingleLocationDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, location_id, format=None):
         location_set = Location.objects.get(pk=location_id)
@@ -62,8 +62,8 @@ class SingleLocationDetail(APIView):
 
 class AllLocationDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         location_set = Location.objects.all()
@@ -106,8 +106,8 @@ def outdatedOrgs(in_timestamp):
 
 class EventFeed(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, start_time, end_time, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
@@ -131,8 +131,8 @@ def outdatedEvents(in_timestamp, start_time, end_time):
 
 class SingleTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, tag_id, format=None):
         tag = Tag.objects.filter(pk = tag_id)
@@ -141,8 +141,8 @@ class SingleTagDetail(APIView):
 
 class AllTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
@@ -151,7 +151,7 @@ class AllTagDetail(APIView):
 
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    authentication_classes = (TokenAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, img_id, format=None):
