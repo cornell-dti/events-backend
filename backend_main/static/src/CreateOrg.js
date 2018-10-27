@@ -6,11 +6,27 @@ import Onboarding from "./components/Onboarding";
 import routes from './routes';
 import connect from "react-redux/es/connect/connect";
 import { SET_ORG_EMAIL, SET_ORG_NAME, SET_PASSWORD } from "./redux/user";
+import Typography from "@material-ui/core/Typography/Typography";
 
 class CreateOrg extends Component {
-	state = { name: "", email: "", password: "", confirmPassword: "" };
-	submitCreateUser = null;
+	state = { name: "", email: "", password: "", confirmPassword: "", error: "" };
 
+	constructor(props) {
+		super(props);
+		//see templates/main.html
+		document.addEventListener("animationstart", this.showDjangoError.bind(this), false);
+	}
+	showDjangoError() {
+		if (event.animationName !== 'nodeInserted')
+			return;
+		const errorList = document.getElementsByClassName("errorlist")[0];
+		if (errorList === undefined)
+			return;
+		const error = errorList.getElementsByTagName("li")[0];
+		if (error === undefined)
+			return;
+		this.setState({error: error.textContent});
+	}
 	confirmPasswordError() {
 		return this.state.password !== this.state.confirmPassword;
 	}
@@ -21,10 +37,12 @@ class CreateOrg extends Component {
 			!this.confirmPasswordError();
 	}
 	onClick() {
-		this.props.setEmail(this.state.email);
-		this.props.setPassword(this.state.password);
 		this.props.setName(this.state.name);
-		//TODO go somewhere
+		document.getElementById("id_username").value = this.state.email;
+		document.getElementById("id_password1").value = this.state.password;
+		document.getElementById("id_password2").value = this.state.confirmPassword;
+		const form = document.getElementsByTagName("form")[0];
+		form.submit();
 	}
 	render() {
 		const { classes } = this.props;
@@ -35,6 +53,9 @@ class CreateOrg extends Component {
 				link={routes.verifyCornellStatus.route}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)}>
+				<Typography className={classes.error} variant={"title"} color={"secondary"}>
+					{this.state.error}
+				</Typography>
 				<TextField
 					label="Organization name"
 					className={classes.textField}
@@ -72,13 +93,14 @@ const styles = (theme) => ({
 	textField: {
 		width: '100%',
 		margin: theme.spacing.unit * 3
+	},
+	error: {
+		marginTop: theme.spacing.unit * 2
 	}
 });
 
 CreateOrg.propTypes = {
-	setName: PropTypes.func.isRequired,
-	setEmail: PropTypes.func.isRequired,
-	setPassword: PropTypes.func.isRequired
+	setName: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -86,9 +108,7 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
 	return {
-		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name }),
-		setEmail: (email) => dispatch({ type: SET_ORG_EMAIL, value: email }),
-		setPassword: (password) => dispatch({ type: SET_PASSWORD, value: password })
+		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name })
 	}
 }
 
