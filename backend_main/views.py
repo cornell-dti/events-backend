@@ -34,7 +34,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 
@@ -103,6 +103,18 @@ def outdatedOrgs(in_timestamp):
     present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
+
+class OrgEvents(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk = int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
+        event_set = Event.objects.filter(pk__in=org_events_pks)
+        serializer = EventSerializer(event_set,many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
 
 class EventFeed(APIView):
     #TODO: alter classes to token and admin?

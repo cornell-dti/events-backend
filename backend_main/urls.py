@@ -27,6 +27,7 @@ urlpatterns = [
 
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
+	url(r'^org/(?P<organizer_id>[0-9]+)/events/$', views.OrgEvents.as_view(), name='Organizer Events'),
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.SingleLocationDetail.as_view(), name='Location Details'),
 	url(r'^loc/all/$', views.AllLocationDetail.as_view(), name='All Location Details'),
 	url(r'^tag/(?P<tag_id>[0-9]+)/$', views.SingleTagDetail.as_view(), name='Single Tag Details'),
@@ -45,4 +46,3 @@ urlpatterns = [
 	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
 
 ]
-
