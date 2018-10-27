@@ -1,14 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'main.html' %}
 
 {% block content %}
-<div class="post">
-    {% csrf_token %}
-    {% if post.name %}
-    <div class="date">
-        {{ post.name }}
+    <div class="post">
+      {% csrf_token %}
+        {% if post.name %}
+            <div class="date">
+                {{ post.name }}
+            </div>
+        {% endif %}
+        <h1>{{ post.description }}</h1>
+        <h1>{{ post.start_time }}</h1>
     </div>
-    {% endif %}
-    <h1>{{ post.description }}</h1>
-    <h1>{{ post.start_time }}</h1>
-</div>
 {% endblock %}

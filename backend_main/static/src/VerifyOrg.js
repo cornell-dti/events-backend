@@ -7,13 +7,13 @@ import Button from "@material-ui/core/Button/Button";
 import routes from './routes';
 import Radio from "@material-ui/core/Radio/Radio";
 import PropTypes from "prop-types";
-import { SET_FB, SET_WEBSITE } from "./redux/user";
 import connect from "react-redux/es/connect/connect";
 
 const FACEBOOK = "facebookLink";
 const WEBSITE = "website";
 const CONTACT = "contact";
 const FIELD = { FACEBOOK, WEBSITE, CONTACT };
+const CUE_EMAIL = "cue@cornelldti.org";
 class VerifyOrg extends Component {
 	state = { facebookLink: "", website: "", selectedField: "" };
 
@@ -24,18 +24,23 @@ class VerifyOrg extends Component {
 	onClick() {
 		switch (this.state.selectedField) {
 			case FIELD.FACEBOOK:
-				this.props.setFbLink(this.state.facebookLink);
 				break;
 			case FIELD.WEBSITE:
-				this.props.setWebsite(this.state.website);
 				break;
 		}
 		//TODO send all data to backend, or show error if anything is missing
 	}
+	onEmailClick() {
+		const newline = escape("\n");
+		const link = `mailto:${CUE_EMAIL}?subject=Organization Verification: ${this.props.orgName}&body=Organization email: ${this.props.orgEmail}${newline}
+		Name: ${this.props.name}${newline}
+		NetID: ${this.props.netid}`;
+		window.open(link, "_blank");
+	}
 	render() {
 		const { classes } = this.props;
 		return (
-			<Onboarding title={"VERIFY YOUR ORGANIZATION"}
+			<Onboarding title={"Verify your Organization"}
 				body={"To make sure the events posted by organizations are accurate, only Cornell organizations can create an organization account.\nSelect a verification method below:"}
 				button={"Done"}
 				link={routes.verifyDone.route}
@@ -79,7 +84,7 @@ class VerifyOrg extends Component {
 						<Typography variant={"subheading"} className={classes.contactUsText}>
 							Please send us an email with alternative ways to verify your club.
 						</Typography>
-						<Button variant={"contained"} color={"secondary"}>
+						<Button variant={"contained"} color={"secondary"} onClick={this.onEmailClick.bind(this)}>
 							Email Us
 						</Button>
 					</div>
@@ -112,18 +117,22 @@ const styles = (theme) => ({
 });
 
 VerifyOrg.propTypes = {
-	setFbLink: PropTypes.func.isRequired,
-	setWebsite: PropTypes.func.isRequired
+	orgName: PropTypes.string.isRequired,
+	orgEmail: PropTypes.string.isRequired,
+	name: PropTypes.string.isRequired,
+	netid: PropTypes.string.isRequired
 };
 
 function mapStateToProps(state) {
-	return {};
+	return {
+		orgName: state.user.orgName,
+		orgEmail: state.user.orgEmail,
+		name: state.user.name,
+		netid: state.user.netid
+	};
 }
 function mapDispatchToProps(dispatch) {
-	return {
-		setFbLink: (link) => dispatch({ type: SET_FB, value: link }),
-		setWebsite: (website) => dispatch({ type: SET_WEBSITE, value: website })
-	}
+	return {}
 }
 
 VerifyOrg = connect(mapStateToProps, mapDispatchToProps)(VerifyOrg);
