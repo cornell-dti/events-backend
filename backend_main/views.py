@@ -42,8 +42,8 @@ import os
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, event_id, format=None):
         event_set = Event.objects.get(pk=event_id)
@@ -72,8 +72,8 @@ class AllLocationDetail(APIView):
 
 class OrgDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, org_id, format=None):
         org_set = Org.objects.get(pk=org_id)
@@ -82,8 +82,8 @@ class OrgDetail(APIView):
 
 class OrgFeed(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
@@ -152,7 +152,7 @@ class AllTagDetail(APIView):
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk = img_id)[0].file.name
@@ -182,6 +182,7 @@ class ObtainToken(APIView):
 
             #generate username
             username = generateUserName()
+
             user = User.objects.create_user(username=username,
                                             password='')
             user.set_unusable_password()
@@ -219,6 +220,7 @@ def extractToken(header):
     return header[header.find(" ") + 1:]
 
 def generateUserName():
+    #HANDLE user.obects.latest is null case
     #Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
     return "user{0}".format(User.objects.latest('pk').pk + 1)
 
