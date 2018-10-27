@@ -9,7 +9,6 @@ import connect from "react-redux/es/connect/connect";
 
 class VerifyCornellStatus extends Component {
 	state = { name: "", netid: "" };
-	submitCreateOrg = null;
 
 	canContinue() {
 		return this.state.name !== undefined && this.state.name !== ""
@@ -23,7 +22,7 @@ class VerifyCornellStatus extends Component {
 	render() {
 		const { classes } = this.props;
 		return (
-			<Onboarding title={"VERIFY YOUR CORNELL STATUS"}
+			<Onboarding title={"Verify your Cornell Status"}
 				body={"To keep events and the community Cornell-specific, you must be a Cornell student to create an organization account."}
 				button={"I am a Cornell student"}
 				link={routes.verifyOrg.route}
@@ -45,7 +44,7 @@ class VerifyCornellStatus extends Component {
 					value={this.state.netid}
 					onChange={e => this.setState({ netid: e.target.value })}
 					margin={"normal"} />
-				<div>{this.props.orgEmail}</div>
+				{this.props.email}
 			</Onboarding>
 		)
 	}
@@ -60,15 +59,12 @@ const styles = (theme) => ({
 
 VerifyCornellStatus.propTypes = {
 	setName: PropTypes.func.isRequired,
-	setNetId: PropTypes.func.isRequired,
-	orgEmail: PropTypes.string.isRequired,
-	password: PropTypes.string.isRequired
+	setNetId: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
 	return {
-		orgEmail: state.user.orgEmail,
-		password: state.user.password
+		email: state.user.orgEmail
 	};
 }
 function mapDispatchToProps(dispatch) {

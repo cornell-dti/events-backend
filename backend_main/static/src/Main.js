@@ -25,7 +25,7 @@ class Main extends Component {
 								Log in
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.createOrg.route}>
+						<LinkColorless to={routes.createOrg.route} changeDjango={true}>
 							<Button variant={"outlined"} color={"primary"}
 								className={classes.button}>
 								Sign up

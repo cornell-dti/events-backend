@@ -7,20 +7,33 @@ export default class LinkColorless extends Component
 	render()
 	{
 		const disabled = this.props.disabled ? {pointerEvents: 'none'} : null;
-		return (
-			<Link {...this.props}
-				style={{
-					textDecoration: 'none',
-					...disabled,
-					...this.props.style
-				}}>
-				{this.props.children}
-			</Link>
-		);
+		if (!this.props.changeDjango)
+			return (
+				<Link {...this.props}
+					style={{
+						textDecoration: 'none',
+						...disabled,
+						...this.props.style
+					}}>
+					{this.props.children}
+				</Link>
+			);
+		else
+			return (
+				<a href={this.props.to}
+					style={{
+						textDecoration: 'none',
+						...disabled
+					}}>
+					{this.props.children}
+				</a>
+			);
 	}
 }
 
 LinkColorless.propTypes = {
 	style: PropTypes.object,
-	disabled: PropTypes.bool
+	to: PropTypes.string.isRequired,
+	disabled: PropTypes.bool,
+	changeDjango: PropTypes.bool //"true" if we want the Django form to change
 };

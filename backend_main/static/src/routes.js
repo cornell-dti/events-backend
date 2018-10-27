@@ -9,8 +9,8 @@ export default {
 	profile: { route: "/app/profile", component: Profile },
 	myEvents: { route: "/app/myEvents", component: MyEvents },
 	//onboarding
-	createOrg: { route: "/app/createOrg", component: CreateOrg },
-	verifyCornellStatus: { route: "/app/verifyCornellStatus", component: VerifyCornellStatus },
-	verifyOrg: { route: "/app/verifyOrg", component: VerifyOrg },
+	createOrg: { route: "/app/signup/", component: CreateOrg },
+	verifyCornellStatus: { route: "/app/verifyCornellStatus/", component: VerifyCornellStatus },
+	verifyOrg: { route: "/app/post/org/", component: VerifyOrg },
 	verifyDone: { route: "/app/verifyDone", component: VerifyDone }
 };

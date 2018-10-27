@@ -39,9 +39,11 @@ Windows:
 #### Make migrations
 If typing `python` gives you version 3.x):
 - `python manage.py makemigrations`
+- `python manage.py migrate`
 
 Otherwise:
 - `python3 manage.py makemigrations`
+- `python3 manage.py migrate`
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
@@ -54,7 +56,7 @@ Before you run anything, do this right after `git pull`:
     
     This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
 
-The front-end website will be located at `127.0.0.1:8000`.
+The front-end website will be located at `127.0.0.1:8000/app/`.
 
 ## Dependencies & Libraries
  * **[Django Rest Framework](http://www.django-rest-framework.org/) v. 3.8.2** - A Django library that provides powerful authentication protocols.
