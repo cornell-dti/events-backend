@@ -372,7 +372,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('/app/')
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
