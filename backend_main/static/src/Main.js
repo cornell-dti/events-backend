@@ -20,7 +20,7 @@ class Main extends Component {
 						<Typography variant={"title"} color={"inherit"}>
 							Are you an organization?
 						</Typography>
-						<LinkColorless to={routes.myEvents.route}>
+						<LinkColorless to={routes.login.route} changeDjango={true}>
 							<Button color={"primary"} className={classes.button}>
 								Log in
 							</Button>
