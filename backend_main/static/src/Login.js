@@ -50,7 +50,7 @@ class Login extends Component {
 
 const styles = (theme) => ({
 	root: {
-		flexGrow: 1,
+		width: '45vw',
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center',
