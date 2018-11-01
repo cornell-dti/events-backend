@@ -51,7 +51,7 @@
     "start3-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run copy-settings-windows && npm run backend3",
     "frontend": "webpack --config webpack.config.js --watch",
     "remove-junk": "rm -rf backend_main/static/bundles",
-    "remove-junk-windows": "rmdir /S /Q \"backend_main\\static\\bundles\"",
+    "remove-junk-windows": "if exist \"backend_main\\static\\bundles\" rmdir /S /Q \"backend_main\\static\\bundles\"",
     "copy-settings": "cp -f events_backend/dev_settings.py events_backend/settings.py",
     "copy-settings-windows": "xcopy \"events_backend\\dev_settings.py\" \"events_backend\\settings.py\" /Y",
     "backend": "python manage.py runserver",
