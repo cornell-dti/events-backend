@@ -18,7 +18,11 @@ class VerifyCornellStatus extends Component {
 		this.props.setName(this.state.name);
 		this.props.setNetId(this.state.netid);
 	}
-
+  onEnter(e) {
+    if (e.key === 'Enter') {
+      document.getElementsByTagName("button")[0].click();
+    }
+  }
 	render() {
 		const { classes } = this.props;
 		return (
@@ -43,7 +47,9 @@ class VerifyCornellStatus extends Component {
 					className={classes.textField}
 					value={this.state.netid}
 					onChange={e => this.setState({ netid: e.target.value })}
-					margin={"normal"} />
+					margin={"normal"}
+          onKeyPress={this.onEnter.bind(this)}
+				/>
 				{this.props.email}
 			</Onboarding>
 		)

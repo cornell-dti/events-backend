@@ -28,6 +28,11 @@ class CreateOrg extends Component {
 		const form = document.getElementsByTagName("form")[0];
 		form.submit();
 	}
+	onEnter(e) {
+	  if (e.key === 'Enter') {
+	    document.getElementsByTagName("button")[0].click();
+    }
+  }
 	render() {
 		const { classes } = this.props;
 		return (
@@ -36,7 +41,7 @@ class CreateOrg extends Component {
 				button={"Continue"}
 				link={routes.verifyCornellStatus.route}
 				canClick={this.canContinue()}
-				onClick={this.onClick.bind(this)}>
+				onClick={this.onClick.bind(this)} >
 				<FormError />
 				<TextField
 					label="Organization name"
@@ -65,7 +70,9 @@ class CreateOrg extends Component {
 					margin={"normal"}
 					type={"password"}
 					error={this.confirmPasswordError()}
-					helperText={this.confirmPasswordError() ? "Passwords do not match" : ""} />
+					helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
+          onKeyPress={this.onEnter.bind(this)}
+          />
 			</Onboarding>
 		);
 	}
