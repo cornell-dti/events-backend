@@ -18,6 +18,11 @@ class Login extends Component {
 		const form = document.getElementsByTagName("form")[0];
 		form.submit();
 	}
+  onEnter(e) {
+    if (e.key === 'Enter') {
+      this.onClick();
+    }
+  }
 	render() {
 		const {classes} = this.props;
 		return (
@@ -38,7 +43,8 @@ class Login extends Component {
 					value={this.state.password}
 					onChange={e => this.setState({ password: e.target.value })}
 					type={"password"}
-					margin={"normal"} />
+					margin={"normal"}
+          onKeyDown={this.onEnter.bind(this)}/>
 				<Button disabled={!this.canClick()} color={"primary"}
 				        className={classes.button} variant={"contained"}
 				        onClick={this.onClick.bind(this)} >
