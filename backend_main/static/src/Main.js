@@ -47,7 +47,7 @@ class Main extends Component {
 								My Events
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={"/app/"}>
+						<LinkColorless to={routes.logout.route} changeDjango={true}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>
