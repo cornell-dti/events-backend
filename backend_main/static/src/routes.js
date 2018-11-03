@@ -8,6 +8,7 @@ import Login from "./Login";
 
 export default {
 	login: { route: "/app/accounts/login/", component: Login },
+	logout: { route: "/app/accounts/logout/", component: null },
 	profile: { route: "/app/profile", component: Profile },
 	myEvents: { route: "/app/myEvents", component: MyEvents },
 	//onboarding
