@@ -58,6 +58,11 @@ Before you run anything, do this right after `git pull`:
 
 The front-end website will be located at `127.0.0.1:8000/app/`.
 
+### Database
+If at any point, your database becomes corrupted or you no longer have `db.sqlite3` in the directory:
+1. [Copy settings](#copy-settings-from-dev-settings)
+2. [Make migrations](#make-migrations)
+
 ## Dependencies & Libraries
  * **[Django Rest Framework](http://www.django-rest-framework.org/) v. 3.8.2** - A Django library that provides powerful authentication protocols.
  * **[Django Simple History](https://django-simple-history.readthedocs.io/en/latest/) v. 2.0** - A Django library that provides methods to store changes to models, and thus, is used to create app-specific event, org. feeds.
