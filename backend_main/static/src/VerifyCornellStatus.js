@@ -50,7 +50,6 @@ class VerifyCornellStatus extends Component {
 					margin={"normal"}
           onKeyPress={this.onEnter.bind(this)}
 				/>
-				{this.props.email}
 			</Onboarding>
 		)
 	}
@@ -69,9 +68,7 @@ VerifyCornellStatus.propTypes = {
 };
 
 function mapStateToProps(state) {
-	return {
-		email: state.user.orgEmail
-	};
+	return {};
 }
 function mapDispatchToProps(dispatch) {
 	return {

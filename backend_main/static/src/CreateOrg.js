@@ -5,7 +5,7 @@ import { withStyles } from "@material-ui/core";
 import Onboarding from "./components/Onboarding";
 import routes from './routes';
 import connect from "react-redux/es/connect/connect";
-import { SET_ORG_NAME } from "./redux/user";
+import { SET_ORG_EMAIL, SET_ORG_NAME } from "./redux/user";
 import FormError from "./components/FormError";
 
 class CreateOrg extends Component {
@@ -22,6 +22,7 @@ class CreateOrg extends Component {
 	}
 	onClick() {
 		this.props.setName(this.state.name);
+		this.props.setEmail(this.state.email);
 		document.getElementById("id_username").value = this.state.email;
 		document.getElementById("id_password1").value = this.state.password;
 		document.getElementById("id_password2").value = this.state.confirmPassword;
@@ -86,7 +87,8 @@ const styles = (theme) => ({
 });
 
 CreateOrg.propTypes = {
-	setName: PropTypes.func.isRequired
+	setName: PropTypes.func.isRequired,
+	setEmail: PropTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
@@ -94,7 +96,8 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
 	return {
-		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name })
+		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name }),
+		setEmail: (email) => dispatch({ type: SET_ORG_EMAIL, value: email})
 	}
 }
 

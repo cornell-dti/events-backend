@@ -9,6 +9,7 @@ import Radio from "@material-ui/core/Radio/Radio";
 import PropTypes from "prop-types";
 import connect from "react-redux/es/connect/connect";
 
+
 const FACEBOOK = "facebookLink";
 const WEBSITE = "website";
 const CONTACT = "contact";
@@ -22,13 +23,21 @@ class VerifyOrg extends Component {
 			|| (this.state.website !== undefined && this.state.website !== "");
 	}
 	onClick() {
+		let link;
 		switch (this.state.selectedField) {
 			case FIELD.FACEBOOK:
+				link = this.state.facebookLink;
 				break;
 			case FIELD.WEBSITE:
+				link = this.state.website;
 				break;
+			default:
+				return;
 		}
-		//TODO send all data to backend, or show error if anything is missing
+
+        fetch("./email/orgEmail=" + this.props.orgEmail + "&orgName=" + this.props.orgName + "&name=" + this.props.name +
+            "&netID=" + this.props.netid + "&link=" + link)
+            .then(response => console.log("E-mail sent!"));
 	}
 	onEmailClick() {
 		const newline = escape("\n");
