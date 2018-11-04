@@ -159,3 +159,7 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
     }
 }
+
+# Page to open after login
+LOGIN_REDIRECT_URL = '/app/myEvents'
+LOGOUT_REDIRECT_URL = '/app/'
