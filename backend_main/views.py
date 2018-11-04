@@ -46,8 +46,19 @@ from rest_framework.views import APIView
 from .models import Org, Event, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
-
+from django.core.mail import send_mail
 import os
+
+class EmailDetail(APIView):
+    def get(self, request, org_email, org_name, name, net_id, link, format=None):
+        send_mail('New Application',
+                  "Organization Email: " + org_email + "\n" +
+                  "Organization Name: " + org_name + "\n" +
+                  "Creator Name: " + name + "\n" +
+                  "NetID: " + net_id + "\n" +
+                  "Organization Link: " + link,
+                  'noreply@cornell.dti.org', ['sz329@cornell.edu'])
+        return HttpResponse(status=204)
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
