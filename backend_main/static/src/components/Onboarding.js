@@ -23,7 +23,7 @@ class Onboarding extends Component
 				{this.props.children}
 				{this.props.button !== undefined
 					?
-					<LinkColorless to={this.props.link}>
+					<LinkColorless to={this.props.link} disabled={!this.props.canClick}>
 						<Button disabled={!this.props.canClick} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.props.onClick} >
 							{this.props.button}
 						</Button>
