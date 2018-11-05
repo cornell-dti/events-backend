@@ -322,7 +322,6 @@ class OrgFormView(APIView):
             o = Org()
             o.name = form.cleaned_data['name']
             o.description = form.cleaned_data['description']
-            o.contact = form.cleaned_data['contact']
             o.verified = form.cleaned_data['verified']
             o.website = form.cleaned_data['website']
             o.photo = form.cleaned_data['photo']
