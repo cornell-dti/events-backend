@@ -52,7 +52,6 @@ class Event_Tags(models.Model):
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
-    contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
     photo = models.ForeignKey('Media',on_delete=models.CASCADE)
 
@@ -73,7 +72,7 @@ class Event_Org(models.Model):
 class Org_Tags(models.Model):
     org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
