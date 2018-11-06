@@ -28,4 +28,4 @@ class LocationForm(forms.ModelForm):
 
     class Meta:
         model = Location
-        fields = ('building', 'room', 'place_id')
+        fields = ('building', 'place_id')
