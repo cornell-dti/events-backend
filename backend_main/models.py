@@ -15,6 +15,7 @@ MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
 MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
+MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
 
 class Event(models.Model):
@@ -51,7 +52,8 @@ class Event_Tags(models.Model):
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
-    contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
+    photo = models.ForeignKey('Media',on_delete=models.CASCADE)
 
     verified = models.BooleanField(default = False)
     history = HistoricalRecords()
@@ -66,6 +68,13 @@ class Event_Org(models.Model):
 
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
+
+class Org_Tags(models.Model):
+    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.event_id, self.tags_id)
 
 class Location(models.Model):
     building = models.CharField(max_length = MAX_NAME_LENGTH)
