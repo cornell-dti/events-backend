@@ -15,6 +15,7 @@ MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
 MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
+MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
 
 class Event(models.Model):
@@ -24,13 +25,9 @@ class Event(models.Model):
     end_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-<<<<<<< HEAD
+
     num_attendees = models.IntegerField(default=0)
     is_public = models.BooleanField(default=True)
-=======
-    num_attendees = models.IntegerField(default = 0)
-    is_public = models.BooleanField()
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
     organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
@@ -55,12 +52,10 @@ class Event_Tags(models.Model):
 class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
-    contact = models.EmailField(max_length = MAX_CONTACT_LENGTH)
-<<<<<<< HEAD
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
+    photo = models.ForeignKey('Media',on_delete=models.CASCADE)
+
     verified = models.BooleanField(default = False)
-=======
-    verified = models.BooleanField()
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
     history = HistoricalRecords()
     owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
 
@@ -74,13 +69,19 @@ class Event_Org(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
+class Org_Tags(models.Model):
+    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.event_id, self.tags_id)
+
 class Location(models.Model):
     building = models.CharField(max_length = MAX_NAME_LENGTH)
-    room = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 
     def __str__(self):
-        return "{0}, {1}".format(self.room, self.building)
+        return self.building
 
 class UserID(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

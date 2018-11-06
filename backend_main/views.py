@@ -2,10 +2,6 @@
 # Arnav Ghosh, Jessica Zhao, Jill Wu, Adit Gupta
 # 17th Sept. 2018
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
@@ -13,7 +9,6 @@ import dateutil.parser
 
 from django.conf import settings
 from django.contrib.auth.models import User
-<<<<<<< HEAD
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
@@ -23,14 +18,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
-=======
+
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
 
 from rest_framework.renderers import JSONRenderer
 
@@ -40,6 +34,7 @@ from .forms import OrgForm, TagForm, EventForm, LocationForm
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
+from rest_framework.renderers import JSONRenderer
 from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
@@ -47,63 +42,138 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
-
+from django.core.mail import send_mail
 import os
+
+#=============================================================
+#                   EVENT INFORMATION
+#=============================================================
+
+class EmailDetail(APIView):
+    def get(self, request, org_email, org_name, name, net_id, link, format=None):
+        send_mail('New Application',
+                  "Organization Email: " + org_email + "\n" +
+                  "Organization Name: " + org_name + "\n" +
+                  "Creator Name: " + name + "\n" +
+                  "NetID: " + net_id + "\n" +
+                  "Organization Link: " + link,
+                  'noreply@cornell.dti.org', ['sz329@cornell.edu'])
+        return HttpResponse(status=204)
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, event_id, format=None):
         event_set = Event.objects.get(pk=event_id)
         serializer = EventSerializer(event_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-<<<<<<< HEAD
+class IncrementAttendance(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, format=None):
+        event = Event.objects.filter(pk=request.data["event"])[0]
+        user = Token.objects.filter(pk=extractToken(request.META.get("HTTP_AUTHORIZATION")))[0].user
+        attendingSet = Attendance.objects.filter(user_id = user, event_id = event)
+
+        if not attendingSet.exists():
+            attendance = Attendance(user_id = user, event_id = event)
+            attendance.save()
+            event.num_attendees += 1
+            event.save()
+
+        return HttpResponse(status=status.HTTP_200_OK)
+        #TODO: if exists then response
+
+#=============================================================
+#                   LOCATION INFORMATION
+#=============================================================
+
 class SingleLocationDetail(APIView):
-=======
-class LocationDetail(APIView):
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, location_id, format=None):
         location_set = Location.objects.get(pk=location_id)
         serializer = LocationSerializer(location_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-<<<<<<< HEAD
 class AllLocationDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         location_set = Location.objects.all()
         serializer = LocationSerializer(location_set,many=True)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+#=============================================================
+#                ORGANIZATION INFORMATION
+#=============================================================
+
 class OrgDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, org_id, format=None):
         org_set = Org.objects.get(pk=org_id)
         serializer = OrgSerializer(org_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+class OrgEvents(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk = int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
+        event_set = Event.objects.filter(pk__in=org_events_pks)
+        serializer = EventSerializer(event_set,many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
+
+#=============================================================
+#                    TAG INFORMATION
+#=============================================================
+
+class SingleTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, tag_id, format=None):
+        tag = Tag.objects.filter(pk = tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class AllTagDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+#=============================================================
+#                           FEEDS
+#=============================================================
+
 class OrgFeed(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
@@ -126,8 +196,8 @@ def outdatedOrgs(in_timestamp):
 
 class EventFeed(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, start_time, end_time, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
@@ -149,32 +219,9 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     all_deleted_pks = list(set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
-class SingleTagDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
-
-    def get(self, request, tag_id, format=None):
-<<<<<<< HEAD
-        tag = Tag.objects.filter(pk = tag_id)
-        serializer = TagSerializer(tag, many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-=======
-        return JsonResponse(tagDetail(tag_id).data,status=status.HTTP_200_OK)
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
-
-class AllTagDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
-
-    def get(self, request, format=None):
-<<<<<<< HEAD
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-=======
-        return JsonResponse(tagDetail(all=True).data,status=status.HTTP_200_OK)
+#=============================================================
+#                          MEDIA
+#=============================================================
 
 def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()
@@ -184,12 +231,11 @@ def tagDetail(tag_id=0, all=False):
         serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
 
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk = img_id)[0].file.name
@@ -200,6 +246,10 @@ class ImageDetail(APIView):
         response = HttpResponse(s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension) #what if its not jpg
         response['Content-Disposition'] = 'inline; filename=' + media
         return response
+
+#=============================================================
+#                        TOKENS
+#=============================================================
 
 #TODO: Different table for firebaseIDs, better practices?
 class ObtainToken(APIView):
@@ -232,11 +282,8 @@ class ObtainToken(APIView):
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
 class IncrementAttendance(APIView):
-<<<<<<< HEAD
     authentication_classes = (TokenAuthentication,)
-=======
-    authentication_classes = (TokenAuthentication, )
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
@@ -244,14 +291,50 @@ class IncrementAttendance(APIView):
         user = Token.objects.filter(pk=extractToken(request.META.get("HTTP_AUTHORIZATION")))[0].user
         attendingSet = Attendance.objects.filter(user_id = user, event_id = event)
 
-        if not attendingSet.exists():
-            attendance = Attendance(user_id = user, event_id = event)
-            attendance.save()
-            event.num_attendees += 1
-            event.save()
+            o.save()
+            return redirect('post_detail_org', pk=o.pk)
 
-        return HttpResponse(status=status.HTTP_200_OK)
-        #TODO: if exists then response
+class TagFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = TagForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+            form = TagForm(request.POST)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.save()
+                return redirect('post_detail_tag', pk=post.pk)
+
+class EventFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = EventForm(request.user)
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = EventForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_event', pk=post.pk)
+
+class LocationFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = LocationForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail_location', pk=post.pk)
 
 #=============================================================
 #                        HELPERS
@@ -260,6 +343,7 @@ def extractToken(header):
     return header[header.find(" ") + 1:]
 
 def generateUserName():
+    #HANDLE user.obects.latest is null case
     #Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
     return "user{0}".format(User.objects.latest('pk').pk + 1)
 
@@ -304,20 +388,13 @@ def post_event_edit(request, pk):
     return render(request, 'blog/post_edit.html', {'form': form})
 
 class UserList(generics.ListAPIView):
-<<<<<<< HEAD
     queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.filter(is_staff=False)
-=======
-    queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
-    serializer_class = UserSerializer
 
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
@@ -338,11 +415,10 @@ class OrgFormView(APIView):
             o = Org()
             o.name = form.cleaned_data['name']
             o.description = form.cleaned_data['description']
-            o.contact = form.cleaned_data['contact']
-<<<<<<< HEAD
-=======
             o.verified = form.cleaned_data['verified']
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
+            o.website = form.cleaned_data['website']
+            o.photo = form.cleaned_data['photo']
+
             o.owner = request.user
 
             o.save()
@@ -382,11 +458,7 @@ class LocationFormView(APIView):
     def get(self, request):
         form = LocationForm()
         return render(request, 'post_edit.html', {'form': form})
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
     def post(self, request):
         form = LocationForm(request.POST)
         if form.is_valid():
@@ -394,7 +466,7 @@ class LocationFormView(APIView):
             post.save()
             return redirect('post_detail_location', pk=post.pk)
 
-<<<<<<< HEAD
+
 #=============================================
 @csrf_exempt
 def signup(request):
@@ -406,9 +478,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return HttpResponse(status=status.HTTP_200_OK)
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894

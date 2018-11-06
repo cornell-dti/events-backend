@@ -6,14 +6,14 @@ class OrgForm(forms.ModelForm):
 
     class Meta:
         model = Org
-        fields = ('name', 'description', 'contact',)
+        fields = ('name', 'description',)
 
 class TagForm(forms.ModelForm):
 
     class Meta:
         model = Tag
         fields = ('name',)
-        
+
 class EventForm(forms.ModelForm):
 
     class Meta:
@@ -28,4 +28,4 @@ class LocationForm(forms.ModelForm):
 
     class Meta:
         model = Location
-        fields = ('building', 'room', 'place_id')
+        fields = ('building', 'place_id')
