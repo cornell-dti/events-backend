@@ -1,11 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'main.html' %}
 
 {% block content %}
     <div class="post">
-<<<<<<< HEAD
       {% csrf_token %}
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
         {% if post.name %}
             <div class="date">
                 {{ post.name }}
@@ -13,8 +10,4 @@
         {% endif %}
         <h1>{{ post.id }}</h1>
     </div>
-<<<<<<< HEAD
 {% endblock %}
-=======
-{% endblock %}
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
