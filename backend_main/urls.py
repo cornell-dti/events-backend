@@ -3,8 +3,10 @@
 # 17th Sept. 2018
 
 from django.conf.urls import url
+from django.contrib.auth import views as auth_views
 from django.conf.urls import include
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import TemplateView
 
 from django.urls import path
 from . import views
@@ -25,6 +27,10 @@ urlpatterns = [
 	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
 	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 
+	path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True)),
+	path('accounts/', include('django.contrib.auth.urls')),
+
+	url(r'^email/orgEmail=(?P<org_email>.*)&orgName=(?P<org_name>.*)&name=(?P<name>[a-zA-Z\s]+)&netID=(?P<net_id>[a-zA-Z0-9]+)&link=(?P<link>.*)$', views.EmailDetail.as_view(), name='Email Detail'),
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.SingleLocationDetail.as_view(), name='Location Details'),
@@ -44,7 +50,6 @@ urlpatterns = [
 
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
-	url(r'^api-auth/', include('rest_framework.urls')),
 	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
-
+	url(r'^', TemplateView.as_view(template_name="main.html")),
 ]
