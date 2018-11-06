@@ -4,7 +4,7 @@ django-simple-history==2.0
 whitenoise==3.3.0
 gunicorn==19.7.1
 psycopg2==2.7.5
-Pillow==3.2.0
+Pillow
 dj_database_url==0.4.2
 python-decouple==3.0
 boto==2.40.0
@@ -15,8 +15,5 @@ google-auth==1.5.1
 requests==2.18.4
 django-cors-headers==2.4.0
 pygments==2.2.0
-<<<<<<< HEAD
 django-csp==3.4
-=======
->>>>>>> 48e6835e0dce01adc1795dca4dbef0b8702dd894
-
+django-webpack-loader

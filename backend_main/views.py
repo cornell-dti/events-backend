@@ -46,8 +46,19 @@ from rest_framework.views import APIView
 from .models import Org, Event, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
-
+from django.core.mail import send_mail
 import os
+
+class EmailDetail(APIView):
+    def get(self, request, org_email, org_name, name, net_id, link, format=None):
+        send_mail('New Application',
+                  "Organization Email: " + org_email + "\n" +
+                  "Organization Name: " + org_name + "\n" +
+                  "Creator Name: " + name + "\n" +
+                  "NetID: " + net_id + "\n" +
+                  "Organization Link: " + link,
+                  'noreply@cornell.dti.org', ['sz329@cornell.edu'])
+        return HttpResponse(status=204)
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
@@ -311,8 +322,10 @@ class OrgFormView(APIView):
             o = Org()
             o.name = form.cleaned_data['name']
             o.description = form.cleaned_data['description']
-            o.contact = form.cleaned_data['contact']
             o.verified = form.cleaned_data['verified']
+            o.website = form.cleaned_data['website']
+            o.photo = form.cleaned_data['photo']
+
             o.owner = request.user
 
             o.save()
@@ -372,7 +385,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return HttpResponse(status=status.HTTP_200_OK)
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
