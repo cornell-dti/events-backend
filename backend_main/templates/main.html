@@ -1,0 +1,69 @@
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="minimum-scale=1, width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="theme-color" content="#000000">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link href="https://fonts.googleapis.com/css?family=Dosis:400,500,600,700" rel="stylesheet">
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiuJAmADGofmKXnGzwMj831gHS2b-u6eo&libraries=places"></script>
+	<!--
+			manifest.json provides metadata used when your web app is added to the
+			homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+		-->
+	<link rel="manifest" href="/static/manifest.json">
+	<link rel="shortcut icon" href="/static/favicon.ico">
+	<title>cue</title>
+
+	<!-- Animations for creation of .errorlist elements so we can listen to animation
+	events, thereby knowing when the element is created. Used in CreateOrg
+	@see http://www.backalleycoder.com/2012/04/25/i-want-a-damnodeinserted/ -->
+	<style>
+		@keyframes nodeInserted {
+			from {outline-color: #fff;}
+			to {outline-color: #000;}
+		}
+		@-moz-keyframes nodeInserted {
+			from {outline-color: #fff;}
+			to {outline-color: #000;}
+		}
+		@-webkit-keyframes nodeInserted {
+			from {outline-color: #fff;}
+			to {outline-color: #000;}
+		}
+		@-ms-keyframes nodeInserted {
+			from {outline-color: #fff;}
+			to {outline-color: #000;}
+		}
+		@-o-keyframes nodeInserted {
+			from {outline-color: #fff;}
+			to {outline-color: #000;}
+		}
+		.errorlist {
+			animation-duration: 0.01s;
+			-o-animation-duration: 0.01s;
+			-ms-animation-duration: 0.01s;
+			-moz-animation-duration: 0.01s;
+			-webkit-animation-duration: 0.01s;
+			animation-name: nodeInserted;
+			-o-animation-name: nodeInserted;
+			-ms-animation-name: nodeInserted;
+			-moz-animation-name: nodeInserted;
+			-webkit-animation-name: nodeInserted;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="root"></div>
+	{% render_bundle 'main' %}
+	<div id="django" >
+		{% block content %}
+		{% endblock %}
+	</div>
+</body>
+
+</html>
