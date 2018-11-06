@@ -281,19 +281,6 @@ class ObtainToken(APIView):
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
-class IncrementAttendance(APIView):
-    authentication_classes = (TokenAuthentication,)
-
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def post(self, request, format=None):
-        event = Event.objects.filter(pk=request.data["event"])[0]
-        user = Token.objects.filter(pk=extractToken(request.META.get("HTTP_AUTHORIZATION")))[0].user
-        attendingSet = Attendance.objects.filter(user_id = user, event_id = event)
-
-            o.save()
-            return redirect('post_detail_org', pk=o.pk)
-
 class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
@@ -423,48 +410,6 @@ class OrgFormView(APIView):
 
             o.save()
             return redirect('post_detail_org', pk=o.pk)
-
-class TagFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = TagForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-            form = TagForm(request.POST)
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.save()
-                return redirect('post_detail_tag', pk=post.pk)
-
-class EventFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = EventForm(request.user)
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = EventForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_event', pk=post.pk)
-
-class LocationFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = LocationForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = LocationForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_location', pk=post.pk)
 
 
 #=============================================
