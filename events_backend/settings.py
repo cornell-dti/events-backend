@@ -32,7 +32,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
 
-CSP_FRAME_SRC = (config('CSP_FRAME_SRC'),)
+CSP_SCRIPT_SRC = ["'self'", 'https://maps.googleapis.com']
+CSP_STYLE_SRC = ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
+CSP_IMG_SRC = ["'self'", 'https://upload.wikimedia.org']
+CSP_FONT_SRC = ["'self'", 'https://fonts.gstatic.com']
 
 CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS'), ]
 #CSRF_COOKIE_DOMAIN = config('CSRF_TRUSTED_ORIGINS')
