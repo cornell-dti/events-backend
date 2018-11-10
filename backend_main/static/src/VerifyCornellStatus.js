@@ -48,7 +48,7 @@ class VerifyCornellStatus extends Component {
 					value={this.state.netid}
 					onChange={e => this.setState({ netid: e.target.value })}
 					margin={"normal"}
-          onKeyPress={this.onEnter.bind(this)}
+         			onKeyPress={this.onEnter.bind(this)}
 				/>
 			</Onboarding>
 		)
