@@ -6,7 +6,7 @@ class OrgForm(forms.ModelForm):
 
     class Meta:
         model = Org
-        fields = ('name', 'description', 'contact',)
+        fields = ('name', 'description')
 
 class TagForm(forms.ModelForm):
 
