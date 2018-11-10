@@ -228,7 +228,7 @@ def tagDetail(tag_id=0, all=False):
     if all:
         serializer = TagSerializer(tags, many=True)
     else:
-        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
+        serializer = TagSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
 
