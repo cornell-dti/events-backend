@@ -68,7 +68,7 @@
     "copy-settings-windows": "xcopy \"events_backend\\dev_settings.py\" \"events_backend\\settings.py\" /Y",
     "backend": "python manage.py runserver",
     "backend3": "python3 manage.py runserver",
-	"heroku-postbuild": "node_modules/.bin/webpack --config webpack.config.js"
+    "heroku-postbuild": "node_modules/.bin/webpack --config webpack.config.js"
   },
   "devDependencies": {
     "eslint": "4.10.0",
