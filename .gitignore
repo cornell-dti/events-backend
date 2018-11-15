@@ -50,4 +50,12 @@ chrome-user-data
 backend_main/static/bundles
 backend_main/migrations
 db.sqlite3
+<<<<<<< HEAD
 webpack-stats.json
+=======
+webpack-stats.json
+
+*.pyc
+__pycache__/
+events_backend/settings_secrets.py
+>>>>>>> 09244bec3506883f04c568863018f1909f4ca93d
