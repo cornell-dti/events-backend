@@ -51,3 +51,7 @@ backend_main/static/bundles
 backend_main/migrations
 db.sqlite3
 webpack-stats.json
+
+*.pyc
+__pycache__/
+events_backend/settings_secrets.py
