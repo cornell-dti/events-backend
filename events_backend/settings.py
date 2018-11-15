@@ -30,18 +30,19 @@ GOOGLE_BACKEND_CLIENT_ID = config('GOOGLE_BACKEND_CLIENT_ID')
 CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
 CORS_ALLOW_CREDENTIALS = True
 
-X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
+# X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
 
 CSP_SCRIPT_SRC = ["'self'", 'https://maps.googleapis.com']
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
 CSP_IMG_SRC = ["'self'", 'https://upload.wikimedia.org']
 CSP_FONT_SRC = ["'self'", 'https://fonts.gstatic.com']
 
-CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS'), ]
+# CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS'), ]
 #CSRF_COOKIE_DOMAIN = config('CSRF_TRUSTED_ORIGINS')
 #CSRF_COOKIE_SECURE = True
-CSRF_USE_SESSIONS = config('CSRF_USE_SESSIONS')
+# CSRF_USE_SESSIONS = config('CSRF_USE_SESSIONS')
 #CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -72,15 +73,13 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'csp.middleware.CSPMiddleware',
 ]
 
