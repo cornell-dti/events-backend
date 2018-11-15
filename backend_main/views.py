@@ -310,13 +310,34 @@ class EventFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        form = EventForm(request.user)
+        form = EventForm()
         return render(request, 'post_edit.html', {'form': form})
 
     def post(self, request):
         form = EventForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
+        if form.is_valid():            
+            e = Event()
+            e.name = form.cleaned_data['name']
+            e.description = form.cleaned_data['description']
+            e.start_date = form.cleaned_data['start_date']
+            e.end_date = form.cleaned_data['end_date']
+            e.start_time = form.cleaned_data['start_time']
+            e.end_time = form.cleaned_data['end_time']
+            e.is_public = form.cleaned_data['is_public']
+            e.organizer = request.user
+
+            l = Location() 
+            if form.existing_location:
+                l = form.cleaned_data['existing_location']
+                e.location = l
+            elif form.new_location:
+                l.building = form.cleaned_data['new_location_building']
+                l.place_id = form.cleaned_data['new_location_placeid']
+                location = l.save(commit = False)
+                location.save()
+                e.location = l.pk
+
+            post = e.save(commit=False)
             post.save()
             return redirect('post_detail_event', pk=post.pk)
 
