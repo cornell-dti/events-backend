@@ -261,11 +261,9 @@ class ObtainToken(APIView):
         if userIDSet.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
-            #validate firebase ID
-            #try:
-            #    idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
-            #except:
-            #    return HttpResponseBadRequest(idinfo)
+            validated, valid_info = validate_firebase(mobile_id)
+            if not validated:
+                return HttpResponseBadRequest(idinfo)
 
             #generate username
             username = generateUserName()
@@ -281,6 +279,18 @@ class ObtainToken(APIView):
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
 
+class ResetToken(APIView):
+    #TODO: alter classes to token and admin?
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, mobile_id, format=None):
+        userIDSet = UserID.objects.filter(token=mobile_id)
+        if userIDSet.exists():
+            userID = userIDSet[0]
+            token = Token.objects.get(user = userID.user)
+            return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            return HttpResponse("Reset Token Error")
 
 class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -388,16 +398,23 @@ def post_edit_org(request, pk):
     return render(request, 'post_edit.html', {'form': form})
 
 def post_event_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = get_object_or_404(Event, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = EventForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm(instance=post)
+        form = EventForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
+
+def validate_firebase(mobile_id):
+    try:
+       idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+       return True, ""
+    except:
+       return False, idinfo
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)

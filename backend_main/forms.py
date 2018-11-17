@@ -13,7 +13,7 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ('name',)
-        
+
 class EventForm(forms.ModelForm):
 
     class Meta:
