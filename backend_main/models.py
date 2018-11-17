@@ -53,7 +53,7 @@ class Org(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-    photo = models.ForeignKey('Media',on_delete=models.CASCADE)
+    photo = models.ForeignKey('Media',on_delete=models.CASCADE, blank=True, null=True)
 
     verified = models.BooleanField(default = False)
     history = HistoricalRecords()
