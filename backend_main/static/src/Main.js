@@ -37,12 +37,12 @@ class Main extends Component {
 			case routes.profile.route:
 				return (
 					<React.Fragment>
-						<LinkColorless to={routes.profile.route}>
+						<LinkColorless to={routes.profile.route} changeDjango={true}>
 							<Button color={"primary"} className={classes.button}>
 								Profile
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.myEvents.route}>
+						<LinkColorless to={routes.myEvents.route} changeDjango={true}>
 							<Button color={"primary"} className={classes.button}>
 								My Events
 							</Button>
