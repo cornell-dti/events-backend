@@ -3,17 +3,22 @@ import PropTypes from 'prop-types';
 import Button from "@material-ui/core/Button/Button";
 import { withStyles } from "@material-ui/core";
 import AvatarEditor from 'react-avatar-editor';
-import classNames from "classnames";
+// import classNames from "classnames";
 
 class ImageUploader extends Component {
-	state = { hasImage: false, image_file: null };
+	state = { hasImage: false, image_file: null, scaled_image: null };
 
 	onFileChange(e) {
 		const image = e.target.files[0];
 		this.props.onImageChange(image);
 		this.setState({ hasImage: true, image_file: image });
 
+		if (this.editor) {
+			const canvasScaled = this.editor.getImageScaledToCanvas();
+			this.setState({ scaled_image: canvasScaled });
+		}
 	}
+
 	onUploadClick() {
 		document.getElementById("fileInput").click();
 	}
@@ -28,6 +33,8 @@ class ImageUploader extends Component {
 				return null;
 		}
 	}
+	setEditorRef = (editor) => this.editor = editor;
+
 	render() {
 		const { classes } = this.props;
 		return (
@@ -40,7 +47,7 @@ class ImageUploader extends Component {
 				</Button>
 				{this.state.hasImage
 					?
-					<AvatarEditor image={this.state.image_file} width={500} height={300} border={0} />
+					<AvatarEditor ref={this.setEditorRef} image={this.state.image_file} width={500} height={300} border={0} />
 					: null}
 			</div>
 		);
