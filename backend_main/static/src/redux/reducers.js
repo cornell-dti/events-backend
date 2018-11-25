@@ -1,5 +1,5 @@
-import {combineReducers} from "redux";
-import {user} from "./user";
-import {tags} from "./tags";
+import { combineReducers } from "redux";
+import { user } from "./user";
+import { event } from "./event";
 
-export default combineReducers({user, tags});
+export default combineReducers({ user, event });
