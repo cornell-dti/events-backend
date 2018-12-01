@@ -7,15 +7,19 @@ import Button from "@material-ui/core/Button/Button";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
-import Select from 'react-select';
+// import Select from 'react-select';
 import ImageUploader from "./ImageUploader";
 import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
+import connect from "react-redux/es/connect/connect";
+import {
+	SET_EVENT_NAME, SET_EVENT_DESCRIPTION, SET_EVENT_START_DATE, SET_EVENT_END_DATE, SET_EVENT_PUBLIC,
+	SET_EVENT_ROOM, SET_EVENT_LOCATION
+} from "../redux/event";
 
 let google = null;
 let mapCenter = null;
 let placesService = null;
-let suggestions = null;
 const radius = 5000;
 
 class CreateEvent extends Component {
@@ -23,7 +27,9 @@ class CreateEvent extends Component {
 		image: null, name: "", room: "", location: null,
 		from: this.stringFromDate(this.defaultStartTime()),
 		to: this.stringFromDate(this.defaultEndTime()), description: "", tags: [],
-		locationSuggestions: []
+		roomSuggestions: [],
+		locationSuggestions: [],
+		visitedLocations: [] // JS Objects of API Call of All Locations
 	};
 
 	constructor(props) {
@@ -37,7 +43,15 @@ class CreateEvent extends Component {
 		});
 		placesService = new google.maps.places.PlacesService(map);
 
-		suggestions = [];
+		// const url = 'http://cuevents-app.herokuapp.com/app/loc/all/';
+		// fetch(url)
+		// 	.then(res => res.json())
+		// 	.then(json => {
+		// 		this.setState({ visitedLocations: json.parse });
+		// 	})
+		// 	.catch((error) => {
+		// 		console.log(error);
+		// 	});
 	}
 	//tomorrow, same hour, 0 minutes
 	defaultStartTime() {
@@ -73,25 +87,46 @@ class CreateEvent extends Component {
 			});
 		});
 	}
-	suggestLocation(input) {
+	autocompleteRoom(input) {
 		if (input.length < 2)
 			return;
 
-		// call to api for the previously looked up stuff
-		const suggestions = [];
-		const filteredSuggestions = [];
-
-		for (var i = 0; i < suggestions.length; i++) {
-			if (suggestions[i].indexOf(input) !== -1)
-				filteredSuggestions.push({ name: suggestions[i], place_id: suggestions[i] });
+		if (this.state.visitedLocations === undefined) {
+			return;
 		}
 
+		const matchLocation = this.state.visitedLocations.filter(location => (location.building).includes(input));
 		this.setState({
-			locationSuggestions: filteredSuggestions.map(loc => ({
-				name: loc.name, place_id: loc.place_id
-			}))
-			// location: buildingName
-		});
+			roomSuggestions: matchLocation.map(loc => ({ name: loc.name, place_id: loc.place_id }))
+		})
+	}
+
+	canPublish() {
+		return this.props.event.eventName !== null && this.props.event.eventDesc !== undefined &&
+			this.props.event.startDate !== undefined && this.props.event.endDate !== undefined &&
+			this.props.event.room !== undefined && this.props.event.location !== undefined;
+	}
+
+	tryToPublish() {
+		setTimeout(() => {
+			console.log("try to publish");
+			if (this.canPublish())
+				this.props.onPublish();
+			else
+				this.tryToPublish();
+		}, 20);
+	}
+
+	onPublishEvent() {
+		this.props.setName(this.state.name);
+		this.props.setDescription(this.state.description);
+		this.props.setStartTime(this.state.to);
+		this.props.setEndTime(this.state.from);
+		this.props.setRoom(this.state.room);
+		this.props.setLocation(this.state.location);
+
+		this.tryToPublish();
+		// this.props.onPublish();
 	}
 	render() {
 		const { classes } = this.props;
@@ -109,9 +144,9 @@ class CreateEvent extends Component {
 					<Autocomplete
 						label={"Room"}
 						value={this.state.selected}
-						data={this.state.locationSuggestions.map(loc =>
+						data={this.state.roomSuggestions.map(loc =>
 							({ value: loc.name, label: loc.name }))}
-						onChange={this.suggestLocation.bind(this)}
+						onChange={this.autocompleteRoom.bind(this)}
 						onUpdate={val => this.setState({ location: val })}
 						placeholder={"Building + room to display (e.g. Gates G01)"}
 						multiSelect={false}
@@ -152,7 +187,7 @@ class CreateEvent extends Component {
 					<Button onClick={this.props.onCancel} color="secondary">
 						Cancel
 					</Button>
-					<Button onClick={this.props.onPublish} color="primary">
+					<Button onClick={this.onPublishEvent.bind(this)} color="primary">
 						Publish Event
 					</Button>
 				</DialogActions>
@@ -164,7 +199,15 @@ class CreateEvent extends Component {
 CreateEvent.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onCancel: PropTypes.func.isRequired,
-	onPublish: PropTypes.func.isRequired
+	onPublish: PropTypes.func.isRequired,
+
+	setName: PropTypes.func.isRequired,
+	setDescription: PropTypes.func.isRequired,
+	setStartTime: PropTypes.func.isRequired,
+	setEndTime: PropTypes.func.isRequired,
+	setPublic: PropTypes.func.isRequired,
+	setRoom: PropTypes.func.isRequired,
+	setLocation: PropTypes.func.isRequired
 };
 
 const styles = (theme) => ({
@@ -174,4 +217,23 @@ const styles = (theme) => ({
 	}
 });
 
+function mapStateToProps(state) {
+	return {
+		event: state.event
+	};
+}
+
+function mapDispatchToProps(dispatch) {
+	return {
+		setName: (name) => dispatch({ type: SET_EVENT_NAME, value: name }),
+		setDescription: (description) => dispatch({ type: SET_EVENT_DESCRIPTION, value: description }),
+		setStartTime: (startTime) => dispatch({ type: SET_EVENT_START_DATE, value: startTime }),
+		setEndTime: (endTime) => dispatch({ type: SET_EVENT_END_DATE, value: endTime }),
+		setPublic: (isPublic) => dispatch({ type: SET_EVENT_PUBLIC, value: isPublic }),
+		setRoom: (room) => dispatch({ type: SET_EVENT_ROOM, value: room }),
+		setLocation: (location) => dispatch({ type: SET_EVENT_LOCATION, value: location })
+	}
+}
+
+CreateEvent = connect(mapStateToProps, mapDispatchToProps)(CreateEvent)
 export default withStyles(styles)(CreateEvent);
