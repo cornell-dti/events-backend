@@ -398,15 +398,15 @@ def post_edit_org(request, pk):
     return render(request, 'post_edit.html', {'form': form})
 
 def post_event_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = get_object_or_404(Event, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = EventForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm(instance=post)
+        form = EventForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
 
 def validate_firebase(mobile_id):
