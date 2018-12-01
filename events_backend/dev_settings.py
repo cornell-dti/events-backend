@@ -161,7 +161,7 @@ WEBPACK_LOADER = {
 }
 
 # Page to open after login
-LOGIN_REDIRECT_URL = '/app/myEvents'
+LOGIN_REDIRECT_URL = '/app/post/event/'
 LOGOUT_REDIRECT_URL = '/app/'
 
 
