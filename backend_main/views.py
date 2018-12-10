@@ -228,7 +228,7 @@ def tagDetail(tag_id=0, all=False):
     if all:
         serializer = TagSerializer(tags, many=True)
     else:
-        serialzer = TagSerializer(tags.filter(pk = tag_id), many=False)
+        serializer = TagSerializer(tags.filter(pk = tag_id), many=False)
 
     return serializer
 
@@ -310,15 +310,39 @@ class EventFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        form = EventForm(request.user)
+        form = EventForm()
         return render(request, 'post_edit.html', {'form': form})
 
     def post(self, request):
         form = EventForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('post_detail_event', pk=post.pk)
+
+        if form.is_valid():            
+            e = Event()
+            e.name = form.cleaned_data['name']
+            e.description = form.cleaned_data['description']
+            e.start_date = form.cleaned_data['start_date']
+            e.end_date = form.cleaned_data['end_date']
+            e.start_time = form.cleaned_data['start_time']
+            e.end_time = form.cleaned_data['end_time']
+            e.is_public = form.cleaned_data['is_public']
+            e.organizer = form.cleaned_data['organizer']
+
+            l = Location() 
+            if form.cleaned_data['existing_location']:
+                l = form.cleaned_data['existing_location']
+                e.location = l
+            elif form.cleaned_data['new_location_building']:
+                l.building = form.cleaned_data['new_location_building']
+                l.place_id = form.cleaned_data['new_location_placeid']
+                l.save()
+                e.location = l
+            else:
+                return redirect('post_detail_event_error.html')
+            
+            e.save()
+            print(e)
+            return redirect('post_detail_event', pk=e.pk)
+    
 
 class LocationFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -374,15 +398,15 @@ def post_edit_org(request, pk):
     return render(request, 'post_edit.html', {'form': form})
 
 def post_event_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = get_object_or_404(Event, pk=pk)
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = EventForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm(instance=post)
+        form = EventForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
 
 def validate_firebase(mobile_id):
