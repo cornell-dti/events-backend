@@ -30,6 +30,7 @@ urlpatterns = [
 	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 
 	path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True)),
+	path('settings/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change.html', success_url='../profile')),
 	path('accounts/', include('django.contrib.auth.urls')),
 
 	url(r'^email/orgEmail=(?P<org_email>.*)&orgName=(?P<org_name>.*)&name=(?P<name>[a-zA-Z\s]+)&netID=(?P<net_id>[a-zA-Z0-9]+)&link=(?P<link>.*)$', views.EmailDetail.as_view(), name='Email Detail'),

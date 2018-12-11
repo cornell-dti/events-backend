@@ -34,12 +34,32 @@ class Main extends Component {
 					</React.Fragment>
 				);
 			case routes.myEvents.route:
-			case routes.profile.route:
+			case routes.settings.route:
 				return (
 					<React.Fragment>
 						<LinkColorless to={routes.profile.route} changeDjango={true}>
 							<Button color={"primary"} className={classes.button}>
 								Profile
+							</Button>
+						</LinkColorless>
+						<LinkColorless to={routes.myEvents.route} changeDjango={true}>
+							<Button color={"primary"} className={classes.button}>
+								My Events
+							</Button>
+						</LinkColorless>
+						<LinkColorless to={routes.logout.route} changeDjango={true}>
+							<Button color={"primary"} className={classes.button}>
+								Log Out
+							</Button>
+						</LinkColorless>
+					</React.Fragment>
+				);
+			case routes.profile.route:
+				return (
+					<React.Fragment>
+						<LinkColorless to={routes.settings.route} changeDjango={true}>
+							<Button color={"primary"} className={classes.button}>
+								Settings
 							</Button>
 						</LinkColorless>
 						<LinkColorless to={routes.myEvents.route} changeDjango={true}>
