@@ -1,18 +1,15 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Autocomplete from "./Autocomplete";
 import connect from "react-redux/es/connect/connect";
 
-class TagField extends Component
-{
-	newTags(tags)
-	{
+class TagField extends Component {
+	newTags(tags) {
 		const newTag = tags[tags.length - 1];
 		// if (!this.state.tags.includes(newTag)) //TODO update backend
 		this.props.onNewTags(tags.map(tag => tag.value));
 	}
-	render()
-	{
+	render() {
 		return (<Autocomplete
 			label={"Tags"}
 			placeholder={"Select at most 5 tags"}
@@ -30,14 +27,12 @@ TagField.propTypes = {
 	})).isRequired
 };
 
-function mapStateToProps(state)
-{
+function mapStateToProps(state) {
 	return {
-		tags: state.tags.tags.map(tag => ({value: tag.name, label: tag.name}))
+		tags: []
 	};
 }
-function mapDispatchToProps(dispatch)
-{
+function mapDispatchToProps(dispatch) {
 	return {
 
 	};
