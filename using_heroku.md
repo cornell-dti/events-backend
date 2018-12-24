@@ -5,7 +5,7 @@ A brief guide to maintaining apps deployed using Heroku.
 Install and Add login credentials for [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 
 ### Deploying:
-[Guide] (https://devcenter.heroku.com/articles/git#creating-a-heroku-remote)
+[Guide](https://devcenter.heroku.com/articles/git#creating-a-heroku-remote)
 
 **TL;DR**
 1. Navigate to your local repo
