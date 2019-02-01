@@ -203,7 +203,7 @@ class EventTest(APIView):
 
 
 class EventFeed(APIView):
-    #TODO: alter classes to token and admin?
+    #TODO: token authentication not working...?
     # authentication_classes = (TokenAuthentication, )
     # permission_classes = (permissions.IsAuthenticated, )
 
@@ -219,19 +219,8 @@ class EventFeed(APIView):
         json_events = EventSerializer(outdated_events, many = True).data
         serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-        # return JsonResponse({'status':'false','message': 'message'}, status=500)
-
-    # def get(self, request, in_timestamp, start_time, end_time, format=None):
-        # old_timestamp = dateutil.parser.parse(in_timestamp)
-        # start_time = dateutil.parser.parse(start_time)
-        # end_time = dateutil.parser.parse(end_time)
-        # outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-        # json_events = EventSerializer(outdated_events, many = True).data
-        # serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
-        # return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #tbh i have no idea what this function does
-
 def outdatedEvents(in_timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = in_timestamp)
     unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
