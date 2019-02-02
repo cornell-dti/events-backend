@@ -200,7 +200,7 @@ class EventFeed(APIView):
     # authentication_classes = (TokenAuthentication, )
     # permission_classes = (permissions.IsAuthenticated, )
 
-    #get event feed
+    #get event feed, parse timestamp and return events
     def get(self, request, format=None):
         in_timestamp = request.GET.get('timestamp')
         start_time = request.GET.get('start')
