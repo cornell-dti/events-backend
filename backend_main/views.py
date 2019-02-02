@@ -195,13 +195,6 @@ def outdatedOrgs(in_timestamp):
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
-class EventTest(APIView):
-    def get(self, request, format=None):
-        print("hi")
-        return JsonResponse({'status':'false','message':'message'}, status=500)
-        # return JsonResponse({'status':'false','message':message}, status=500)
-
-
 class EventFeed(APIView):
     #TODO: token authentication not working...?
     # authentication_classes = (TokenAuthentication, )
