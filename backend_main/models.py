@@ -5,11 +5,15 @@
 import datetime
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
+
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
@@ -84,12 +88,12 @@ class Location(models.Model):
         return self.building
 
 class UserID(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     token = models.CharField(max_length = MAX_TOKEN_LENGTH)
     #TODO: can a token be stored as a string
 
 class Attendance(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey('User', on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -110,3 +114,19 @@ class Event_Media(models.Model):
 class Org_Media(models.Model):
     org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+
+
+class Profile(models.Model):
+    org_name = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=30, blank=True)
+    netid = models.CharField(max_length=30, blank=True)
+    facebook = models.CharField(max_length=30, blank=True)
+    website = models.CharField(max_length=30, blank=True)
+    contact_us = models.BooleanField(default = False)
+    verified = models.BooleanField(default = False)
+
+@receiver(post_save, sender=User)
+def update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    instance.profile.save()
