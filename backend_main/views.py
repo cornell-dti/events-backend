@@ -10,6 +10,7 @@ import dateutil.parser
 from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -35,7 +36,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Profile
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail

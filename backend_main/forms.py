@@ -45,7 +45,7 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us', 'verified')
+        fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us')
 
 class SignUpForm1:
     org_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
