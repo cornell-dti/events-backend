@@ -1,0 +1,12 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <div class="post">
+      {% csrf_token %}
+        {% if post.name %}
+            <div class="date">
+                {{ post.first_name }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

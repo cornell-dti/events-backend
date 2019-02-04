@@ -8,7 +8,6 @@ from boto.s3.key import Key
 import dateutil.parser
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
@@ -19,17 +18,11 @@ from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.utils import timezone
-from django.shortcuts import redirect
-from django.shortcuts import render, get_object_or_404
-from django.template import loader
-
 
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import OrgForm, TagForm, EventForm, LocationForm
+from .forms import OrgForm, TagForm, EventForm, LocationForm, SignUpForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -292,6 +285,10 @@ class ResetToken(APIView):
         else:
             return HttpResponse("Reset Token Error")
 
+#=============================================================
+#                        FORMS
+#=============================================================
+
 class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
@@ -340,7 +337,6 @@ class EventFormView(APIView):
                 return redirect('post_detail_event_error.html')
             
             e.save()
-            print(e)
             return redirect('post_detail_event', pk=e.pk)
     
 
@@ -357,6 +353,28 @@ class LocationFormView(APIView):
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail_location', pk=post.pk)
+
+class OrgFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = OrgForm(request.POST)
+        if form.is_valid():
+            o = Org()
+            o.name = form.cleaned_data['name']
+            o.description = form.cleaned_data['description']
+            o.verified = form.cleaned_data['verified']
+            o.website = form.cleaned_data['website']
+            o.photo = form.cleaned_data['photo']
+
+            o.owner = request.user
+
+            o.save()
+            return redirect('post_detail_org', pk=o.pk)
 
 #=============================================================
 #                        HELPERS
@@ -384,6 +402,10 @@ def post_detail_event(request, pk):
 def post_detail_location(request, pk):
     post = get_object_or_404(Location, pk=pk)
     return render(request, 'post_detail_location.html', {'post': post})
+
+def post_detail_user(request, pk):
+    post = get_object_or_404(User, pk=pk)
+    return render(request, 'post_detail_user.html', {'post': post})
 
 def post_edit_org(request, pk):
     post = get_object_or_404(Org, pk=pk)
@@ -424,41 +446,18 @@ class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
 
-
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     def perform_create(self, serializer):
         serializer.save(owner = self.request.user)
 
-class OrgFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = OrgForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            o = Org()
-            o.name = form.cleaned_data['name']
-            o.description = form.cleaned_data['description']
-            o.verified = form.cleaned_data['verified']
-            o.website = form.cleaned_data['website']
-            o.photo = form.cleaned_data['photo']
-
-            o.owner = request.user
-
-            o.save()
-            return redirect('post_detail_org', pk=o.pk)
-
 
 #=============================================
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -467,5 +466,5 @@ def signup(request):
             login(request, user)
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
