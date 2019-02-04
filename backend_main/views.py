@@ -23,7 +23,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import OrgForm, TagForm, EventForm, LocationForm
+from .forms import OrgForm, TagForm, EventForm, LocationForm, SignUpForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -36,7 +36,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Profile
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -463,7 +463,7 @@ class Authentication(APIView):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -472,5 +472,5 @@ def signup(request):
             login(request, user)
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, 'signup.html', {'form': form})

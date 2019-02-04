@@ -115,7 +115,6 @@ class Org_Media(models.Model):
     org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
-
 # class Profile(models.Model):
 #     org_name = models.CharField(max_length=30, blank=True)
 #     name = models.CharField(max_length=30, blank=True)
