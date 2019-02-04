@@ -88,12 +88,12 @@ class Location(models.Model):
         return self.building
 
 class UserID(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     token = models.CharField(max_length = MAX_TOKEN_LENGTH)
     #TODO: can a token be stored as a string
 
 class Attendance(models.Model):
-    user_id = models.ForeignKey('User', on_delete=models.CASCADE)
+    user_id = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -116,21 +116,21 @@ class Org_Media(models.Model):
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 
-class Profile(models.Model):
-    org_name = models.CharField(max_length=30, blank=True)
-    name = models.CharField(max_length=30, blank=True)
-    netid = models.CharField(max_length=30, blank=True)
-    facebook = models.CharField(max_length=30, blank=True)
-    website = models.CharField(max_length=30, blank=True)
-    contact_us = models.BooleanField(default = False)
-    verified = models.BooleanField(default = False)
+# class Profile(models.Model):
+#     org_name = models.CharField(max_length=30, blank=True)
+#     name = models.CharField(max_length=30, blank=True)
+#     netid = models.CharField(max_length=30, blank=True)
+#     facebook = models.CharField(max_length=30, blank=True)
+#     website = models.CharField(max_length=30, blank=True)
+#     contact_us = models.BooleanField(default = False)
+#     verified = models.BooleanField(default = False)
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()
