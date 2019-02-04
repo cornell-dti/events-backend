@@ -39,6 +39,7 @@ from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, Use
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
+import logging
 import os
 
 #=============================================================
@@ -188,11 +189,15 @@ def outdatedOrgs(in_timestamp):
     return changed_orgs, all_deleted_pks
 
 class EventFeed(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    #TODO: token authentication not working...?
+    # authentication_classes = (TokenAuthentication, )
+    # permission_classes = (permissions.IsAuthenticated, )
 
-    def get(self, request, in_timestamp, start_time, end_time, format=None):
+    #get event feed, parse timestamp and return events
+    def get(self, request, format=None):
+        in_timestamp = request.GET.get('timestamp')
+        start_time = request.GET.get('start')
+        end_time = request.GET.get('end')
         old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
@@ -201,12 +206,12 @@ class EventFeed(APIView):
         serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+#tbh i have no idea what this function does
 def outdatedEvents(in_timestamp, start_time, end_time):
     history_set = Event.history.filter(history_date__gte = in_timestamp)
-    unique_set  = history_set.distinct('id').order_by('id')
-
+    unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
     pks = unique_set.values_list('id', flat=True).order_by('id')
-    #TODO: What if not in list
+    # #TODO: What if not in list
     changed_events = Event.objects.filter(pk__in = pks, start_date__gte = start_time, end_date__lte =  end_time)
     present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
     all_deleted_pks = list(set(pks).difference(set(present_pks)))
