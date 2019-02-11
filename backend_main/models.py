@@ -4,13 +4,15 @@
 
 import datetime
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters.html import HtmlFormatter
 from pygments import highlight
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.base_user import BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -61,7 +63,7 @@ class Org(models.Model):
 
     verified = models.BooleanField(default = False)
     history = HistoricalRecords()
-    owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE) #user
 
     def __str__(self):
         return self.name
@@ -88,12 +90,12 @@ class Location(models.Model):
         return self.building
 
 class UserID(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     token = models.CharField(max_length = MAX_TOKEN_LENGTH)
     #TODO: can a token be stored as a string
 
 class Attendance(models.Model):
-    user_id = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -124,12 +126,44 @@ class Profile(models.Model):
     contact_us = models.BooleanField(default = False)
     verified = models.BooleanField(default = False)
 
+class UserManager(BaseUserManager):
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+class Organization(AbstractBaseUser, PermissionsMixin):
+    name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+
+    def get_short_name(self):
+        return self.email
+
+    def __str__(self):
+        return self.email

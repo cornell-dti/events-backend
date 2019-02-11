@@ -8,9 +8,8 @@ from boto.s3.key import Key
 import dateutil.parser
 
 from django.conf import settings
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -23,7 +22,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import OrgForm, TagForm, EventForm, LocationForm
+from .forms import OrgForm, TagForm, EventForm, LocationForm, OrganizationForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -42,6 +41,8 @@ from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
 from django.core.mail import send_mail
 import logging
 import os
+
+User = get_user_model()
 
 #=============================================================
 #                   EVENT INFORMATION
@@ -463,14 +464,14 @@ class Authentication(APIView):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = OrganizationForm(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get('username')
+            username = form.cleaned_data.get('email')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     else:
-        form = UserCreationForm()
+        form = OrganizationForm()
     return render(request, 'signup.html', {'form': form})
