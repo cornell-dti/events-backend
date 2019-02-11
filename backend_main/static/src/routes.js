@@ -10,7 +10,7 @@ import Settings from "./Settings";
 export default {
 	login: { route: "/app/accounts/login/", component: Login },
 	logout: { route: "/app/accounts/logout/", component: null },
-	profile: { route: "/app/profile", component: Profile },
+	profile: { route: "/app/profile/", component: Profile },
 	settings: { route: "/app/settings/", component: Settings },
 	myEvents: { route: "/app/post/event/", component: MyEvents },
 	//onboarding

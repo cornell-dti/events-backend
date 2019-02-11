@@ -3,7 +3,7 @@
 # 17th Sept. 2018
 
 from django.contrib import admin
-from .models import Attendance, Event, Location, Media, Org, Tag, UserID
+from .models import Attendance, Event, Location, Media, Org, Tag, UserID, Organization
 
 admin.site.register(Org)
 admin.site.register(Event)
@@ -12,3 +12,4 @@ admin.site.register(Media)
 admin.site.register(Tag)
 admin.site.register(Attendance)
 admin.site.register(UserID)
+admin.site.register(Organization)

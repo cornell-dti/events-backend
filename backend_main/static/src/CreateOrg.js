@@ -23,7 +23,8 @@ class CreateOrg extends Component {
 	onClick() {
 		this.props.setName(this.state.name);
 		this.props.setEmail(this.state.email);
-		document.getElementById("id_username").value = this.state.email;
+		document.getElementById("id_name").value = this.state.name;
+		document.getElementById("id_email").value = this.state.email;
 		document.getElementById("id_password1").value = this.state.password;
 		document.getElementById("id_password2").value = this.state.confirmPassword;
 		const form = document.getElementsByTagName("form")[0];

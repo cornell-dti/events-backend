@@ -1,7 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from .models import Org, Tag, Event, Location
-from django.contrib.auth.models import User
+from .models import Org, Tag, Event, Location, Organization
 
 class OrgForm(forms.ModelForm):
 
@@ -34,6 +33,7 @@ class LocationForm(forms.ModelForm):
         model = Location
         fields = ('building', 'place_id')
 
+'''
 class SignUpForm(UserCreationForm):
     name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     netid = forms.CharField(max_length=30, required=False, help_text='Optional.')
@@ -46,6 +46,23 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us')
+'''
+
+class OrganizationForm(UserCreationForm):
+
+    class Meta:
+        model = Organization
+        fields = ("name", "email", "password1", "password2")
+
+    def save(self, commit=True):
+        user = super(OrganizationForm, self).save(commit=False)
+        user.name = self.cleaned_data["name"]
+        user.email = self.cleaned_data["email"]
+        user.password1 = self.cleaned_data["password1"]
+        user.password2 = self.cleaned_data["password2"]
+        if commit:
+            user.save()
+        return user
 
 # class SignUpForm1:
 #     org_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
