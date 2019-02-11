@@ -30,17 +30,17 @@ class CreateOrg extends Component {
 		form.submit();
 	}
 	onEnter(e) {
-	  if (e.key === 'Enter') {
-	    document.getElementsByTagName("button")[0].click();
-    }
-  }
+		if (e.key === 'Enter') {
+			document.getElementsByTagName("button")[0].click();
+		}
+	}
 	render() {
 		const { classes } = this.props;
 		return (
 			<Onboarding
 				title={"Create an Organization Account"}
 				button={"Continue"}
-				link={routes.verifyCornellStatus.route}
+				// link={routes.myEvents.route}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)} >
 				<FormError />
@@ -72,8 +72,8 @@ class CreateOrg extends Component {
 					type={"password"}
 					error={this.confirmPasswordError()}
 					helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
-          onKeyPress={this.onEnter.bind(this)}
-          />
+					onKeyPress={this.onEnter.bind(this)}
+				/>
 			</Onboarding>
 		);
 	}
@@ -97,7 +97,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name }),
-		setEmail: (email) => dispatch({ type: SET_ORG_EMAIL, value: email})
+		setEmail: (email) => dispatch({ type: SET_ORG_EMAIL, value: email })
 	}
 }
 
