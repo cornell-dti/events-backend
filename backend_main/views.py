@@ -257,27 +257,34 @@ class ObtainToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
+        print("hehehehehhe")
+
         userIDSet = UserID.objects.filter(token=mobile_id)
+        # print(userIDSet)
         if userIDSet.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
             if not validated:
-                return HttpResponseBadRequest(idinfo)
+                # print(valid_info)
+                return HttpResponseBadRequest("Invalid Firebase ID") #find way to return id info? also how to validate the id -- we need an actual firebase id
 
-            #generate username
-            username = generateUserName()
-            user = User.objects.create_user(username=username,
-                                            password='')
-            user.set_unusable_password()
-            user.save()
+        #     #generate username
+        #     username = generateUserName()
+        #     user = User.objects.create_user(username=username,
+        #                                     password='')
+        #     user.set_unusable_password()
+        #     user.save()
 
-            newUserID = UserID(user = user, token = mobile_id)
-            newUserID.save()
+        #     newUserID = UserID(user = user, token = mobile_id)
+        #     newUserID.save()
 
-            #generate token
-            token = Token.objects.create(user=user)
-            return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+        #     #generate token
+        #     token = Token.objects.create(user=user)
+        #     return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+
+        response = JsonResponse({'status':'false','message':'message'}, status=500)
+        return response
 
 class ResetToken(APIView):
     #TODO: alter classes to token and admin?
@@ -411,10 +418,11 @@ def post_event_edit(request, pk):
 
 def validate_firebase(mobile_id):
     try:
-       idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
-       return True, ""
+        print(mobile_id)
+        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+        return True, ""
     except:
-       return False, idinfo
+        return False, mobile_id
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)
@@ -428,7 +436,7 @@ class UserDetail(generics.RetrieveAPIView):
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer): 
         serializer.save(owner = self.request.user)
 
 class OrgFormView(APIView):
