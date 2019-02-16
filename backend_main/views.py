@@ -364,8 +364,8 @@ def outdatedOrgs(in_timestamp):
 
 class EventFeed(APIView):
     #TODO: token authentication not working...?
-    # authentication_classes = (TokenAuthentication, )
-    # permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () # (TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     #get event feed, parse timestamp and return events
     def get(self, request, format=None):
