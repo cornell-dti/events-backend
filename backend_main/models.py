@@ -24,6 +24,59 @@ MAX_CONTACT_LENGTH = 100
 MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
 
+class UserManager(BaseUserManager):
+
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+class Org(AbstractBaseUser, PermissionsMixin):
+    name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    bio = models.CharField(max_length=MAX_DESC_LENGTH, default="")
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="")
+    photo = models.ForeignKey('Media', on_delete=models.CASCADE, blank=True, null=True)
+
+    tags = models.ManyToManyField('Tag', through='Org_Tags')
+
+    history = HistoricalRecords()
+    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+
+    def get_short_name(self):
+        return self.email
+
+    def __str__(self):
+        return self.email
+
+
 class Event(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
@@ -34,9 +87,11 @@ class Event(models.Model):
 
     num_attendees = models.IntegerField(default=0)
     is_public = models.BooleanField(default=True)
-    organizer = models.ForeignKey('Organization', on_delete=models.CASCADE)
+    organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
+
+    tags = models.ManyToManyField('Tag', through='Event_Tags')
 
     def __str__(self):
         return self.name
@@ -70,13 +125,13 @@ class Event_Tags(models.Model):
 
 class Event_Org(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
-    org_id = models.ForeignKey('Organization',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
 class Org_Tags(models.Model):
-    org_id = models.ForeignKey('Organization',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
     def __str__(self):
@@ -104,7 +159,7 @@ class Attendance(models.Model):
 class Media(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     file = models.FileField(upload_to="cu_events_images", blank = False)
-    uploaded_by = models.ForeignKey('Organization',on_delete=models.CASCADE)
+    uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -114,65 +169,15 @@ class Event_Media(models.Model):
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 class Org_Media(models.Model):
-    org_id = models.ForeignKey('Organization', on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
-class Profile(models.Model):
-    org_name = models.CharField(max_length=30, blank=True)
-    name = models.CharField(max_length=30, blank=True)
-    netid = models.CharField(max_length=30, blank=True)
-    facebook = models.CharField(max_length=30, blank=True)
-    website = models.CharField(max_length=30, blank=True)
-    contact_us = models.BooleanField(default = False)
-    verified = models.BooleanField(default = False)
+# class Profile(models.Model):
+#    org_name = models.CharField(max_length=30, blank=True)
+#    name = models.CharField(max_length=30, blank=True)
+#    netid = models.CharField(max_length=30, blank=True)
+#    facebook = models.CharField(max_length=30, blank=True)
+#    website = models.CharField(max_length=30, blank=True)
+#    contact_us = models.BooleanField(default = False)
+#    verified = models.BooleanField(default = False)
 
-class UserManager(BaseUserManager):
-
-    def _create_user(self, email, password, **extra_fields):
-        """
-        Creates and saves a User with the given email and password.
-        """
-        if not email:
-            raise ValueError('The given email must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
-
-    def create_superuser(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(email, password, **extra_fields)
-
-class Organization(AbstractBaseUser, PermissionsMixin):
-    name = models.CharField(max_length=30)
-    email = models.EmailField(unique=True)
-
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-
-    description = models.CharField(max_length=MAX_DESC_LENGTH, default="")
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="")
-    photo = models.ForeignKey('Media', on_delete=models.CASCADE, blank=True, null=True)
-
-    verified = models.BooleanField(default = False)
-    history = HistoricalRecords()
-    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE)
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'email'
-
-    def get_short_name(self):
-        return self.email
-
-    def __str__(self):
-        return self.email

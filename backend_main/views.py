@@ -22,7 +22,7 @@ from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import TagForm, EventForm, LocationForm, OrganizationForm
+from .forms import TagForm, EventForm, LocationForm, OrgForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -35,7 +35,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Organization, Event, Event_Org, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -122,7 +122,7 @@ class OrgDetail(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, org_id, format=None):
-        org_set = Organization.objects.get(pk=org_id)
+        org_set = Org.objects.get(pk=org_id)
         serializer = OrgSerializer(org_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
@@ -132,7 +132,7 @@ class OrgEvents(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, organizer_id, format=None):
-        org = Organization.objects.get(pk = int(organizer_id))
+        org = Org.objects.get(pk = int(organizer_id))
         org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
         event_set = Event.objects.filter(pk__in=org_events_pks)
         serializer = EventSerializer(event_set,many=True)
@@ -180,13 +180,13 @@ class OrgFeed(APIView):
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
-    org_updates = Organization.history.filter(history_date__gte = in_timestamp)
+    org_updates = Org.history.filter(history_date__gte = in_timestamp)
     org_updates = org_updates.distinct('id').order_by('id')
 
     org_list = org_updates.values_list('id', flat = True).order_by('id')
     #TODO: What if not in list
-    changed_orgs = Organization.objects.filter(pk__in=org_list)
-    present_pks = Organization.objects.filter(pk__in = org_list).values_list('pk', flat = True)
+    changed_orgs = Org.objects.filter(pk__in=org_list)
+    present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list(set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
@@ -365,13 +365,13 @@ class OrgFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request):
-        form = OrganizationForm()
+        form = OrgForm()
         return render(request, 'post_edit.html', {'form': form})
 
     def post(self, request):
-        form = OrganizationForm(request.POST)
+        form = OrgForm(request.POST)
         if form.is_valid():
-            o = Organization()
+            o = Org()
             o.name = form.cleaned_data['name']
             o.description = form.cleaned_data['description']
             o.verified = form.cleaned_data['verified']
@@ -395,7 +395,7 @@ def generateUserName():
     return "user{0}".format(User.objects.latest('pk').pk + 1)
 
 def post_detail_org(request, pk):
-    post = get_object_or_404(Organization, pk=pk)
+    post = get_object_or_404(Org, pk=pk)
     return render(request, 'post_detail_org.html', {'post': post})
 
 def post_detail_tag(request, pk):
@@ -415,15 +415,15 @@ def post_detail_user(request, pk):
     return render(request, 'post_detail_user.html', {'post': post})
 
 def post_edit_org(request, pk):
-    post = get_object_or_404(Organization, pk=pk)
+    post = get_object_or_404(Org, pk=pk)
     if request.method == "POST":
-        form = OrganizationForm(request.POST, instance=post)
+        form = OrgForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('post_detail_org', pk=post.pk)
     else:
-        form = OrganizationForm(instance=post)
+        form = OrgForm(instance=post)
     return render(request, 'post_edit.html', {'form': form})
 
 def post_event_edit(request, pk):
@@ -464,7 +464,7 @@ class Authentication(APIView):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
-        form = OrganizationForm(request.POST)
+        form = OrgForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('email')
@@ -473,5 +473,5 @@ def signup(request):
             login(request, user)
             return HttpResponseRedirect(reverse('post_event'))
     else:
-        form = OrganizationForm()
+        form = OrgForm()
     return render(request, 'signup.html', {'form': form})

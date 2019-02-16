@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'backend_main.Organization'
+AUTH_USER_MODEL = 'backend_main.Org'
 
 # Application definition
 

@@ -1,18 +1,22 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from .models import Tag, Event, Location, Organization
+from .models import Tag, Event, Location, Org
 
-class OrgForm(forms.ModelForm):
-
-    class Meta:
-        model = Organization
-        fields = ('name', 'description', 'verified', 'website', 'photo')
-
-class TagForm(forms.ModelForm):
+class OrgForm(UserCreationForm):
 
     class Meta:
-        model = Tag
-        fields = ('name',)
+        model = Org
+        fields = ("name", "email", "password1", "password2")
+
+    def save(self, commit=True):
+        user = super(OrgForm, self).save(commit=False)
+        user.name = self.cleaned_data["name"]
+        user.email = self.cleaned_data["email"]
+        user.password1 = self.cleaned_data["password1"]
+        user.password2 = self.cleaned_data["password2"]
+        if commit:
+            user.save()
+        return user
 
 class EventForm(forms.ModelForm):
 
@@ -26,6 +30,13 @@ class EventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
+
+class TagForm(forms.ModelForm):
+
+    class Meta:
+        model = Tag
+        fields = ('name',)
+
 
 class LocationForm(forms.ModelForm):
 
@@ -48,21 +59,6 @@ class SignUpForm(UserCreationForm):
         fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us')
 '''
 
-class OrganizationForm(UserCreationForm):
-
-    class Meta:
-        model = Organization
-        fields = ("name", "email", "password1", "password2")
-
-    def save(self, commit=True):
-        user = super(OrganizationForm, self).save(commit=False)
-        user.name = self.cleaned_data["name"]
-        user.email = self.cleaned_data["email"]
-        user.password1 = self.cleaned_data["password1"]
-        user.password2 = self.cleaned_data["password2"]
-        if commit:
-            user.save()
-        return user
 
 # class SignUpForm1:
 #     org_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
