@@ -22,7 +22,7 @@ from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import TagForm, EventForm, LocationForm, OrganizationForm
+from .forms import TagForm, EventForm, LocationForm, OrganizationForm, ProfileForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -461,6 +461,19 @@ class Authentication(APIView):
 
 
 #=============================================
+def profile(request):
+    if request.method == 'POST':                
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+        else:
+            form = ProfileForm()
+    else:
+        form = ProfileForm()
+    return render(request, 'profile.html', {'form': form})
+
+
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':

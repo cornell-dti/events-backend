@@ -2,11 +2,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from .models import Tag, Event, Location, Organization
 
-class OrgForm(forms.ModelForm):
+# class OrgForm(forms.ModelForm):
 
-    class Meta:
-        model = Organization
-        fields = ('name', 'description', 'verified', 'website', 'photo')
+#     class Meta:
+#         model = Organization
+#         fields = ('name', 'description', 'verified', 'website', 'photo')
 
 class TagForm(forms.ModelForm):
 
@@ -60,6 +60,22 @@ class OrganizationForm(UserCreationForm):
         user.email = self.cleaned_data["email"]
         user.password1 = self.cleaned_data["password1"]
         user.password2 = self.cleaned_data["password2"]
+        if commit:
+            user.save()
+        return user
+
+class ProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Organization
+        fields = ("name", "email", "website", "description")
+
+    def save(self, commit=True):
+        user = super(ProfileForm, self).save(commit=False)
+        user.name = self.cleaned_data["name"]
+        user.email = self.cleaned_data["email"]
+        user.website = self.cleaned_data["website"]
+        user.description = self.cleaned_data["description"]
         if commit:
             user.save()
         return user
