@@ -14,7 +14,7 @@ import Landing from "./Landing";
 class Main extends Component {
 	getNavBar(classes) {
 		switch (this.props.location.pathname) {
-			case "/app/":
+			case "/":
 				return (
 					<React.Fragment>
 						<Typography variant={"title"} color={"inherit"}>
@@ -85,14 +85,14 @@ class Main extends Component {
 			<div className={classes.root}>
 				<AppBar color={"default"}>
 					<Toolbar>
-						<LinkColorless to={"/app/"} style={{ flexGrow: 1 }}>
+						<LinkColorless to={"/"} style={{ flexGrow: 1 }}>
 							<Logo fontSize={40} />
 						</LinkColorless>
 						{this.getNavBar(classes)}
 					</Toolbar>
 				</AppBar>
 				<div className={classes.appBarSpace} />
-				{this.props.location.pathname === "/app/"
+				{this.props.location.pathname === "/"
 					? <Landing /> : null}
 				{Object.values(routes).map(obj => <Route key={obj.route} path={obj.route}
 					component={obj.component} />)}

@@ -161,8 +161,8 @@ WEBPACK_LOADER = {
 }
 
 # Page to open after login
-LOGIN_REDIRECT_URL = '/app/post/event/'
-LOGOUT_REDIRECT_URL = '/app/'
+LOGIN_REDIRECT_URL = '/post/event/'
+LOGOUT_REDIRECT_URL = '/'
 
 
 EMAIL_HOST = 'smtp.mailgun.org'
