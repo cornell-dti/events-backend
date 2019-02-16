@@ -461,6 +461,19 @@ class Authentication(APIView):
 
 
 #=============================================
+def profile(request):
+    if request.method == 'POST':                
+        form = ProfileForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+        else:
+            form = ProfileForm()
+    else:
+        form = ProfileForm()
+    return render(request, 'profile.html', {'form': form})
+
+
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':

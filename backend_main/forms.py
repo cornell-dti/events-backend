@@ -59,21 +59,21 @@ class SignUpForm(UserCreationForm):
         fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us')
 '''
 
+class ProfileForm(forms.ModelForm):
 
-# class SignUpForm1:
-#     org_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-#     org_email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+    class Meta:
+        model = Organization
+        fields = ("name", "email", "website", "description")
 
-
-# class SignUpForm2:
-#     name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-#     netid = forms.CharField(max_length=30, required=False, help_text='Optional.')
-
-
-# class SignUpForm3:
-#     facebook = forms.CharField(max_length=30, required=False, help_text='Optional.')
-#     website = forms.CharField(max_length=30, required=False, help_text='Optional.')
-#     contact_us = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    def save(self, commit=True):
+        user = super(ProfileForm, self).save(commit=False)
+        user.name = self.cleaned_data["name"]
+        user.email = self.cleaned_data["email"]
+        user.website = self.cleaned_data["website"]
+        user.description = self.cleaned_data["description"]
+        if commit:
+            user.save()
+        return user
 
 
 

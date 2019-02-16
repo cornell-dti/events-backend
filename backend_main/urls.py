@@ -51,5 +51,6 @@ urlpatterns = [
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', authviews.obtain_auth_token),
 	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up" ),
+	url(r'^profile/', views.profile, name="Profile" ),
 	url(r'^', TemplateView.as_view(template_name="main.html")) 
 ]
