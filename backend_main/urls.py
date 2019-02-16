@@ -7,7 +7,6 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls import include
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
-
 from django.urls import path
 from rest_framework.authtoken import views as authviews
 from . import views
@@ -51,6 +50,6 @@ urlpatterns = [
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', authviews.obtain_auth_token),
-	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up"),
-	url(r'^', TemplateView.as_view(template_name="main.html")),
+	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up" ),
+	url(r'^', TemplateView.as_view(template_name="main.html")) 
 ]

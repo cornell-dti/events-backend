@@ -1,11 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from .models import Org, Tag, Event, Location, Organization
+from .models import Tag, Event, Location, Organization
 
 class OrgForm(forms.ModelForm):
 
     class Meta:
-        model = Org
+        model = Organization
         fields = ('name', 'description', 'verified', 'website', 'photo')
 
 class TagForm(forms.ModelForm):

@@ -34,7 +34,7 @@ class Event(models.Model):
 
     num_attendees = models.IntegerField(default=0)
     is_public = models.BooleanField(default=True)
-    organizer = models.ForeignKey('Org', on_delete=models.CASCADE)
+    organizer = models.ForeignKey('Organization', on_delete=models.CASCADE)
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
 
@@ -55,28 +55,28 @@ class Event_Tags(models.Model):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
 
-class Org(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    description = models.CharField(max_length = MAX_DESC_LENGTH)
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-    photo = models.ForeignKey('Media',on_delete=models.CASCADE, blank=True, null=True)
+# class Org(models.Model):
+#     name = models.CharField(max_length = MAX_NAME_LENGTH)
+#     description = models.CharField(max_length = MAX_DESC_LENGTH)
+#     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
+#     photo = models.ForeignKey('Media',on_delete=models.CASCADE, blank=True, null=True)
 
-    verified = models.BooleanField(default = False)
-    history = HistoricalRecords()
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE) #user
+#     verified = models.BooleanField(default = False)
+#     history = HistoricalRecords()
+#     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE) #user
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
 class Event_Org(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Organization',on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
 class Org_Tags(models.Model):
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Organization',on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
     def __str__(self):
@@ -104,7 +104,7 @@ class Attendance(models.Model):
 class Media(models.Model):
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     file = models.FileField(upload_to="cu_events_images", blank = False)
-    uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
+    uploaded_by = models.ForeignKey('Organization',on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -114,7 +114,7 @@ class Event_Media(models.Model):
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 class Org_Media(models.Model):
-    org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Organization', on_delete=models.CASCADE)
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 class Profile(models.Model):
@@ -155,8 +155,17 @@ class UserManager(BaseUserManager):
 class Organization(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
+
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+    description = models.CharField(max_length=MAX_DESC_LENGTH, default="")
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="")
+    photo = models.ForeignKey('Media', on_delete=models.CASCADE, blank=True, null=True)
+
+    verified = models.BooleanField(default = False)
+    history = HistoricalRecords()
+    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'org', on_delete=models.CASCADE)
 
     objects = UserManager()
 

@@ -41,7 +41,6 @@ class CreateOrg extends Component {
 			<Onboarding
 				title={"Create an Organization Account"}
 				button={"Continue"}
-				// link={routes.myEvents.route}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)} >
 				<FormError />
