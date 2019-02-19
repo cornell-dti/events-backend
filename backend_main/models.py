@@ -26,6 +26,9 @@ MAX_TOKEN_LENGTH = 2056
 
 class UserManager(BaseUserManager):
 
+    class Meta:
+        app_label = 'backend_main'
+
     def _create_user(self, email, password, **extra_fields):
         """
         Creates and saves a User with the given email and password.
@@ -51,14 +54,18 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 class Org(AbstractBaseUser, PermissionsMixin):
+
+    class Meta:
+        app_label = 'backend_main'
+
     name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
-    bio = models.CharField(max_length=MAX_DESC_LENGTH, default="")
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="")
+    bio = models.CharField(max_length=MAX_DESC_LENGTH, default="", blank=True)
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="", blank=True)
     photo = models.ForeignKey('Media', on_delete=models.CASCADE, blank=True, null=True)
 
     tags = models.ManyToManyField('Tag', through='Org_Tags')
@@ -78,6 +85,10 @@ class Org(AbstractBaseUser, PermissionsMixin):
 
 
 class Event(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     description = models.CharField(max_length = MAX_DESC_LENGTH)
     start_date = models.DateField()
@@ -97,12 +108,20 @@ class Event(models.Model):
         return self.name
 
 class Tag(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     name = models.CharField(max_length = MAX_TAG_LENGTH)
 
     def __str__(self):
         return self.name
 
 class Event_Tags(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
@@ -110,6 +129,10 @@ class Event_Tags(models.Model):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
 class Event_Org(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
 
@@ -117,6 +140,10 @@ class Event_Org(models.Model):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
 class Org_Tags(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
@@ -124,6 +151,10 @@ class Org_Tags(models.Model):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
 class Location(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     building = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 
@@ -131,11 +162,19 @@ class Location(models.Model):
         return self.building
 
 class UserID(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     token = models.CharField(max_length = MAX_TOKEN_LENGTH)
     #TODO: can a token be stored as a string
 
 class Attendance(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
 
@@ -143,6 +182,10 @@ class Attendance(models.Model):
         return "{0} - {1}".format(self.user_id, self.event_id)
 
 class Media(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     name = models.CharField(max_length = MAX_NAME_LENGTH)
     file = models.FileField(upload_to="cu_events_images", blank = False)
     uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
@@ -151,10 +194,18 @@ class Media(models.Model):
         return self.name
 
 class Event_Media(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_media")
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 class Org_Media(models.Model):
+
+    class Meta:
+        app_label = 'backend_main'
+
     org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 

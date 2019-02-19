@@ -36,7 +36,7 @@ AUTH_USER_MODEL = 'backend_main.Org'
 # Application definition
 
 INSTALLED_APPS = [
-    'backend_main.apps.BackendMainConfig',
+    'backend_main',
     'simple_history',
     'django.contrib.admin',
     'django.contrib.auth',
