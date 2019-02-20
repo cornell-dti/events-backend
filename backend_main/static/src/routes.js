@@ -8,14 +8,14 @@ import Login from "./Login";
 import Settings from "./Settings";
 
 export default {
-	login: { route: "/app/accounts/login/", component: Login },
-	logout: { route: "/app/accounts/logout/", component: null },
-	profile: { route: "/app/profile", component: Profile },
-	settings: { route: "/app/settings/", component: Settings },
-	myEvents: { route: "/app/post/event/", component: MyEvents },
+	login: { route: "/accounts/login/", component: Login },
+	logout: { route: "/accounts/logout/", component: null },
+	profile: { route: "/profile", component: Profile },
+	settings: { route: "/settings/", component: Settings },
+	myEvents: { route: "/post/event/", component: MyEvents },
 	//onboarding
-	createOrg: { route: "/app/signup/", component: CreateOrg },
-	verifyCornellStatus: { route: "/app/verifyCornellStatus/", component: VerifyCornellStatus },
-	verifyOrg: { route: "/app/verifyOrg", component: VerifyOrg },
-	verifyDone: { route: "/app/verifyDone", component: VerifyDone }
+	createOrg: { route: "/signup/", component: CreateOrg },
+	verifyCornellStatus: { route: "/verifyCornellStatus/", component: VerifyCornellStatus },
+	verifyOrg: { route: "/verifyOrg", component: VerifyOrg },
+	verifyDone: { route: "/verifyDone", component: VerifyDone }
 };
