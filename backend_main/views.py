@@ -262,13 +262,14 @@ class ObtainToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
+
         userIDSet = UserID.objects.filter(token=mobile_id)
         if userIDSet.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
             if not validated:
-                return HttpResponseBadRequest(idinfo)
+                return HttpResponseBadRequest("Invalid Firebase ID")
 
             #generate username
             username = generateUserName()
@@ -283,6 +284,8 @@ class ObtainToken(APIView):
             #generate token
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+
+
 
 class ResetToken(APIView):
     #TODO: alter classes to token and admin?
@@ -416,10 +419,10 @@ def post_event_edit(request, pk):
 
 def validate_firebase(mobile_id):
     try:
-       idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
-       return True, ""
-    except:
-       return False, idinfo
+        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+        return True, ""
+    except Exception as e:
+        return False, mobile_id
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)
@@ -433,7 +436,7 @@ class UserDetail(generics.RetrieveAPIView):
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer): 
         serializer.save(owner = self.request.user)
 
 class OrgFormView(APIView):
