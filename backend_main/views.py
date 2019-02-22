@@ -45,6 +45,45 @@ import os
 User = get_user_model()
 
 #=============================================================
+#                    LOGIN/SIGNUP
+#=============================================================
+
+class SignUpView(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    #@csrf_exempt
+    def post(self, request):
+        orgData = request.data
+        form = OrgForm(orgData)
+
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('email')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return JsonResponse({'success': True, 'errors': []})
+        else:
+            errorList = []
+            errors = dict(form.errors.items())
+            print()
+            for key, value in errors.items():
+                errorList += value
+            return JsonResponse({'success': False, 'errors': errorList})
+
+class LoginView(APIView):
+    permission_classes = (permissions.AllowAny, )  
+
+    #@csrf_exempt
+    def post(self, request):
+        orgData = request.data
+        user = authenticate(username=orgData['email'], password=orgData['password'])
+        if user is None:
+            return JsonResponse({'success': False, 'errors': ['Your email or password is incorrect. Please try again.']})
+        login(request, user)
+        return JsonResponse({'success': True, 'errors': []})
+
+#=============================================================
 #                   EVENT INFORMATION
 #=============================================================
 
@@ -386,6 +425,11 @@ class OrgFormView(APIView):
 #=============================================================
 #                        HELPERS
 #=============================================================
+def check_login_status(request):
+    print(request.user)
+    return JsonResponse({ 'status': request.user.is_authenticated })
+
+
 def extractToken(header):
     return header[header.find(" ") + 1:]
 
@@ -474,17 +518,7 @@ def profile(request):
     return render(request, 'profile.html', {'form': form})
 
 
-@csrf_exempt
-def signup(request):
-    if request.method == 'POST':
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('email')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return HttpResponseRedirect(reverse('post_event'))
-    else:
-        form = OrgForm()
-    return render(request, 'signup.html', {'form': form})
+
+
+
+

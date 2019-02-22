@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
 import Onboarding from "./components/Onboarding";
 import routes from './routes';
-import connect from "react-redux/es/connect/connect";
 import { SET_ORG_EMAIL, SET_ORG_NAME } from "./redux/user";
 import FormError from "./components/FormError";
+import axios from 'axios'
 
-class CreateOrg extends Component {
-	state = { name: "", email: "", password: "", confirmPassword: "" };
+class SignUp extends Component {
+	state = { 
+		name: "", 
+		email: "", 
+		password: "", 
+		confirmPassword: "", 
+		errors: []
+	};
 
 	confirmPasswordError() {
 		return this.state.password !== this.state.confirmPassword;
@@ -21,14 +26,23 @@ class CreateOrg extends Component {
 			!this.confirmPasswordError();
 	}
 	onClick() {
-		this.props.setName(this.state.name);
-		this.props.setEmail(this.state.email);
-		document.getElementById("id_name").value = this.state.name;
-		document.getElementById("id_email").value = this.state.email;
-		document.getElementById("id_password1").value = this.state.password;
-		document.getElementById("id_password2").value = this.state.confirmPassword;
-		const form = document.getElementsByTagName("form")[0];
-		form.submit();
+
+		let self = this;
+
+		var signUpData = {
+			name: this.state.name,
+			email: this.state.email,
+			password1: this.state.password,
+			password2: this.state.confirmPassword
+		};
+
+		axios.post('/api/signup/', signUpData)
+		.then(function (response) {
+			if (response.data.success)
+    			window.location.href = "/app/events/"
+    		else
+    			self.setState({ errors: response.data.errors })
+  		});		
 	}
 	onEnter(e) {
 		if (e.key === 'Enter') {
@@ -43,7 +57,9 @@ class CreateOrg extends Component {
 				button={"Continue"}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)} >
-				<FormError />
+				<FormError 
+					errors={this.state.errors}
+				/>
 				<TextField
 					label="Organization name"
 					className={classes.textField}
@@ -86,20 +102,4 @@ const styles = (theme) => ({
 	}
 });
 
-CreateOrg.propTypes = {
-	setName: PropTypes.func.isRequired,
-	setEmail: PropTypes.func.isRequired
-};
-
-function mapStateToProps(state) {
-	return {};
-}
-function mapDispatchToProps(dispatch) {
-	return {
-		setName: (name) => dispatch({ type: SET_ORG_NAME, value: name }),
-		setEmail: (email) => dispatch({ type: SET_ORG_EMAIL, value: email })
-	}
-}
-
-CreateOrg = connect(mapStateToProps, mapDispatchToProps)(CreateOrg);
-export default withStyles(styles)(CreateOrg);
+export default withStyles(styles)(SignUp);

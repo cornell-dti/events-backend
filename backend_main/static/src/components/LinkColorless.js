@@ -7,7 +7,7 @@ export default class LinkColorless extends Component
 	render()
 	{
 		const disabled = this.props.disabled ? {pointerEvents: 'none'} : null;
-		if (!this.props.changeDjango)
+		//if (!this.props.changeDjango)
 			return (
 				<Link {...this.props}
 					style={{
@@ -18,7 +18,7 @@ export default class LinkColorless extends Component
 					{this.props.children}
 				</Link>
 			);
-		else
+		/* else
 			return (
 				<a href={this.props.to}
 					style={{
@@ -28,6 +28,7 @@ export default class LinkColorless extends Component
 					{this.props.children}
 				</a>
 			);
+		*/
 	}
 }
 
@@ -35,5 +36,5 @@ LinkColorless.propTypes = {
 	style: PropTypes.object,
 	to: PropTypes.string.isRequired,
 	disabled: PropTypes.bool,
-	changeDjango: PropTypes.bool //"true" if we want the Django form to change
+	//changeDjango: PropTypes.bool //"true" if we want the Django form to change
 };

@@ -10,25 +10,57 @@ import routes from './routes';
 import LinkColorless from "./components/LinkColorless";
 import Logo from "./components/Logo";
 import Landing from "./Landing";
+import axios from 'axios'
 
 class Main extends Component {
+	state = { loggedIn: false }
+
+	componentDidMount(){
+		let self = this;
+		axios.get('/api/loggedin/')
+		.then(function (response){
+			self.setState({ loggedIn: response.data.status })
+		})
+	}
+
 	getNavBar(classes) {
 		switch (this.props.location.pathname) {
 			case "/app/":
+				if (!this.state.loggedIn)
+					return (
+						<React.Fragment>
+							<Typography variant={"title"} color={"inherit"}>
+								Are you an organization?
+							</Typography>
+							<LinkColorless to={routes.login.route}>
+								<Button color={"primary"} className={classes.button}>
+									Log in
+								</Button>
+							</LinkColorless>
+							<LinkColorless to={routes.signup.route}>
+								<Button variant={"outlined"} color={"primary"}
+									className={classes.button}>
+									Sign up
+								</Button>
+							</LinkColorless>
+						</React.Fragment>
+					);
+			case routes.settings.route:
 				return (
 					<React.Fragment>
-						<Typography variant={"title"} color={"inherit"}>
-							Are you an organization?
-						</Typography>
-						<LinkColorless to={routes.login.route} changeDjango={true}>
+						<LinkColorless to={routes.profile.route}>
 							<Button color={"primary"} className={classes.button}>
-								Log in
+								Profile
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.createOrg.route} changeDjango={true}>
-							<Button variant={"outlined"} color={"primary"}
-								className={classes.button}>
-								Sign up
+						<LinkColorless to={routes.myEvents.route}>
+							<Button color={"primary"} className={classes.button}>
+								My Events
+							</Button>
+						</LinkColorless>
+						<LinkColorless to={routes.logout.route}>
+							<Button color={"primary"} className={classes.button}>
+								Log Out
 							</Button>
 						</LinkColorless>
 					</React.Fragment>
@@ -36,37 +68,17 @@ class Main extends Component {
 			case routes.myEvents.route:
 				return (
 					<React.Fragment>
-						<LinkColorless to={routes.profile.route} changeDjango={true}>
+						<LinkColorless to={routes.profile.route}>
 							<Button color={"primary"} className={classes.button}>
 								Profile
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.settings.route} changeDjango={true}>
+						<LinkColorless to={routes.settings.route}>
 							<Button color={"primary"} className={classes.button}>
 								Settings
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.logout.route} changeDjango={true}>
-							<Button color={"primary"} className={classes.button}>
-								Log Out
-							</Button>
-						</LinkColorless>
-					</React.Fragment >
-				);
-			case routes.settings.route:
-				return (
-					<React.Fragment>
-						<LinkColorless to={routes.profile.route} changeDjango={true}>
-							<Button color={"primary"} className={classes.button}>
-								Profile
-							</Button>
-						</LinkColorless>
-						<LinkColorless to={routes.myEvents.route} changeDjango={true}>
-							<Button color={"primary"} className={classes.button}>
-								My Events
-							</Button>
-						</LinkColorless>
-						<LinkColorless to={routes.logout.route} changeDjango={true}>
+						<LinkColorless to={routes.logout.route}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>
@@ -76,17 +88,17 @@ class Main extends Component {
 			case routes.profile.route:
 				return (
 					<React.Fragment>
-						<LinkColorless to={routes.settings.route} changeDjango={true}>
+						<LinkColorless to={routes.settings.route}>
 							<Button color={"primary"} className={classes.button}>
 								Settings
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.myEvents.route} changeDjango={true}>
+						<LinkColorless to={routes.myEvents.route}>
 							<Button color={"primary"} className={classes.button}>
 								My Events
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.logout.route} changeDjango={true}>
+						<LinkColorless to={routes.logout.route}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>

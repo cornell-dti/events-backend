@@ -22,15 +22,15 @@ urlpatterns = [
 	path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
 	path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
 
-	path('post/event/', views.EventFormView.as_view(), name='post_event'),
+	#path('post/event/', views.EventFormView.as_view(), name='post_event'),
 	path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
 
 	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
 	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 
-	path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True)),
+	#path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True)),
 	path('settings/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change.html', success_url='../profile')),
-	path('accounts/', include('django.contrib.auth.urls')),
+	#path('accounts/', include('django.contrib.auth.urls')),
 
 	url(r'^email/orgEmail=(?P<org_email>.*)&orgName=(?P<org_name>.*)&name=(?P<name>[a-zA-Z\s]+)&netID=(?P<net_id>[a-zA-Z0-9]+)&link=(?P<link>.*)$', views.EmailDetail.as_view(), name='Email Detail'),
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
@@ -50,7 +50,7 @@ urlpatterns = [
 	url(r'^users/$', views.UserList.as_view()),
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', authviews.obtain_auth_token),
-	url(r'^signup/', ensure_csrf_cookie(views.signup), name="Sign-Up" ),
-	url(r'^profile/', views.profile, name="Profile" ),
-	url(r'^', TemplateView.as_view(template_name="main.html")) 
+	
+	#url(r'^profile/', views.profile, name="Profile" ),
+	url(r'^', TemplateView.as_view(template_name="main.html"))
 ]
