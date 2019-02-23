@@ -28,10 +28,10 @@ urlpatterns = [
 	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
 	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 
+	#path('accounts/', include('django.contrib.auth.urls')),
 	#path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True)),
 	path('settings/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change.html', success_url='../profile')),
-	#path('accounts/', include('django.contrib.auth.urls')),
-
+	
 	url(r'^email/orgEmail=(?P<org_email>.*)&orgName=(?P<org_name>.*)&name=(?P<name>[a-zA-Z\s]+)&netID=(?P<net_id>[a-zA-Z0-9]+)&link=(?P<link>.*)$', views.EmailDetail.as_view(), name='Email Detail'),
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
 	url(r'^org/(?P<org_id>[0-9]+)/$', views.OrgDetail.as_view(), name='Organizer Details'),
@@ -52,5 +52,6 @@ urlpatterns = [
 	url(r'^api-auth/', authviews.obtain_auth_token),
 	
 	#url(r'^profile/', views.profile, name="Profile" ),
+	url(r'^logout/$', auth_views.logout, {'next_page': '/app/'}, name='logout'),
 	url(r'^', TemplateView.as_view(template_name="main.html"))
 ]

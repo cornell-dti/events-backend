@@ -12,7 +12,8 @@ from rest_framework.authtoken import views as authviews
 from . import views
 
 urlpatterns = [
-	url(r'^signup/$', ensure_csrf_cookie(views.SignUpView.as_view()), name="Sign-Up" ),
-	url(r'^login/$', ensure_csrf_cookie(views.LoginView.as_view()), name="Login" ),
+	#login/signup
+	url(r'^signup/$', ensure_csrf_cookie(views.SignUp.as_view()), name="Sign-Up" ),
+	url(r'^login/$', ensure_csrf_cookie(views.Login.as_view()), name="Login" ),
 	url(r'^loggedin/$', views.check_login_status, name="Check-Login")
 ]

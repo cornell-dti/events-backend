@@ -58,7 +58,7 @@ class Main extends Component {
 								My Events
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.logout.route}>
+						<LinkColorless to={routes.logout.route} logout={true}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>
@@ -78,7 +78,7 @@ class Main extends Component {
 								Settings
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.logout.route}>
+						<LinkColorless to={routes.logout.route} logout={true}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>
@@ -98,7 +98,7 @@ class Main extends Component {
 								My Events
 							</Button>
 						</LinkColorless>
-						<LinkColorless to={routes.logout.route}>
+						<LinkColorless to={routes.logout.route} logout={true}>
 							<Button color={"primary"} className={classes.button}>
 								Log Out
 							</Button>

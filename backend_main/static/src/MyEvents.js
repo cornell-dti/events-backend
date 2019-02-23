@@ -7,6 +7,7 @@ import EventCard from "./components/EventCard";
 import GridList from "@material-ui/core/GridList/GridList";
 import PropTypes from 'prop-types';
 import connect from "react-redux/es/connect/connect";
+import axios from 'axios'
 
 let DEMO_EVENTS = [{
 	pk: 42,
@@ -26,13 +27,16 @@ let DEMO_EVENTS = [{
 class MyEvents extends Component {
 	state = { createEvent: false, data: [] };
 
-	// constructor(props) {
-	// 	super(props);
-
+	constructor(props) {
+	 	super(props);
+    	axios.post('/api/token-auth/', {username: 'hi@cornell.edu', password: 'heythere'})
+    		.then (function (response) {
+    		console.log(response)
+    	})
 	// 	const url = 'http://cuevents-app.herokuapp.com/app/org/:id/events';
 	// 	fetch(url)
 	// 		.then(resp => this.setState({ data: resp.parse }));
-	// }
+	}
 
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");

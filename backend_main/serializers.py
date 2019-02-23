@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 
-from .models import Event, Org, Location, Tag, Event_Tags, Event_Media
+from .models import Event, Org, Location, Tag, Org_Tags, Event_Tags, Event_Media
 from django.contrib.auth.models import User
 
 
@@ -25,10 +25,11 @@ class LocationSerializer(serializers.ModelSerializer):
 		fields = ('pk', 'building','room', 'place_id')
 
 class OrgSerializer(serializers.ModelSerializer):
-	
+	org_tags = serializers.PrimaryKeyRelatedField(queryset = Org_Tags.objects.all(), many=True)
+
 	class Meta:
 		model = Org
-		fields = ('pk', 'name', 'email', 'bio', 'photo', 'org_media', 'website', 'tags', 'is_staff', 'is_active')
+		fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags', 'is_staff', 'is_active')
 
 class TagSerializer(serializers.ModelSerializer):
 

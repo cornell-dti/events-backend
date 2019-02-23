@@ -48,7 +48,7 @@ User = get_user_model()
 #                    LOGIN/SIGNUP
 #=============================================================
 
-class SignUpView(APIView):
+class SignUp(APIView):
     permission_classes = (permissions.AllowAny, )
 
     #@csrf_exempt
@@ -66,12 +66,11 @@ class SignUpView(APIView):
         else:
             errorList = []
             errors = dict(form.errors.items())
-            print()
             for key, value in errors.items():
                 errorList += value
             return JsonResponse({'success': False, 'errors': errorList})
 
-class LoginView(APIView):
+class Login(APIView):
     permission_classes = (permissions.AllowAny, )  
 
     #@csrf_exempt
@@ -426,9 +425,7 @@ class OrgFormView(APIView):
 #                        HELPERS
 #=============================================================
 def check_login_status(request):
-    print(request.user)
     return JsonResponse({ 'status': request.user.is_authenticated })
-
 
 def extractToken(header):
     return header[header.find(" ") + 1:]
@@ -505,20 +502,4 @@ class Authentication(APIView):
 
 
 #=============================================
-def profile(request):
-    user = request.user
-    if request.method == 'POST':                
-        form = ProfileForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-        else:
-            form = ProfileForm(initial={'name': user.name, 'email': user.email, 'website': user.website, 'bio': user.bio})
-    else:
-        form = ProfileForm(initial={'name': user.name, 'email': user.email, 'website': user.website, 'bio': user.bio})
-    return render(request, 'profile.html', {'form': form})
-
-
-
-
-
 

@@ -15,7 +15,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from rest_framework.authtoken.models import Token
 
 MAX_NAME_LENGTH = 100
 MAX_DESC_LENGTH = 500
@@ -201,13 +201,13 @@ class Event_Media(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_media")
     media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
-class Org_Media(models.Model):
-
-    class Meta:
-        app_label = 'backend_main'
-
-    org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
-    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+# class Org_Media(models.Model):
+#
+#    class Meta:
+#        app_label = 'backend_main'
+#
+#    #org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
+#    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 # class Profile(models.Model):
 #    org_name = models.CharField(max_length=30, blank=True)
@@ -218,4 +218,8 @@ class Org_Media(models.Model):
 #    contact_us = models.BooleanField(default = False)
 #    verified = models.BooleanField(default = False)
 
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
