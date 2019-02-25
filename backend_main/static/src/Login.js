@@ -25,9 +25,9 @@ class Login extends Component {
 		this.props.setName(this.state.name);
 		this.props.setEmail(this.state.email);
 
-		let self = this;
+		const self = this;
 
-		var loginData = {
+		const loginData = {
 			email: this.state.email,
 			password: this.state.password,
 		};

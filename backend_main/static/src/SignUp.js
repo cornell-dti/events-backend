@@ -27,9 +27,9 @@ class SignUp extends Component {
 	}
 	onClick() {
 
-		let self = this;
+		const self = this;
 
-		var signUpData = {
+		const signUpData = {
 			name: this.state.name,
 			email: this.state.email,
 			password1: this.state.password,
