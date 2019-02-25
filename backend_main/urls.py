@@ -52,6 +52,6 @@ urlpatterns = [
 	url(r'^api-auth/', authviews.obtain_auth_token),
 	
 	#url(r'^profile/', views.profile, name="Profile" ),
-	url(r'^logout/$', auth_views.logout, {'next_page': '/app/'}, name='logout'),
+	url(r'^logout/$', auth_views.auth_logout, {'next_page': '/app/'}, name='logout'),
 	url(r'^', TemplateView.as_view(template_name="main.html"))
 ]
