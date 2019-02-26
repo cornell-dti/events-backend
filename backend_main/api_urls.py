@@ -17,5 +17,7 @@ urlpatterns = [
 	url(r'^login/$', ensure_csrf_cookie(views.Login.as_view()), name="Login" ),
 	url(r'^loggedin/$', views.check_login_status, name="Check-Login"),
 
+	#profile
 	url(r'^profile/$', views.UserProfile.as_view(), name="Profile" )
+	url(r'^change_password/$', views.ChangePassword.as_view(), name="Change-Password")
 ]

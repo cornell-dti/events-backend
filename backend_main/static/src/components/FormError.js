@@ -2,20 +2,11 @@ import React, {Component} from 'react';
 import Typography from "@material-ui/core/Typography/Typography";
 import {withStyles} from "@material-ui/core";
 
-/**
- * Displays Django errors from form submission.
- */
 class FormError extends Component {
-	state = { errors: [] }
-	componentWillReceiveProps(nextProps){
-		this.setState({ errors: nextProps.errors })
-	}
+	state = { errors: [] };
 	render() {
 		const {classes} = this.props;
-		var errorString = ""
-		for(var error of this.state.errors){
-			errorString += error + " "
-		}
+		const errorString = this.state.errors.join(" ");
 		return (
 			<Typography className={classes.error} variant={"title"} color={"secondary"} align={"center"}>
 				{errorString}
