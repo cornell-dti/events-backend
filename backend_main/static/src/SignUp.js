@@ -5,7 +5,7 @@ import Onboarding from "./components/Onboarding";
 import routes from './routes';
 import { SET_ORG_EMAIL, SET_ORG_NAME } from "./redux/user";
 import FormError from "./components/FormError";
-import axios from 'axios'
+import axios from 'axios';
 
 class SignUp extends Component {
 	state = { 
@@ -39,9 +39,9 @@ class SignUp extends Component {
 		axios.post('/api/signup/', signUpData)
 		.then(function (response) {
 			if (response.data.success)
-    			window.location.href = "/app/events/"
+    			window.location.href = "/app/events/";
     		else
-    			self.setState({ errors: response.data.errors })
+    			self.setState({ errors: response.data.errors });
   		});		
 	}
 	onEnter(e) {

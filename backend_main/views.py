@@ -8,7 +8,7 @@ from boto.s3.key import Key
 import dateutil.parser
 
 from django.conf import settings
-from django.contrib.auth import login, authenticate, get_user_model
+from django.contrib.auth import login, authenticate, get_user_model, get_user
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
@@ -80,6 +80,20 @@ class Login(APIView):
         if user is None:
             return JsonResponse({'success': False, 'errors': ['Your email or password is incorrect. Please try again.']})
         login(request, user)
+        return JsonResponse({'success': True, 'errors': []})
+
+class ChangePassword(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        old_password = request.data['old_password']
+        new_password = request.data['new_password']
+        user = get_user(request)
+
+        if not user.check_password(old_password):
+            return JsonResponse({'success': False, 'errors': 'Old password is incorrect'})
+        user.set_password(new_password)
         return JsonResponse({'success': True, 'errors': []})
 
 #=============================================================

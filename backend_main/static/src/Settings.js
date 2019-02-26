@@ -3,12 +3,14 @@ import { withStyles } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField/TextField";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from '@material-ui/core/Button';
-import routes from './routes';
-import LinkColorless from "./components/LinkColorless";
 import FormError from "./components/FormError";
+import axios from "axios";
+import Cookies from "js-cookie";
+
+axios.defaults.headers.post['X-CSRFToken'] = Cookies.get("csrftoken");
 
 class Settings extends Component {
-  state = { oldPassword: "", newPassword: "", confirmPassword: "" };
+  state = { oldPassword: "", newPassword: "", confirmPassword: "", errors: [] };
 
   confirmPasswordError() {
     return this.state.newPassword !== this.state.confirmPassword;
@@ -20,11 +22,12 @@ class Settings extends Component {
       !this.confirmPasswordError();
   }
   onClick() {
-    document.getElementById("id_old_password").value = this.state.oldPassword;
-    document.getElementById("id_new_password1").value = this.state.newPassword;
-    document.getElementById("id_new_password2").value = this.state.confirmPassword;
-    const form = document.getElementsByTagName("form")[0];
-    form.submit();
+    const passwords = {
+        old_password: this.state.oldPassword,
+        new_password: this.state.newPassword
+    };
+    axios.post("/api/change_password/", passwords)
+        .then(response => this.setState({errors: response.data.errors}));
   }
   onEnter(e) {
     if (e.key === 'Enter') {
@@ -48,7 +51,7 @@ class Settings extends Component {
           Update your email address on your
           <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
         </Typography> */}
-        < FormError />
+        <FormError errors={this.state.errors} />
         <Typography className={classes.title} variant={"h5"} color={"inherit"}>
           Change Your Password
 				</Typography>
@@ -78,11 +81,9 @@ class Settings extends Component {
           helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
           onKeyPress={this.onEnter.bind(this)}
         />
-        <LinkColorless to={routes.myEvents.route} disabled={!this.canContinue()} >
-          <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.onClick.bind(this)}>
-            Update Password
-          </Button>
-        </LinkColorless>
+        <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.onClick.bind(this)}>
+          Update Password
+        </Button>
       </div>
     );
   }
