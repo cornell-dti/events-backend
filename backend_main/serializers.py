@@ -29,7 +29,7 @@ class OrgSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Org
-		fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags', 'is_staff', 'is_active')
+		fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags', 'is_staff', 'org_tags', 'is_active')
 
 class TagSerializer(serializers.ModelSerializer):
 

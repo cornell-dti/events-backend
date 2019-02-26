@@ -144,7 +144,7 @@ class Org_Tags(models.Model):
     class Meta:
         app_label = 'backend_main'
 
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org',on_delete=models.CASCADE, related_name = "org_tags")
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
     def __str__(self):

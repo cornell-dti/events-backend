@@ -41,6 +41,7 @@ from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
 from django.core.mail import send_mail
 import logging
 import os
+import re
 
 User = get_user_model()
 
@@ -62,13 +63,13 @@ class SignUp(APIView):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return JsonResponse({'success': True, 'errors': []})
+            return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
         else:
             errorList = []
             errors = dict(form.errors.items())
             for key, value in errors.items():
                 errorList += value
-            return JsonResponse({'success': False, 'errors': errorList})
+            return JsonResponse({'messages': errorList}, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(APIView):
     permission_classes = (permissions.AllowAny, )  
@@ -78,9 +79,41 @@ class Login(APIView):
         orgData = request.data
         user = authenticate(username=orgData['email'], password=orgData['password'])
         if user is None:
-            return JsonResponse({'success': False, 'errors': ['Your email or password is incorrect. Please try again.']})
+            return JsonResponse({'messages': ['Your email or password is incorrect. Please try again.']}, status=status.HTTP_401_UNAUTHORIZED)
         login(request, user)
-        return JsonResponse({'success': True, 'errors': []})
+        return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+#=============================================================
+#                    Web APIs 
+#=============================================================
+
+class UserProfile(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        orgData = request.data
+
+        if not validate_email(orgData['email']):
+            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+
+        org_set.name = orgData['name']
+        org_set.email = orgData['email']
+        org_set.website = orgData['website']
+        org_set.bio = orgData['bio']
+
+        org_set.save()
+
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION
@@ -478,6 +511,10 @@ def post_event_edit(request, pk):
     else:
         form = EventForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
+
+def validate_email(email):
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"  
+    return re.match(pattern, email)
 
 def validate_firebase(mobile_id):
     try:

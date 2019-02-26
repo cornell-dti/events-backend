@@ -17,7 +17,7 @@ class FormError extends Component {
 			errorString += error + " "
 		}
 		return (
-			<Typography className={classes.error} variant={"title"} color={"secondary"}>
+			<Typography className={classes.error} variant={"title"} color={"secondary"} align={"center"}>
 				{errorString}
 			</Typography>
 		);

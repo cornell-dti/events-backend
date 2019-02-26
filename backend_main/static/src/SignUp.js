@@ -37,12 +37,8 @@ class SignUp extends Component {
 		};
 
 		axios.post('/api/signup/', signUpData)
-		.then(function (response) {
-			if (response.data.success)
-    			window.location.href = "/app/events/"
-    		else
-    			self.setState({ errors: response.data.errors })
-  		});		
+		.then(response => window.location.href = "/app/events/")
+  		.catch(error =>	self.setState({ errors: error.response.data.messages }));	 
 	}
 	onEnter(e) {
 		if (e.key === 'Enter') {
@@ -57,9 +53,7 @@ class SignUp extends Component {
 				button={"Continue"}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)} >
-				<FormError 
-					errors={this.state.errors}
-				/>
+				<FormError errors={this.state.errors}/>
 				<TextField
 					label="Organization name"
 					className={classes.textField}

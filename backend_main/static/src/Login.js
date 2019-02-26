@@ -33,12 +33,8 @@ class Login extends Component {
 		};
 
 		axios.post('/api/login/', loginData)
-		.then(function (response) {
-			if (response.data.success)
-    			window.location.href = "/app/events/"
-    		else
-    			self.setState({ errors: response.data.errors })
-  		});		
+		.then(response => window.location.href = "/app/events/")
+  		.catch(error =>	self.setState({ errors: error.response.data.messages }));		
 	}
 
 	onEnter(e) {
@@ -54,9 +50,7 @@ class Login extends Component {
 				<Typography variant={"headline"} className={classes.title}>
 					Organization Login
 				</Typography>
-				<FormError 
-					errors = {this.state.errors}
-				/>
+				<FormError errors = {this.state.errors} />
 				<TextField
 					label="Email"
 					className={classes.textField}
@@ -70,10 +64,10 @@ class Login extends Component {
 					onChange={e => this.setState({ password: e.target.value })}
 					type={"password"}
 					margin={"normal"}
-          onKeyDown={this.onEnter.bind(this)}/>
+         		 	onKeyDown={this.onEnter.bind(this)}/>
 				<Button disabled={!this.canClick()} color={"primary"}
-				        className={classes.button} variant={"contained"}
-				        onClick={this.onClick.bind(this)} >
+				    className={classes.button} variant={"contained"}
+				    onClick={this.onClick.bind(this)} >
 					Login
 				</Button>
 			</div>);

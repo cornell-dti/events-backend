@@ -5,7 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar/Toolbar";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
 import { withStyles } from "@material-ui/core";
-import { Route, Switch, withRouter } from "react-router-dom";
+import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 import routes from './routes';
 import LinkColorless from "./components/LinkColorless";
 import Logo from "./components/Logo";
@@ -13,7 +13,7 @@ import Landing from "./Landing";
 import axios from 'axios';
 
 class Main extends Component {
-	state = { loggedIn: false };
+	state = { loggedIn: true };
 
 	componentDidMount(){
 		let self = this;
@@ -28,12 +28,12 @@ class Main extends Component {
 					<Typography variant={"title"} color={"inherit"}>
 						Are you an organization?
 					</Typography>
-					<LinkColorless to={routes.login.route}>
+					<LinkColorless to={routes.noAuth.login.route}>
 						<Button color={"primary"} className={classes.button}>
 							Log in
 						</Button>
 					</LinkColorless>
-					<LinkColorless to={routes.signup.route}>
+					<LinkColorless to={routes.noAuth.signup.route}>
 						<Button variant={"outlined"} color={"primary"}
 							className={classes.button}>
 							Sign up
@@ -44,22 +44,22 @@ class Main extends Component {
 		else
 			return (
 				<React.Fragment>
-					<LinkColorless to={routes.profile.route}>
+					<LinkColorless to={routes.auth.profile.route}>
 						<Button color={"primary"} className={classes.button}>
 							Profile
 						</Button>
 					</LinkColorless>
-					<LinkColorless to={routes.settings.route}>
+					<LinkColorless to={routes.auth.settings.route}>
 						<Button color={"primary"} className={classes.button}>
 							Settings
 						</Button>
 					</LinkColorless>
-					<LinkColorless to={routes.myEvents.route}>
+					<LinkColorless to={routes.auth.myEvents.route}>
 						<Button color={"primary"} className={classes.button}>
 							My Events
 						</Button>
 					</LinkColorless>
-					<LinkColorless to={routes.logout.route} logout={true}>
+					<LinkColorless to={routes.auth.logout.route} logout={true}>
 						<Button color={"primary"} className={classes.button}>
 							Log Out
 						</Button>
@@ -81,12 +81,20 @@ class Main extends Component {
 					</Toolbar>
 				</AppBar>
 				<div className={classes.appBarSpace} />
-				<Switch>
-					{Object.values(routes).map(obj => <Route exact key={obj.route} path={obj.route}
+				{this.state.loggedIn ? 	
+					<Switch>
+						{Object.values(Object.assign(routes.auth, routes.noAuth)).map(obj => <Route exact key={obj.route} path={obj.route}
 						component={obj.component} />)}
-					<Route component={Landing}/>
-				</Switch>
-				
+						<Redirect to={"/app/"} />
+					</Switch>
+				: 
+					<Switch>
+						{Object.values(routes.noAuth).map(obj => <Route exact key={obj.route} path={obj.route}
+						component={obj.component} />)}
+						{Object.values(routes.auth).map(obj => <Redirect key={obj.route} from={obj.route} to={"/app/login/"} />)}
+						<Redirect to={"/app/"} />
+					</Switch>
+				}
 			</div>
 		);
 	}

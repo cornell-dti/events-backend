@@ -27,16 +27,11 @@ let DEMO_EVENTS = [{
 class MyEvents extends Component {
 	state = { createEvent: false, data: [] };
 
-	constructor(props) {
-	 	super(props);
-    	axios.post('/api/token-auth/', {username: 'hi@cornell.edu', password: 'heythere'})
-    		.then (function (response) {
-    		console.log(response)
-    	})
+	//constructor(props) {
 	// 	const url = 'http://cuevents-app.herokuapp.com/app/org/:id/events';
 	// 	fetch(url)
 	// 		.then(resp => this.setState({ data: resp.parse }));
-	}
+	//}
 
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");

@@ -78,7 +78,7 @@ class Settings extends Component {
           helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
           onKeyPress={this.onEnter.bind(this)}
         />
-        <LinkColorless to={routes.myEvents.route} disabled={!this.canContinue()} >
+        <LinkColorless to={routes.auth.myEvents.route} disabled={!this.canContinue()} >
           <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.onClick.bind(this)}>
             Update Password
           </Button>
