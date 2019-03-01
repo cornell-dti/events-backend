@@ -4,6 +4,11 @@ import {withStyles} from "@material-ui/core";
 
 class FormError extends Component {
 	state = { errors: [] };
+
+	componentWillReceiveProps(nextProps){
+		this.setState({ errors: nextProps.errors })
+	}
+
 	render() {
 		const {classes} = this.props;
 		const errorString = this.state.errors.join(" ");

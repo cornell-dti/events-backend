@@ -42,7 +42,7 @@ class SignUp extends Component {
 	}
 	onEnter(e) {
 		if (e.key === 'Enter') {
-			document.getElementsByTagName("button")[0].click();
+			document.getElementsByTagName("button")[2].click();
 		}
 	}
 	render() {
