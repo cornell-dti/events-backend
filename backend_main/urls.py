@@ -45,6 +45,6 @@ urlpatterns = [
 	url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 	url(r'^api-auth/', authviews.obtain_auth_token),
 
-	url(r'^logout/$', auth_views.logout, {'next_page': '/app/'}, name='logout'),
+	url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/app/'), name='logout'),
 	url(r'^', TemplateView.as_view(template_name="main.html"))
 ]

@@ -8,7 +8,7 @@ from boto.s3.key import Key
 import dateutil.parser
 
 from django.conf import settings
-from django.contrib.auth import login, authenticate, get_user_model, get_user
+from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
