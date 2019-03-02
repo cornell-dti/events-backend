@@ -122,12 +122,14 @@ class ChangePassword(APIView):
     def post(self, request):
         old_password = request.data['old_password']
         new_password = request.data['new_password']
-        user = get_user(request)
+        user = request.user
 
         if not user.check_password(old_password):
-            return JsonResponse({'success': False, 'errors': 'Old password is incorrect'})
+            return JsonResponse({ 'messages': ['Your password is incorrect. Please try again.'] }, status=status.HTTP_401_UNAUTHORIZED)
+        
         user.set_password(new_password)
-        return JsonResponse({'success': True, 'errors': []})
+        user.save()
+        return JsonResponse({'messages': ['Your password has been successfully updated.']}, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION
