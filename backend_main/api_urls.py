@@ -19,5 +19,6 @@ urlpatterns = [
 
 	#profile
 	url(r'^profile/$', views.UserProfile.as_view(), name="Profile" ),
+	url(r'^change_org_email/$', views.ChangeOrgEmail.as_view(), name="Change-Org-Email"),
 	url(r'^change_password/$', views.ChangePassword.as_view(), name="Change-Password")
 ]

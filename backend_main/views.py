@@ -99,14 +99,10 @@ class UserProfile(APIView):
 
     def post(self, request, format=None):
         orgData = request.data
-
-        if not validate_email(orgData['email']):
-            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
         org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
 
         org_set.name = orgData['name']
-        org_set.email = orgData['email']
         org_set.website = orgData['website']
         org_set.bio = orgData['bio']
 
@@ -115,6 +111,24 @@ class UserProfile(APIView):
         serializer = OrgSerializer(org_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+class ChangeOrgEmail(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )   
+
+    def post(self, request):
+        orgEmail = request.data
+
+        if not validate_email(orgEmail['new_email']):
+            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
+
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+        org_set.email = orgEmail['new_email']
+        org_set.save()
+
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        
 class ChangePassword(APIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
@@ -129,7 +143,7 @@ class ChangePassword(APIView):
         
         user.set_password(new_password)
         user.save()
-        return JsonResponse({'messages': ['Your password has been successfully updated.']}, status=status.HTTP_200_OK)
+        return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION

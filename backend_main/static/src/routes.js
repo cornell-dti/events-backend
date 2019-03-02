@@ -5,14 +5,16 @@ import SignUp from "./SignUp";
 import MyEvents from "./MyEvents";
 import Profile from "./Profile";
 import Login from "./Login";
-import Settings from "./Settings";
+import ChangePassword from "./ChangePassword";
+import ChangeOrgEmail from "./ChangeOrgEmail";
 import Landing from "./Landing";
 
 export default {
 	auth: {
 		logout: { route: "/app/logout/", component: null },
 		profile: { route: "/app/profile/", component: Profile },
-		settings: { route: "/app/settings/", component: Settings },
+		changePassword: { route: "/app/change_password/", component: ChangePassword },
+		changeOrgEmail: { route: "/app/change_org_email/", component: ChangeOrgEmail },
 		myEvents: { route: "/app/events/", component: MyEvents },
 		//onboarding
 	},
