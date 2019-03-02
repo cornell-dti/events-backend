@@ -70,7 +70,7 @@ class Profile extends Component {
 
 	onEnter(e) {
 		if (e.key === 'Enter'){
-			document.getElementsByTagName("button")[5].click();
+			this.saveProfile();
 		}
 	}
 
@@ -120,7 +120,7 @@ class Profile extends Component {
 						Profile updated successfully!
 					</Typography> : null 
 				}
-				<Button color={"primary"} variant={"contained"} className={classes.button} onClick={this.saveProfile.bind(this)}>
+				<Button color={"primary"} variant={"contained"} className={classes.button} onClick={this.saveProfile}>
 					Save
 				</Button>
 			</div>
