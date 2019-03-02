@@ -419,7 +419,7 @@ def post_event_edit(request, pk):
 
 def validate_firebase(mobile_id):
     try:
-        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
         return True, ""
     except Exception as e:
         return False, mobile_id
