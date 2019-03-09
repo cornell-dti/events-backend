@@ -20,7 +20,7 @@ urlpatterns = [
 	path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
 	path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
 
-	#path('post/event/', views.EventFormView.as_view(), name='post_event'),
+	path('post/event/', views.EventFormView.as_view(), name='post_event'),
 	path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
 
 	path('post/location/', views.LocationFormView.as_view(), name='post_location'),

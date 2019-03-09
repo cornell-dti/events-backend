@@ -27,12 +27,6 @@ let DEMO_EVENTS = [{
 class MyEvents extends Component {
 	state = { createEvent: false, data: [] };
 
-	//constructor(props) {
-	// 	const url = 'http://cuevents-app.herokuapp.com/app/org/:id/events';
-	// 	fetch(url)
-	// 		.then(resp => this.setState({ data: resp.parse }));
-	//}
-
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
 		const hour12 = hour % 12 === 0 ? 12 : hour % 12; //0 o'clock = 12AM
@@ -42,20 +36,7 @@ class MyEvents extends Component {
 	onCancelCreate() {
 		this.setState({ createEvent: false });
 	}
-	onPublishEvent() {
-		this.setState({ createEvent: false });
-		document.getElementById("id_name").value = this.props.event.eventName;
-		document.getElementById("id_description").value = this.props.event.eventDesc;
-		document.getElementById("id_start_date").value = this.props.event.startDate.split(',')[0];
-		document.getElementById("id_end_date").value = this.props.event.endDate.split(',')[0];
-		document.getElementById("id_start_time").value = this.props.event.startDate.split(',')[1];
-		document.getElementById("id_end_time").value = this.props.event.endDate.split(',')[1];
-		document.getElementById("id_is_public").value = true;
-		document.getElementById("id_location").value = this.props.event.room + " " + this.props.event.location;
 
-		const form = document.getElementsByTagName("form")[0];
-		form.submit();
-	}
 	editEvent(event) {
 		this.setState({ createEvent: true });
 	}
@@ -80,7 +61,8 @@ class MyEvents extends Component {
 				</GridList>
 				<CreateEvent open={this.state.createEvent}
 					onCancel={this.onCancelCreate.bind(this)}
-					onPublish={this.onPublishEvent.bind(this)} />
+				// onPublish={this.onPublishEvent.bind(this)} 
+				/>
 			</div>
 		);
 	}
@@ -100,22 +82,4 @@ const styles = (theme) => ({
 	}
 });
 
-MyEvents.propTypes = {
-	event: PropTypes.shape({
-		eventName: PropTypes.string,
-		eventDesc: PropTypes.string,
-		startDate: PropTypes.string,
-		endDate: PropTypes.string,
-		isPublic: PropTypes.bool,
-		room: PropTypes.string,
-		location: PropTypes.string
-	}).isRequired
-};
-
-function mapStateToProps(state) {
-	return {
-		event: state.event
-	};
-}
-MyEvents = connect(mapStateToProps)(MyEvents);
 export default withStyles(styles)(MyEvents);

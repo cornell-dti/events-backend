@@ -154,7 +154,8 @@ class Location(models.Model):
 
     class Meta:
         app_label = 'backend_main'
-
+   
+    room = models.CharField(max_length = MAX_NAME_LENGTH)
     building = models.CharField(max_length = MAX_NAME_LENGTH)
     place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 

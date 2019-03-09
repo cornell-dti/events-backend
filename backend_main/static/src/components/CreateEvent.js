@@ -7,15 +7,10 @@ import Button from "@material-ui/core/Button/Button";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
-// import Select from 'react-select';
 import ImageUploader from "./ImageUploader";
 import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
-import connect from "react-redux/es/connect/connect";
-import {
-	SET_EVENT_NAME, SET_EVENT_DESCRIPTION, SET_EVENT_START_DATE, SET_EVENT_END_DATE, SET_EVENT_PUBLIC,
-	SET_EVENT_ROOM, SET_EVENT_LOCATION
-} from "../redux/event";
+import axios from 'axios';
 
 let google = null;
 let mapCenter = null;
@@ -24,9 +19,16 @@ const radius = 5000;
 
 class CreateEvent extends Component {
 	state = {
-		image: null, name: "", room: "", location: null,
+		image: null,
+		name: "",
+		room: "EMPTY room",
+		location: null,
+		placeid: "",
 		from: this.stringFromDate(this.defaultStartTime()),
-		to: this.stringFromDate(this.defaultEndTime()), description: "", tags: [],
+		to: this.stringFromDate(this.defaultEndTime()),
+		description: "",
+		tags: [],
+		errors: [],
 		roomSuggestions: [],
 		locationSuggestions: [],
 		visitedLocations: [] // JS Objects of API Call of All Locations
@@ -42,16 +44,6 @@ class CreateEvent extends Component {
 			zoom: 15
 		});
 		placesService = new google.maps.places.PlacesService(map);
-
-		// const url = 'http://cuevents-app.herokuapp.com/app/loc/all/';
-		// fetch(url)
-		// 	.then(res => res.json())
-		// 	.then(json => {
-		// 		this.setState({ visitedLocations: json.parse });
-		// 	})
-		// 	.catch((error) => {
-		// 		console.log(error);
-		// 	});
 	}
 	//tomorrow, same hour, 0 minutes
 	defaultStartTime() {
@@ -101,33 +93,27 @@ class CreateEvent extends Component {
 		})
 	}
 
-	canPublish() {
-		return this.props.event.eventName !== null && this.props.event.eventDesc !== undefined &&
-			this.props.event.startDate !== undefined && this.props.event.endDate !== undefined &&
-			this.props.event.room !== undefined && this.props.event.location !== undefined;
-	}
-
-	tryToPublish() {
-		setTimeout(() => {
-			console.log("try to publish");
-			if (this.canPublish())
-				this.props.onPublish();
-			else
-				this.tryToPublish();
-		}, 20);
-	}
-
 	onPublishEvent() {
-		this.props.setName(this.state.name);
-		this.props.setDescription(this.state.description);
-		this.props.setStartTime(this.state.to);
-		this.props.setEndTime(this.state.from);
-		this.props.setRoom(this.state.room);
-		this.props.setLocation(this.state.location);
+		console.log("Start time" + this.state.from.split('T')[1])
+		console.log(this.state.from)
 
-		this.tryToPublish();
-		// this.props.onPublish();
+		const eventData = {
+			name: this.state.name,
+			room: this.state.room,
+			location: this.state.location,
+			place_id: this.state.place_id,
+			start_date: this.state.from.split('T')[0],
+			end_date: this.state.to.split('T')[0],
+			start_time: this.state.from.split('T')[1],
+			end_time: this.state.to.split('T')[1],
+			description: this.state.description
+		}
+
+		axios.post('/api/add_event/', eventData)
+			.then(response => window.location.href = "/app/events/")
+			.catch(error => this.setState({ errors: error.response.data.messages }));
 	}
+
 	render() {
 		const { classes } = this.props;
 		return (
@@ -199,15 +185,6 @@ class CreateEvent extends Component {
 CreateEvent.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onCancel: PropTypes.func.isRequired,
-	onPublish: PropTypes.func.isRequired,
-
-	setName: PropTypes.func.isRequired,
-	setDescription: PropTypes.func.isRequired,
-	setStartTime: PropTypes.func.isRequired,
-	setEndTime: PropTypes.func.isRequired,
-	setPublic: PropTypes.func.isRequired,
-	setRoom: PropTypes.func.isRequired,
-	setLocation: PropTypes.func.isRequired
 };
 
 const styles = (theme) => ({
@@ -217,23 +194,4 @@ const styles = (theme) => ({
 	}
 });
 
-function mapStateToProps(state) {
-	return {
-		event: state.event
-	};
-}
-
-function mapDispatchToProps(dispatch) {
-	return {
-		setName: (name) => dispatch({ type: SET_EVENT_NAME, value: name }),
-		setDescription: (description) => dispatch({ type: SET_EVENT_DESCRIPTION, value: description }),
-		setStartTime: (startTime) => dispatch({ type: SET_EVENT_START_DATE, value: startTime }),
-		setEndTime: (endTime) => dispatch({ type: SET_EVENT_END_DATE, value: endTime }),
-		setPublic: (isPublic) => dispatch({ type: SET_EVENT_PUBLIC, value: isPublic }),
-		setRoom: (room) => dispatch({ type: SET_EVENT_ROOM, value: room }),
-		setLocation: (location) => dispatch({ type: SET_EVENT_LOCATION, value: location })
-	}
-}
-
-CreateEvent = connect(mapStateToProps, mapDispatchToProps)(CreateEvent)
 export default withStyles(styles)(CreateEvent);
