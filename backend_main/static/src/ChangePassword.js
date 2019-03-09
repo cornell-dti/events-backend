@@ -9,8 +9,8 @@ import Cookies from "js-cookie";
 
 axios.defaults.headers.post['X-CSRFToken'] = Cookies.get("csrftoken");
 
-class Settings extends Component {
-  state = { oldPassword: "", newPassword: "", confirmPassword: "", errors: [] };
+class ChangePassword extends Component {
+  state = { oldPassword: "", newPassword: "", confirmPassword: "", passwordUpdated: false, errors: [] };
 
   confirmPasswordError() {
     return this.state.newPassword !== this.state.confirmPassword;
@@ -22,16 +22,26 @@ class Settings extends Component {
       !this.confirmPasswordError();
   }
   onClick() {
+    this.setState({ passwordUpdated: false })
     const passwords = {
-        old_password: this.state.oldPassword,
-        new_password: this.state.newPassword
+      old_password: this.state.oldPassword,
+      new_password: this.state.newPassword
     };
     axios.post("/api/change_password/", passwords)
-        .then(response => this.setState({errors: response.data.errors}));
+      .then(response => {
+          this.setState({
+            oldPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+            passwordUpdated: true,
+            errors: []
+          })
+      })
+      .catch(error => this.setState({errors: error.response.data.messages}))
   }
   onEnter(e) {
     if (e.key === 'Enter') {
-      document.getElementsByTagName("button")[0].click();
+      document.getElementById("op-button").click();
     }
   }
   render() {
@@ -81,7 +91,13 @@ class Settings extends Component {
           helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
           onKeyPress={this.onEnter.bind(this)}
         />
-        <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.onClick.bind(this)}>
+        {this.state.passwordUpdated ?
+          <Typography className={classes.verify} variant={"title"} color={"primary"} align={"center"}>
+            Password updated successfully!
+          </Typography> : null 
+        }
+        <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} 
+          className={classes.spaced} onClick={this.onClick.bind(this)} id={"op-button"}>
           Update Password
         </Button>
       </div>
@@ -106,8 +122,9 @@ const styles = (theme) => ({
     width: '100%'
   },
   spaced: {
-    marginTop: theme.spacing.unit * 5
-  }
+    marginTop: theme.spacing.unit * 3
+  },
+  verify: {}
 });
 
-export default withStyles(styles)(Settings)
+export default withStyles(styles)(ChangePassword)

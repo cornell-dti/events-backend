@@ -6,6 +6,8 @@ import Button from "@material-ui/core/Button/Button";
 import Typography from "@material-ui/core/Typography/Typography";
 import TagField from "./components/TagField";
 import FormError from "./components/FormError";
+import LinkColorless from "./components/LinkColorless";
+import routes from './routes';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -53,7 +55,8 @@ class Profile extends Component {
 				email: response.data.email,
 				bio: response.data.bio,
 				tags: response.data.tags,
-				profileUpdated: true
+				profileUpdated: true,
+				errors: []
 			})
 		})
 		.catch(error => {
@@ -82,7 +85,7 @@ class Profile extends Component {
 				<TextField
 					id="name"
 					label="Organization name"
-					className={classes.textField}
+					//className={classes.textField}
 					value={this.state.name}
 					onChange={e => this.setState({ name: e.target.value })}
 					onKeyPress={this.onEnter.bind(this)}
@@ -90,15 +93,14 @@ class Profile extends Component {
 				<TextField
 					id="email"
 					label="Organization email"
-					className={classes.textField}
+					//className={classes.textField}
 					value={this.state.email}
-					onChange={e => this.setState({ email: e.target.value })}
-					onKeyPress={this.onEnter.bind(this)}
+					disabled={true}
 					margin={"normal"} />
 				<TextField
 					id="website"
 					label="Organization website"
-					className={classes.textField}
+					//className={classes.textField}
 					value={this.state.website}
 					onChange={e => this.setState({ website: e.target.value })}
 					onKeyPress={this.onEnter.bind(this)}
@@ -107,7 +109,7 @@ class Profile extends Component {
 					id="bio"
 					label="Bio"
 					placeholder={"What is your organization about?"}
-					className={classes.textField}
+					//className={classes.textField}
 					value={this.state.bio}
 					onChange={e => this.setState({ bio: e.target.value })}
 					onKeyPress={this.onEnter.bind(this)}
@@ -120,9 +122,19 @@ class Profile extends Component {
 						Profile updated successfully!
 					</Typography> : null 
 				}
-				<Button color={"primary"} variant={"contained"} className={classes.button} onClick={this.saveProfile}>
+				<Button color={"primary"} variant={"contained"} className={classes.button} onClick={this.saveProfile.bind(this)}>
 					Save
 				</Button>
+				<LinkColorless to={routes.auth.changeOrgEmail.route}>
+					<Button color={"primary"} className={classes.button}>
+						Change Organization Email
+					</Button>
+				</LinkColorless>
+				<LinkColorless to={routes.auth.changePassword.route}>
+					<Button color={"primary"} className={classes.button}>
+						Change Password
+					</Button>
+				</LinkColorless>
 			</div>
 		);
 	}
@@ -137,6 +149,7 @@ const styles = (theme) => ({
 	},
 	button: {
 		marginTop: theme.spacing.unit * 2
-	}
+	},
+	verify: {}
 });
 export default withStyles(styles)(Profile);

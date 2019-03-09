@@ -49,11 +49,6 @@ class Main extends Component {
 							Profile
 						</Button>
 					</LinkColorless>
-					<LinkColorless to={routes.auth.settings.route}>
-						<Button color={"primary"} className={classes.button}>
-							Settings
-						</Button>
-					</LinkColorless>
 					<LinkColorless to={routes.auth.myEvents.route}>
 						<Button color={"primary"} className={classes.button}>
 							My Events

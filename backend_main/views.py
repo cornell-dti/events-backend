@@ -102,14 +102,10 @@ class UserProfile(APIView):
 
     def post(self, request, format=None):
         orgData = request.data
-
-        if not validate_email(orgData['email']):
-            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
         org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
 
         org_set.name = orgData['name']
-        org_set.email = orgData['email']
         org_set.website = orgData['website']
         org_set.bio = orgData['bio']
 
@@ -118,6 +114,24 @@ class UserProfile(APIView):
         serializer = OrgSerializer(org_set,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+class ChangeOrgEmail(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )   
+
+    def post(self, request):
+        orgEmail = request.data
+
+        if not validate_email(orgEmail['new_email']):
+            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
+
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+        org_set.email = orgEmail['new_email']
+        org_set.save()
+
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        
 class ChangePassword(APIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
@@ -125,12 +139,14 @@ class ChangePassword(APIView):
     def post(self, request):
         old_password = request.data['old_password']
         new_password = request.data['new_password']
-        user = get_user(request)
+        user = request.user
 
         if not user.check_password(old_password):
-            return JsonResponse({'success': False, 'errors': 'Old password is incorrect'})
+            return JsonResponse({ 'messages': ['Your password is incorrect. Please try again.'] }, status=status.HTTP_401_UNAUTHORIZED)
+        
         user.set_password(new_password)
-        return JsonResponse({'success': True, 'errors': []})
+        user.save()
+        return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
 
 class Events(APIView):
     authentication_classes = (SessionAuthentication,)
