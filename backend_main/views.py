@@ -170,6 +170,32 @@ class Events(APIView):
         serializer = EventSerializer(new_event,many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+class DeleteEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def delete(self, request, event_id, format=None):
+        org = request.user
+        event_set = get_object_or_404(Event, pk=event_id)
+
+        if (event_set.organizer == org):
+            event_set.delete()
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request, format=None):
+        org = request.user
+        event_set = Event.objects.filter(organizer=org)
+
+        serializer = EventSerializer(event_set, many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+
 #=============================================================
 #                   EVENT INFORMATION
 #=============================================================
