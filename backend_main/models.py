@@ -18,9 +18,10 @@ MAX_CONTACT_LENGTH = 100
 MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
 
+
 class Event(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    description = models.CharField(max_length = MAX_DESC_LENGTH)
+    name = models.CharField(max_length=MAX_NAME_LENGTH)
+    description = models.CharField(max_length=MAX_DESC_LENGTH)
     start_date = models.DateField()
     end_date = models.DateField()
     start_time = models.TimeField()
@@ -35,58 +36,68 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
 class Tag(models.Model):
-    name = models.CharField(max_length = MAX_TAG_LENGTH)
+    name = models.CharField(max_length=MAX_TAG_LENGTH)
 
     def __str__(self):
         return self.name
 
+
 class Event_Tags(models.Model):
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
-    tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
+    event_id = models.ForeignKey(
+        'Event', on_delete=models.CASCADE, related_name="event_tags")
+    tags_id = models.ForeignKey('Tag', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.event_id, self.tags_id)
+
+
+class Event_Org(models.Model):
+    event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.org_id, self.event_id)
+
+
+class Org_Tags(models.Model):
+    org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
+    tags_id = models.ForeignKey('Tag', on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
 
 class Org(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    description = models.CharField(max_length = MAX_DESC_LENGTH)
+    name = models.CharField(max_length=MAX_NAME_LENGTH)
+    description = models.CharField(max_length=MAX_DESC_LENGTH)
     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-    photo = models.ForeignKey('Media',on_delete=models.CASCADE, blank=True, null=True)
+    photo = models.ForeignKey(
+        'Media', on_delete=models.CASCADE, blank=True, null=True)
 
-    verified = models.BooleanField(default = False)
+    verified = models.BooleanField(default=False)
     history = HistoricalRecords()
-    owner = models.ForeignKey('auth.User', related_name = 'org', on_delete=models.CASCADE) #user
+    owner = models.ForeignKey(
+        'auth.User', related_name='org', on_delete=models.CASCADE)  # user
 
     def __str__(self):
         return self.name
 
-class Event_Org(models.Model):
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "{0} - {1}".format(self.org_id, self.event_id)
-
-class Org_Tags(models.Model):
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
-    tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "{0} - {1}".format(self.event_id, self.tags_id)
 
 class Location(models.Model):
-    building = models.CharField(max_length = MAX_NAME_LENGTH)
-    place_id = models.CharField(max_length = MAX_NAME_LENGTH)
+    building = models.CharField(max_length=MAX_NAME_LENGTH)
+    place_id = models.CharField(max_length=MAX_NAME_LENGTH)
 
     def __str__(self):
         return self.building
 
+
 class UserID(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length = MAX_TOKEN_LENGTH)
-    #TODO: can a token be stored as a string
+    token = models.CharField(max_length=MAX_TOKEN_LENGTH)
+    # TODO: can a token be stored as a string
+
 
 class Attendance(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -95,18 +106,22 @@ class Attendance(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.user_id, self.event_id)
 
+
 class Media(models.Model):
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    file = models.FileField(upload_to="cu_events_images", blank = False)
-    uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
+    name = models.CharField(max_length=MAX_NAME_LENGTH)
+    file = models.FileField(upload_to="cu_events_images", blank=False)
+    uploaded_by = models.ForeignKey('Org', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
+
 class Event_Media(models.Model):
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_media")
-    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+    event_id = models.ForeignKey(
+        'Event', on_delete=models.CASCADE, related_name="event_media")
+    media_id = models.ForeignKey('Media', on_delete=models.CASCADE)
+
 
 class Org_Media(models.Model):
     org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
-    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+    media_id = models.ForeignKey('Media', on_delete=models.CASCADE)
