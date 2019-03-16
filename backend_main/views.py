@@ -18,6 +18,7 @@ from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.renderers import JSONRenderer
 
@@ -121,14 +122,19 @@ class ChangeOrgEmail(APIView):
         if not validate_email(orgEmail['new_email']):
             return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
 
-        org_id = request.user.id
-        org_set = get_object_or_404(Org, pk=org_id)
-        org_set.email = orgEmail['new_email']
-        org_set.save()
+        try:
+            Org.objects.get(email=orgEmail['new_email'])
+            return JsonResponse({ 'messages': ['Organization email is taken. Please try another email.'] }, status=status.HTTP_409_CONFLICT)
+            
+        except ObjectDoesNotExist: 
+            org_id = request.user.id
+            org_set = get_object_or_404(Org, pk=org_id)
+            org_set.email = orgEmail['new_email']
+            org_set.save()
 
-        serializer = OrgSerializer(org_set,many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-        
+            serializer = OrgSerializer(org_set,many=False)
+            return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+            
 class ChangePassword(APIView):
     authentication_classes = (SessionAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )

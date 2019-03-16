@@ -22,6 +22,7 @@ class ImageUploader extends Component {
 	onUploadClick() {
 		document.getElementById("fileInput").click();
 	}
+
 	classForShape(shape, classes) {
 		switch (shape) {
 			case "circle":
@@ -33,6 +34,7 @@ class ImageUploader extends Component {
 				return null;
 		}
 	}
+	
 	setEditorRef = (editor) => this.editor = editor;
 
 	render() {
