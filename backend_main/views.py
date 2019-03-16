@@ -7,6 +7,9 @@ from boto.s3.key import Key
 
 import dateutil.parser
 
+from datetime import datetime as dt
+from datetime import time
+
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
 from django.contrib.auth.forms import UserCreationForm
@@ -150,6 +153,28 @@ class ChangePassword(APIView):
         user.set_password(new_password)
         user.save()
         return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+class Events(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        eventData = request.data
+        org = request.user
+
+        loc = Location.objects.create(room = eventData['room'], building = eventData['location'], place_id = "")
+        new_event = Event.objects.create(
+            name = eventData['name'], 
+            location = loc,
+            start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
+            end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
+            start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
+            end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
+            description = eventData['description'], 
+            organizer = org)
+
+        serializer = EventSerializer(new_event,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION
