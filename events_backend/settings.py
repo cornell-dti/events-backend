@@ -166,7 +166,7 @@ STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATICFILES_DIRS = (
-    #This lets Django's collectstatic store our bundles
+    # This lets Django's collectstatic store our bundles
     os.path.join(BASE_DIR, 'assets'),
 )
 
