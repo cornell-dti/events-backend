@@ -148,7 +148,7 @@ class ChangePassword(APIView):
         user.save()
         return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
 
-class Events(APIView):
+class AddEvent(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -168,6 +168,30 @@ class Events(APIView):
             organizer = org)
 
         serializer = EventSerializer(new_event,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class EditEvent(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        eventData = request.data
+        org = request.user
+
+        loc = Location.objects.create(building = eventData['location'], room = eventData['room'], place_id = "")
+        event = Event.objects.get(pk = eventData['pk'])
+
+        event.name = eventData['name'], 
+        event.location = loc,
+        event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
+        event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
+        event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
+        event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
+        event.description = eventData['description'], 
+        event.organizer = org
+        event.save()
+
+        serializer = EventSerializer(event, many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #=============================================================

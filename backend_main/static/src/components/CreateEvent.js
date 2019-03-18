@@ -19,9 +19,10 @@ const radius = 5000;
 
 class CreateEvent extends Component {
 	state = {
+		pk: -1,
 		image: null,
 		name: "",
-		room: "EMPTY room",
+		room: "",
 		location: null,
 		placeid: "",
 		from: this.stringFromDate(this.defaultStartTime()),
@@ -44,7 +45,25 @@ class CreateEvent extends Component {
 			zoom: 15
 		});
 		placesService = new google.maps.places.PlacesService(map);
+
+		// will this update ?? check
+		const editEvent = this.props.edit
+
+		if (editEvent !== null) {
+			this.setState({
+				pk: this.editEvent.pk,
+				name: this.editEvent.name,
+				room: this.editEvent.room,
+				location: this.editEvent.location,
+				place_id: this.editEvent.place_id,
+				from: this.editEvent.start_date + 'T' + this.editEvent.start_time,
+				to: this.editEvent.end_date + 'T' + this.editEvent.end_time,
+				description: this.editEvent.description,
+				tags: this.editEvent.tags
+			})
+		}
 	}
+
 	//tomorrow, same hour, 0 minutes
 	defaultStartTime() {
 		let now = new Date();
@@ -94,10 +113,8 @@ class CreateEvent extends Component {
 	}
 
 	onPublishEvent() {
-		console.log("Start time" + this.state.from.split('T')[1])
-		console.log(this.state.from)
-
 		const eventData = {
+			pk: this.state.pk,
 			name: this.state.name,
 			room: this.state.room,
 			location: this.state.location,
@@ -109,9 +126,16 @@ class CreateEvent extends Component {
 			description: this.state.description
 		}
 
-		axios.post('/api/add_event/', eventData)
-			.then(response => window.location.href = "/app/events/")
-			.catch(error => this.setState({ errors: error.response.data.messages }));
+		if (this.state.pk === -1) {
+			axios.post('/api/add_event/', eventData)
+				.then(response => window.location.href = "/app/events/")
+				.catch(error => this.setState({ errors: error.response.data.messages }));
+		}
+		else {
+			axios.post('/api/edit_event/', eventData)
+				.then(response => window.location.href = "/app/events/")
+				.catch(error => this.setState({ errors: error.response.data.messages }));
+		}
 	}
 
 	render() {
@@ -127,7 +151,7 @@ class CreateEvent extends Component {
 						value={this.state.name}
 						onChange={e => this.setState({ name: e.target.value })}
 						margin={"normal"} />
-					<Autocomplete
+					{/* <Autocomplete
 						label={"Room"}
 						value={this.state.selected}
 						data={this.state.roomSuggestions.map(loc =>
@@ -136,7 +160,12 @@ class CreateEvent extends Component {
 						onUpdate={val => this.setState({ location: val })}
 						placeholder={"Building + room to display (e.g. Gates G01)"}
 						multiSelect={false}
-						canCreate={true} />
+						canCreate={true} /> */}
+					<TextField
+						label={"Room"}
+						value={this.state.room}
+						onChange={e => this.setState({ room: e.target.value })}
+						margin={"normal"} />
 					<Autocomplete
 						label={"Google Maps location"}
 						value={this.state.selected}
@@ -185,6 +214,7 @@ class CreateEvent extends Component {
 CreateEvent.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onCancel: PropTypes.func.isRequired,
+	// edit: PropTypes.func.isRequired
 };
 
 const styles = (theme) => ({

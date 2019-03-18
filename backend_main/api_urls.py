@@ -21,9 +21,9 @@ urlpatterns = [
 	url(r'^profile/$', views.UserProfile.as_view(), name="Profile" ),
 	url(r'^change_password/$', views.ChangePassword.as_view(), name="Change-Password"),
 	url(r'^change_org_email/$', views.ChangeOrgEmail.as_view(), name="Change-Org-Email"),
-	
-	#events
-	url(r'^add_event/$', views.Events.as_view(), name="Add-Event")
-	
 
+	#events
+	url(r'^add_event/$', views.AddEvent.as_view(), name="Add-Event"),
+	url(r'^edit_event/$', views.EditEvent.as_view(), name="Edit-Event")
+	# url(r'^edit_event/$', views.EditEvent.as_view(), name="Edit-Event")	
 ]
