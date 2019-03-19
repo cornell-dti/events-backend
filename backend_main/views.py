@@ -194,6 +194,32 @@ class EditEvent(APIView):
         serializer = EventSerializer(event, many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
+class DeleteEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def delete(self, request, event_id, format=None):
+        org = request.user
+        event_set = get_object_or_404(Event, pk=event_id)
+
+        if (event_set.organizer == org):
+            event_set.delete()
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request, format=None):
+        org = request.user
+        event_set = Event.objects.filter(organizer=org)
+
+        serializer = EventSerializer(event_set, many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+
 #=============================================================
 #                   EVENT INFORMATION
 #=============================================================
@@ -407,13 +433,14 @@ class ObtainToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
+
         userIDSet = UserID.objects.filter(token=mobile_id)
         if userIDSet.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
             if not validated:
-                return HttpResponseBadRequest(idinfo)
+                return HttpResponseBadRequest("Invalid Firebase ID")
 
             #generate username
             username = generateUserName()
@@ -428,6 +455,8 @@ class ObtainToken(APIView):
             #generate token
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
+
+
 
 class ResetToken(APIView):
     #TODO: alter classes to token and admin?
@@ -597,10 +626,10 @@ def validate_email(email):
 
 def validate_firebase(mobile_id):
     try:
-       idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request(), settings.GOOGLE_BACKEND_CLIENT_ID)
-       return True, ""
-    except:
-       return False, idinfo
+        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
+        return True, ""
+    except Exception as e:
+        return False, mobile_id
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)
@@ -613,7 +642,7 @@ class UserDetail(generics.RetrieveAPIView):
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer): 
         serializer.save(owner = self.request.user)
 
 
