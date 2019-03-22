@@ -9,24 +9,36 @@ import PropTypes from 'prop-types';
 import connect from "react-redux/es/connect/connect";
 import axios from 'axios'
 
-let DEMO_EVENTS = [{
-	pk: 42,
-	name: "Night at the Johnson",
-	description: "Experience the magic of an after-hours event at Cornell's wonderful Johnson Museum with art, music, food, desserts, and drinks. Dress up or dress down and get ready for a fun time!",
-	location: "Eddy St, Ithaca NY 14850",
-	start_date: "2018-01-21",
-	end_date: "2018-01-21",
-	start_time: "19:30:00",
-	end_time: "22:00:00",
-	num_attendees: 39,
-	is_public: true,
-	organizer: 3,
-	event_tags: [1, 2]
-}];
+// let DEMO_EVENTS = [{
+// 	pk: 42,
+// 	name: "Night at the Johnson",
+// 	description: "Experience the magic of an after-hours event at Cornell's wonderful Johnson Museum with art, music, food, desserts, and drinks. Dress up or dress down and get ready for a fun time!",
+// 	location: "Eddy St, Ithaca NY 14850",
+// 	start_date: "2018-01-21",
+// 	end_date: "2018-01-21",
+// 	start_time: "19:30:00",
+// 	end_time: "22:00:00",
+// 	num_attendees: 39,
+// 	is_public: true,
+// 	organizer: 3,
+// 	event_tags: [1, 2]
+// }];
 
 class MyEvents extends Component {
-	state = { createEvent: false, editEvent: null };
+	state = { createEvent: false, editEvent: undefined, EVENTS: [] };
 
+	componentDidMount() {
+		axios.get('/api/get_events/')
+			.then(response => {
+				let ORG_EVENTS = response.data;
+				console.log(ORG_EVENTS)
+				this.setState({ EVENTS: ORG_EVENTS })
+			})
+			.catch(error => {
+				if (error.response && error.response.status === 404)
+					this.setState({ errors: ['An error has occurred while retrieving your events. Please try again later.'] })
+			})
+	}
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
 		const hour12 = hour % 12 === 0 ? 12 : hour % 12; //0 o'clock = 12AM
@@ -45,12 +57,12 @@ class MyEvents extends Component {
 		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
-				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true })}>
+				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true, editEvent: undefined })}>
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
-					{DEMO_EVENTS.map(event => (
-						<div key={`${event.pk}`}>
+					{this.state.EVENTS.map(event => (
+						< div key={`${event.pk}`}>
 							<EventCard
 								name={event.name}
 								location={event.location}
@@ -62,9 +74,9 @@ class MyEvents extends Component {
 				</GridList>
 				<CreateEvent open={this.state.createEvent}
 					onCancel={this.onCancelCreate.bind(this)}
-					edit={this.state.editEvent}
+					onEdit={this.state.editEvent}
 				/>
-			</div>
+			</div >
 		);
 	}
 }

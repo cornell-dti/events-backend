@@ -35,6 +35,22 @@ class CreateEvent extends Component {
 		visitedLocations: [] // JS Objects of API Call of All Locations
 	};
 
+	componentDidUpdate() {
+		const editEvent = this.props.onEdit
+		if (editEvent !== undefined && this.state.pk !== editEvent.pk) {
+			this.setState({
+				pk: editEvent.pk,
+				name: editEvent.name,
+				room: editEvent.room,
+				location: editEvent.location,
+				place_id: editEvent.place_id,
+				from: editEvent.start_date + 'T' + editEvent.start_time,
+				to: editEvent.end_date + 'T' + editEvent.end_time,
+				description: editEvent.description,
+				tags: editEvent.tags
+			})
+		}
+	}
 	constructor(props) {
 		super(props);
 		google = window.google;
@@ -45,23 +61,6 @@ class CreateEvent extends Component {
 			zoom: 15
 		});
 		placesService = new google.maps.places.PlacesService(map);
-
-		// will this update ?? check
-		const editEvent = this.props.edit
-
-		if (editEvent !== null) {
-			this.setState({
-				pk: this.editEvent.pk,
-				name: this.editEvent.name,
-				room: this.editEvent.room,
-				location: this.editEvent.location,
-				place_id: this.editEvent.place_id,
-				from: this.editEvent.start_date + 'T' + this.editEvent.start_time,
-				to: this.editEvent.end_date + 'T' + this.editEvent.end_time,
-				description: this.editEvent.description,
-				tags: this.editEvent.tags
-			})
-		}
 	}
 
 	//tomorrow, same hour, 0 minutes
@@ -140,9 +139,11 @@ class CreateEvent extends Component {
 
 	render() {
 		const { classes } = this.props;
+		console.log(this.state)
 		return (
 			<Dialog open={this.props.open} scroll={"body"}>
-				<DialogTitle>Create an Event</DialogTitle>
+				{this.props.onEdit === undefined ? <DialogTitle>Create an Event</DialogTitle> :
+					<DialogTitle>Edit an Event</DialogTitle>}
 				<DialogContent className={classes.content}>
 					<ImageUploader onImageChange={image => this.setState({ image })}
 						shape={"rectangle"} />

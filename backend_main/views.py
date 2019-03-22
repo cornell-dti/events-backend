@@ -217,7 +217,7 @@ class GetEvents(APIView):
         event_set = Event.objects.filter(organizer=org)
 
         serializer = EventSerializer(event_set, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
 
 #=============================================================
