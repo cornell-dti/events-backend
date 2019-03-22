@@ -69,7 +69,7 @@ class Main extends Component {
 			<div className={classes.root}>
 				<AppBar color={"default"}>
 					<Toolbar>
-						<LinkColorless to={"/app/"} style={{ flexGrow: 1 }}>
+						<LinkColorless to={"/"} style={{ flexGrow: 1 }}>
 							<Logo fontSize={40} />
 						</LinkColorless>
 						{this.getNavBar(classes)}
@@ -90,6 +90,7 @@ class Main extends Component {
 						<Redirect to={"/app/"} />
 					</Switch>
 				}
+
 			</div>
 		);
 	}

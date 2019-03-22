@@ -26,4 +26,5 @@ export default {
 	//verifyCornellStatus: { route: "/app/verifyCornellStatus/", component: VerifyCornellStatus },
 	//verifyOrg: { route: "/app/verifyOrg", component: VerifyOrg },
 	//verifyDone: { route: "/app/verifyDone", component: VerifyDone }
+
 };

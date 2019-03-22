@@ -25,7 +25,7 @@ let DEMO_EVENTS = [{
 }];
 
 class MyEvents extends Component {
-	state = { createEvent: false, data: [] };
+	state = { createEvent: false, editEvent: null };
 
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
@@ -38,8 +38,9 @@ class MyEvents extends Component {
 	}
 
 	editEvent(event) {
-		this.setState({ createEvent: true });
+		this.setState({ createEvent: true, editEvent: event });
 	}
+
 	render() {
 		const { classes } = this.props;
 		return (
@@ -61,7 +62,7 @@ class MyEvents extends Component {
 				</GridList>
 				<CreateEvent open={this.state.createEvent}
 					onCancel={this.onCancelCreate.bind(this)}
-				// onPublish={this.onPublishEvent.bind(this)} 
+					edit={this.state.editEvent}
 				/>
 			</div>
 		);

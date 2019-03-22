@@ -160,5 +160,12 @@ WEBPACK_LOADER = {
 }
 
 # Page to open after login
-LOGIN_REDIRECT_URL = '/app/events/'
-LOGOUT_REDIRECT_URL = '/app/'
+LOGIN_REDIRECT_URL = '/post/event/'
+LOGOUT_REDIRECT_URL = '/'
+
+
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'postmaster@cornelldti.org'
+EMAIL_HOST_PASSWORD = '***REMOVED***'
+EMAIL_USE_TLS = True
