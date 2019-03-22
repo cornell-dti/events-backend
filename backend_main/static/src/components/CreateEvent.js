@@ -170,9 +170,9 @@ class CreateEvent extends Component {
 						label={"Google Maps location"}
 						value={this.state.selected}
 						data={this.state.locationSuggestions.map(loc =>
-							({ value: loc.name, label: loc.name }))}
+							({ value: loc.place_id, label: loc.name }))}
 						onChange={this.autocompleteLocation.bind(this)}
-						onUpdate={val => this.setState({ location: val })}
+						onUpdate={data => this.setState({ location: data.label, place_id: data.value })}
 						placeholder={"Building to navigate to (e.g. Bill and Melinda Gates Hall)"}
 						multiSelect={false}
 						canCreate={false} />

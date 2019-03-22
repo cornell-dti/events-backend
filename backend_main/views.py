@@ -160,10 +160,9 @@ class AddEvent(APIView):
 
     def post(self, request):
         eventData = request.data
-        print(eventData)
         org = request.user
 
-        loc = Location.objects.create(room = eventData['room'], building = eventData['location'], place_id = "")
+        loc = Location.objects.create(room = eventData['room'], building = eventData['location'], place_id = eventData['place_id'])
         new_event = Event.objects.create(
             name = eventData['name'], 
             location = loc,
@@ -224,7 +223,7 @@ class GetEvents(APIView):
         event_set = Event.objects.filter(organizer=org)
 
         serializer = EventSerializer(event_set, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
 
 #=============================================================

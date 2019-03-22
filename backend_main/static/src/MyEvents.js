@@ -25,7 +25,16 @@ let DEMO_EVENTS = [{
 }];
 
 class MyEvents extends Component {
-	state = { createEvent: false, editEvent: null };
+	state = { events: [], createEvent: false, editEvent: null };
+
+	componentDidMount(){
+		const self = this
+		axios.get('/api/get_events/')
+		.then(response => {
+			console.log(response);
+		})
+
+	}
 
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
