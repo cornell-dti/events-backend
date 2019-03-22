@@ -13,6 +13,7 @@ class Autocomplete extends Component {
 	state = { selected: null };
 
 	onSelect(val) {
+
 		this.setState({ selected: val });
 		this.props.onUpdate(val);
 	}

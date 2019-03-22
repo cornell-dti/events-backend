@@ -21,7 +21,7 @@ class CreateEvent extends Component {
 	state = {
 		image: null,
 		name: "",
-		room: "EMPTY room",
+		room: "",
 		location: null,
 		placeid: "",
 		from: this.stringFromDate(this.defaultStartTime()),
@@ -94,9 +94,6 @@ class CreateEvent extends Component {
 	}
 
 	onPublishEvent() {
-		console.log("Start time" + this.state.from.split('T')[1])
-		console.log(this.state.from)
-
 		const eventData = {
 			name: this.state.name,
 			room: this.state.room,
@@ -133,7 +130,7 @@ class CreateEvent extends Component {
 						data={this.state.roomSuggestions.map(loc =>
 							({ value: loc.name, label: loc.name }))}
 						onChange={this.autocompleteRoom.bind(this)}
-						onUpdate={val => this.setState({ location: val })}
+						onUpdate={val => this.setState({ room: val })}
 						placeholder={"Building + room to display (e.g. Gates G01)"}
 						multiSelect={false}
 						canCreate={true} />

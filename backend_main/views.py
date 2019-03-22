@@ -160,6 +160,7 @@ class Events(APIView):
 
     def post(self, request):
         eventData = request.data
+        print(eventData)
         org = request.user
 
         loc = Location.objects.create(room = eventData['room'], building = eventData['location'], place_id = "")
