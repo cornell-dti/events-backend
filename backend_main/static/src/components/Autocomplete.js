@@ -11,9 +11,11 @@ import Typography from "@material-ui/core/Typography/Typography";
 
 class Autocomplete extends Component {
 	state = { selected: null };
-
+	
+	componentDidMount() {
+		this.setState({ selected: this.props.value});
+  	}	
 	onSelect(val) {
-
 		this.setState({ selected: val });
 		this.props.onUpdate(val);
 	}

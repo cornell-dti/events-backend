@@ -161,8 +161,11 @@ class AddEvent(APIView):
     def post(self, request):
         eventData = request.data
         org = request.user
-
-        loc = Location.objects.create(room = eventData['room'], building = eventData['location'], place_id = eventData['place_id'])
+        try: 
+            loc = Location.objects.get(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+        except ObjectDoesNotExist:
+            loc = Location.objects.create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+        
         new_event = Event.objects.create(
             name = eventData['name'], 
             location = loc,
@@ -182,10 +185,14 @@ class EditEvent(APIView):
 
     def post(self, request):
         eventData = request.data
-        org = request.user
 
-        loc = Location.objects.create(building = eventData['location'], room = eventData['room'], place_id = "")
-        event = Event.objects.get(pk = eventData['pk'])
+        org = request.user
+        try: 
+            loc = Location.objects.get(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+        except ObjectDoesNotExist:
+            loc = Location.objects.create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+       
+        event = Event.objects.get(pk = eventData['id'])
 
         event.name = eventData['name'], 
         event.location = loc,
@@ -221,10 +228,8 @@ class GetEvents(APIView):
     def get(self, request, format=None):
         org = request.user
         event_set = Event.objects.filter(organizer=org)
-
         serializer = EventSerializer(event_set, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
-
+        return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION

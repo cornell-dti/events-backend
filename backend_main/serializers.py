@@ -17,6 +17,7 @@ class EventSerializer(serializers.ModelSerializer):
         #exclude = ('history',)
         fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
         	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'event_tags', 'event_media')
+        depth = 1
         
 class LocationSerializer(serializers.ModelSerializer):
 

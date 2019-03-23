@@ -19,7 +19,7 @@ const radius = 5000;
 
 class CreateEvent extends Component {
 	state = {
-		pk: -1,
+		selected: {},
 		image: null,
 		name: "",
 		room: "",
@@ -35,6 +35,22 @@ class CreateEvent extends Component {
 		visitedLocations: [] // JS Objects of API Call of All Locations
 	};
 
+	componentDidUpdate(prevProps) {
+		const event	= this.props.event	
+		if (prevProps.event !== event && event !== {}) {
+			this.setState({
+				name: event.name,
+				room: event.location.room,
+				location: event.location.building,
+				place_id: event.location.place_id,
+				from: event.start_date + 'T' + event.start_time,
+				to: event.end_date + 'T' + event.end_time,
+				description: event.description,
+				tags: event.tags,
+				selected: {value: event.location.place_id, label: event.location.building} 
+			})
+		}
+	}
 	constructor(props) {
 		super(props);
 		google = window.google;
@@ -45,23 +61,6 @@ class CreateEvent extends Component {
 			zoom: 15
 		});
 		placesService = new google.maps.places.PlacesService(map);
-
-		// will this update ?? check
-		const editEvent = this.props.edit
-
-		if (editEvent !== null) {
-			this.setState({
-				pk: this.editEvent.pk,
-				name: this.editEvent.name,
-				room: this.editEvent.room,
-				location: this.editEvent.location,
-				place_id: this.editEvent.place_id,
-				from: this.editEvent.start_date + 'T' + this.editEvent.start_time,
-				to: this.editEvent.end_date + 'T' + this.editEvent.end_time,
-				description: this.editEvent.description,
-				tags: this.editEvent.tags
-			})
-		}
 	}
 
 	//tomorrow, same hour, 0 minutes
@@ -113,12 +112,15 @@ class CreateEvent extends Component {
 	}
 
 	onPublishEvent() {
-		const eventData = {
-			pk: this.state.pk,
-			name: this.state.name,
+		const location = {
+			building: this.state.location,
 			room: this.state.room,
-			location: this.state.location,
-			place_id: this.state.place_id,
+			place_id: this.state.place_id
+		}
+
+		const eventData = {
+			name: this.state.name,
+			location: location,
 			start_date: this.state.from.split('T')[0],
 			end_date: this.state.to.split('T')[0],
 			start_time: this.state.from.split('T')[1],
@@ -126,13 +128,16 @@ class CreateEvent extends Component {
 			description: this.state.description
 		}
 
-		if (this.state.pk === -1) {
-			axios.post('/api/add_event/', eventData)
+		console.log(eventData);
+
+		if (this.props.edit) {
+			axios.post('/api/edit_event/', eventData)
 				.then(response => window.location.href = "/app/events/")
 				.catch(error => this.setState({ errors: error.response.data.messages }));
 		}
 		else {
-			axios.post('/api/edit_event/', eventData)
+			eventData.id = this.props.event.id
+			axios.post('/api/add_event/', eventData)
 				.then(response => window.location.href = "/app/events/")
 				.catch(error => this.setState({ errors: error.response.data.messages }));
 		}
@@ -142,7 +147,8 @@ class CreateEvent extends Component {
 		const { classes } = this.props;
 		return (
 			<Dialog open={this.props.open} scroll={"body"}>
-				<DialogTitle>Create an Event</DialogTitle>
+				{this.props.edit ? <DialogTitle>Create an Event</DialogTitle> :
+					<DialogTitle>Edit an Event</DialogTitle>}
 				<DialogContent className={classes.content}>
 					<ImageUploader onImageChange={image => this.setState({ image })}
 						shape={"rectangle"} />
@@ -214,7 +220,8 @@ class CreateEvent extends Component {
 CreateEvent.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onCancel: PropTypes.func.isRequired,
-	// edit: PropTypes.func.isRequired
+	edit: PropTypes.bool.isRequired,
+	event: PropTypes.object.isRequired
 };
 
 const styles = (theme) => ({
