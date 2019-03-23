@@ -17,6 +17,7 @@ MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
 MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
+MAX_ROOM_LENGTH = 100
 
 
 class Event(models.Model):
@@ -89,6 +90,7 @@ class Org_Tags(models.Model):
 class Location(models.Model):
     building = models.CharField(max_length=MAX_NAME_LENGTH)
     place_id = models.CharField(max_length=MAX_NAME_LENGTH)
+    room = models.CharField(max_length=MAX_ROOM_LENGTH)
 
     def __str__(self):
         return self.building
