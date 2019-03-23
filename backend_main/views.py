@@ -161,14 +161,11 @@ class AddEvent(APIView):
     def post(self, request):
         eventData = request.data
         org = request.user
-        try: 
-            loc = Location.objects.get(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-        except ObjectDoesNotExist:
-            loc = Location.objects.create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-        
+        loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+
         new_event = Event.objects.create(
             name = eventData['name'], 
-            location = loc,
+            location = loc[0],
             start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
             end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
             start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
@@ -187,20 +184,17 @@ class EditEvent(APIView):
         eventData = request.data
 
         org = request.user
-        try: 
-            loc = Location.objects.get(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-        except ObjectDoesNotExist:
-            loc = Location.objects.create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-       
+        loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+
         event = Event.objects.get(pk = eventData['id'])
 
-        event.name = eventData['name'], 
-        event.location = loc,
-        event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
-        event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
-        event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
-        event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
-        event.description = eventData['description'], 
+        event.name = eventData['name']
+        event.location = loc[0]
+        event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date()
+        event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date()
+        event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time()
+        event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
+        event.description = eventData['description']
         event.organizer = org
         event.save()
 

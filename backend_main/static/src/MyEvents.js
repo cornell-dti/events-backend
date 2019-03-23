@@ -67,18 +67,22 @@ class MyEvents extends Component {
 		const newEvent = {
 			image: null,
 			name: "",
-			room: "",
-			location: "",
-			place_id: "",
-			from: "",
-			to: "",
+			location: {
+				building: "",
+				room: "",
+				place_id: ""
+			},
+			start_date: "",
+			end_date: "",
+			start_time: "",
+			end_time: "",
 			description: "",
 			tags: []
 		}
-		
+
 		return (
 			<div className={classes.root}>
-				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true, edit: false, selectedEvent: newEvent })}>
+				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true, editEvent: false, selectedEvent: newEvent })}>
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>

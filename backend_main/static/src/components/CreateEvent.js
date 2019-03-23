@@ -23,8 +23,8 @@ class CreateEvent extends Component {
 		image: null,
 		name: "",
 		room: "",
-		location: null,
-		placeid: "",
+		location: "",
+		place_id: "",
 		from: this.stringFromDate(this.defaultStartTime()),
 		to: this.stringFromDate(this.defaultEndTime()),
 		description: "",
@@ -43,8 +43,8 @@ class CreateEvent extends Component {
 				room: event.location.room,
 				location: event.location.building,
 				place_id: event.location.place_id,
-				from: event.start_date + 'T' + event.start_time,
-				to: event.end_date + 'T' + event.end_time,
+				from: event.start_date === "" || event.start_time === "" ? this.stringFromDate(this.defaultStartTime()): event.start_date + 'T' + event.start_time.slice(0,5),
+				to: event.end_date === "" || event.end_time === "" ? this.stringFromDate(this.defaultEndTime()) : event.end_date + 'T' + event.end_time.slice(0,5),
 				description: event.description,
 				tags: event.tags,
 				selected: {value: event.location.place_id, label: event.location.building} 
@@ -128,15 +128,13 @@ class CreateEvent extends Component {
 			description: this.state.description
 		}
 
-		console.log(eventData);
-
 		if (this.props.edit) {
+			eventData.id = this.props.event.pk
 			axios.post('/api/edit_event/', eventData)
 				.then(response => window.location.href = "/app/events/")
 				.catch(error => this.setState({ errors: error.response.data.messages }));
 		}
 		else {
-			eventData.id = this.props.event.id
 			axios.post('/api/add_event/', eventData)
 				.then(response => window.location.href = "/app/events/")
 				.catch(error => this.setState({ errors: error.response.data.messages }));
@@ -147,8 +145,8 @@ class CreateEvent extends Component {
 		const { classes } = this.props;
 		return (
 			<Dialog open={this.props.open} scroll={"body"}>
-				{this.props.edit ? <DialogTitle>Create an Event</DialogTitle> :
-					<DialogTitle>Edit an Event</DialogTitle>}
+				{this.props.edit ? <DialogTitle>Edit an Event</DialogTitle> :
+					<DialogTitle>Create an Event</DialogTitle>}
 				<DialogContent className={classes.content}>
 					<ImageUploader onImageChange={image => this.setState({ image })}
 						shape={"rectangle"} />
