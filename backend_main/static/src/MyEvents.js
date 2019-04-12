@@ -7,26 +7,12 @@ import EventCard from "./components/EventCard";
 import GridList from "@material-ui/core/GridList/GridList";
 import PropTypes from 'prop-types';
 import connect from "react-redux/es/connect/connect";
-import axios from 'axios'
-
-// let DEMO_EVENTS = [{
-// 	pk: 42,
-// 	name: "Night at the Johnson",
-// 	description: "Experience the magic of an after-hours event at Cornell's wonderful Johnson Museum with art, music, food, desserts, and drinks. Dress up or dress down and get ready for a fun time!",
-// 	location: "Eddy St, Ithaca NY 14850",
-// 	start_date: "2018-01-21",
-// 	end_date: "2018-01-21",
-// 	start_time: "19:30:00",
-// 	end_time: "22:00:00",
-// 	num_attendees: 39,
-// 	is_public: true,
-// 	organizer: 3,
-// 	event_tags: [1, 2]
-// }];
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 class MyEvents extends Component {
 
-	state = { createEvent: false, selectedEvent: {}, editEvent: false, events: [] };
+	state = { createEvent: false, selectedEvent: {}, editEvent: false, events: [], deleteEvent: false };
 
 	componentDidMount() {
 		axios.get('/api/get_events/')
@@ -48,7 +34,7 @@ class MyEvents extends Component {
 	formatMonth(date) {
 		const [year, month, day] = date.split("-");
 		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Oct", "Nov", "Dec"]
-		return `${months[month-1]}`;
+		return `${months[month - 1]}`;
 	}
 	formatDay(date) {
 		const [year, month, day] = date.split("-");
@@ -60,6 +46,47 @@ class MyEvents extends Component {
 
 	onEdit(event) {
 		this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
+	}
+
+	updateEvent(origEvent, updatedEvent) {
+		origEvent.name = updatedEvent.name;
+		// origEvent.image = updatedEvent.image
+		origEvent.location = updatedEvent.location;
+		origEvent.start_date = updatedEvent.start_date;
+		origEvent.end_date = updatedEvent.end_date;
+		origEvent.start_time = updatedEvent.start_time;
+		origEvent.end_time = updatedEvent.end_time;
+		origEvent.description = updatedEvent.description;
+		// origEvent.tags = updatedEvent.tags
+
+		return origEvent
+	}
+
+	onUpdate(event) {
+		// EDIT EVENT
+		if (event.pk !== undefined) {
+			const matchedEvent = this.state.events.filter(e => { return e.pk === event.pk })[0];
+			const removed = this.state.events.filter(e => { return e.pk !== event.pk });
+			this.setState({ createEvent: false, editEvent: false, events: removed.push(this.updateEvent(matchedEvent, event)) });
+			axios.post('/api/edit_event/', event)
+				.catch(error => this.setState({ errors: error.response.data.messages }))
+		}
+		// ADD EVENT
+		else {
+			axios.post('/api/add_event/', event)
+				.then(response => event.pk = response.data.pk)
+				.then(this.setState({ createEvent: false, events: this.state.events.push(event) }))
+				.catch(error => this.setState({ errors: error.response.data.messages }))
+		}
+	}
+	onDeleteEvent(event) {
+		let modifiedEvents = this.state.events.filter(e => { return e.pk !== event.pk });
+		this.setState({ events: modifiedEvents, createEvent: false });
+		axios.post('/api/delete_event/' + event.pk + '/')
+			.catch(error => {
+				if (error.response && (error.response.status === 404 || error.response.status === 405))
+					this.setState({ errors: ['An error has occurred while deleting your event. Please try again later.'] })
+			})
 	}
 
 	render() {
@@ -78,7 +105,8 @@ class MyEvents extends Component {
 			end_time: "",
 			description: "",
 			tags: []
-		}
+		};
+
 
 		return (
 			<div className={classes.root}>
@@ -99,11 +127,13 @@ class MyEvents extends Component {
 						</div>
 					))}
 				</GridList>
-				<CreateEvent 
+				<CreateEvent
 					open={this.state.createEvent}
 					edit={this.state.editEvent}
 					event={this.state.selectedEvent}
 					onCancel={this.onCancelCreate.bind(this)}
+					onUpdate={this.onUpdate.bind(this)}
+					onDelete={this.onDeleteEvent.bind(this)}
 				/>
 			</div>
 		);

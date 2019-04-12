@@ -11,16 +11,20 @@ import ImageUploader from "./ImageUploader";
 import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 let google = null;
 let mapCenter = null;
 let placesService = null;
 const radius = 5000;
 
+axios.defaults.headers.post['X-CSRFToken'] = Cookies.get('csrftoken') //get CSRF-token for POST requests
+
 class CreateEvent extends Component {
 	state = {
 		selected: {},
 		image: null,
+		pk: undefined,
 		name: "",
 		room: "",
 		location: "",
@@ -36,19 +40,20 @@ class CreateEvent extends Component {
 	};
 
 	componentDidUpdate(prevProps) {
-		const event	= this.props.event	
+		const event = this.props.event;
 		if (prevProps.event !== event && event !== {}) {
 			this.setState({
+				pk: event.pk,
 				name: event.name,
 				room: event.location.room,
 				location: event.location.building,
 				place_id: event.location.place_id,
-				from: event.start_date === "" || event.start_time === "" ? this.stringFromDate(this.defaultStartTime()): event.start_date + 'T' + event.start_time.slice(0,5),
-				to: event.end_date === "" || event.end_time === "" ? this.stringFromDate(this.defaultEndTime()) : event.end_date + 'T' + event.end_time.slice(0,5),
+				from: event.start_date === "" || event.start_time === "" ? this.stringFromDate(this.defaultStartTime()) : event.start_date + 'T' + event.start_time.slice(0, 5),
+				to: event.end_date === "" || event.end_time === "" ? this.stringFromDate(this.defaultEndTime()) : event.end_date + 'T' + event.end_time.slice(0, 5),
 				description: event.description,
 				tags: event.tags,
-				selected: {value: event.location.place_id, label: event.location.building} 
-			})
+				selected: { value: event.location.place_id, label: event.location.building }
+			});
 		}
 	}
 	constructor(props) {
@@ -108,7 +113,7 @@ class CreateEvent extends Component {
 		const matchLocation = this.state.visitedLocations.filter(location => (location.building).includes(input));
 		this.setState({
 			roomSuggestions: matchLocation.map(loc => ({ name: loc.name, place_id: loc.place_id }))
-		})
+		});
 	}
 
 	onPublishEvent() {
@@ -116,9 +121,10 @@ class CreateEvent extends Component {
 			building: this.state.location,
 			room: this.state.room,
 			place_id: this.state.place_id
-		}
+		};
 
 		const eventData = {
+			pk: this.state.pk,
 			name: this.state.name,
 			location: location,
 			start_date: this.state.from.split('T')[0],
@@ -126,19 +132,14 @@ class CreateEvent extends Component {
 			start_time: this.state.from.split('T')[1],
 			end_time: this.state.to.split('T')[1],
 			description: this.state.description
-		}
+		};
 
-		if (this.props.edit) {
-			eventData.id = this.props.event.pk
-			axios.post('/api/edit_event/', eventData)
-				.then(response => window.location.href = "/app/events/")
-				.catch(error => this.setState({ errors: error.response.data.messages }));
-		}
-		else {
-			axios.post('/api/add_event/', eventData)
-				.then(response => window.location.href = "/app/events/")
-				.catch(error => this.setState({ errors: error.response.data.messages }));
-		}
+		this.props.onUpdate(eventData);
+	}
+
+	onDeleteEvent() {
+		const event = this.props.event;
+		this.props.onDelete(event);
 	}
 
 	render() {
@@ -203,6 +204,7 @@ class CreateEvent extends Component {
 					<TagField onNewTags={(tags) => this.setState({ tags: tags })} />
 				</DialogContent>
 				<DialogActions>
+					{this.props.edit ? <Button onClick={this.onDeleteEvent.bind(this)} color="primary"> Delete	</Button> : null}
 					<Button onClick={this.props.onCancel} color="secondary">
 						Cancel
 					</Button>

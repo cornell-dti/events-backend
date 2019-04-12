@@ -186,7 +186,7 @@ class EditEvent(APIView):
         org = request.user
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
 
-        event = Event.objects.get(pk = eventData['id'])
+        event = Event.objects.get(pk = eventData['pk'])
 
         event.name = eventData['name']
         event.location = loc[0]
@@ -205,7 +205,7 @@ class DeleteEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)  
 
-    def delete(self, request, event_id, format=None):
+    def post(self, request, event_id, format=None):
         org = request.user
         event_set = get_object_or_404(Event, pk=event_id)
 
