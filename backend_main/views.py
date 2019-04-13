@@ -154,29 +154,7 @@ class ChangePassword(APIView):
         user.save()
         return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
 
-class AddEvent(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def post(self, request):
-        eventData = request.data
-        org = request.user
-        loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-
-        new_event = Event.objects.create(
-            name = eventData['name'], 
-            location = loc[0],
-            start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
-            end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
-            start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
-            end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
-            description = eventData['description'], 
-            organizer = org)
-
-        serializer = EventSerializer(new_event,many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-
-class EditEvent(APIView):
+class AddOrEditEvent(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -186,19 +164,32 @@ class EditEvent(APIView):
         org = request.user
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
 
-        event = Event.objects.get(pk = eventData['pk'])
+        try:
+            event = Event.objects.get(pk = eventData['pk'])
+            event.name = eventData['name']
+            event.location = loc[0]
+            event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date()
+            event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date()
+            event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time()
+            event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
+            event.description = eventData['description']
+            event.organizer = org
+            event.save()
+            serializer = EventSerializer(event, many=False)
 
-        event.name = eventData['name']
-        event.location = loc[0]
-        event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date()
-        event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date()
-        event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time()
-        event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
-        event.description = eventData['description']
-        event.organizer = org
-        event.save()
+        except KeyError:
+            new_event = Event.objects.create(
+                name = eventData['name'], 
+                location = loc[0],
+                start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
+                end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
+                start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
+                end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
+                description = eventData['description'], 
+                organizer = org)
 
-        serializer = EventSerializer(event, many=False)
+            serializer = EventSerializer(new_event,many=False)
+
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class DeleteEvents(APIView):

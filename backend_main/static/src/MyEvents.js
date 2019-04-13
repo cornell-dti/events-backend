@@ -48,7 +48,7 @@ class MyEvents extends Component {
 		this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
 	}
 
-	updateEvent(origEvent, updatedEvent) {
+	/*updateEvent(origEvent, updatedEvent) {
 		origEvent.name = updatedEvent.name;
 		// origEvent.image = updatedEvent.image
 		origEvent.location = updatedEvent.location;
@@ -60,25 +60,26 @@ class MyEvents extends Component {
 		// origEvent.tags = updatedEvent.tags
 
 		return origEvent
-	}
+	}*/
 
 	onUpdate(event) {
-		// EDIT EVENT
-		if (event.pk !== undefined) {
-			const matchedEvent = this.state.events.filter(e => { return e.pk === event.pk })[0];
-			const removed = this.state.events.filter(e => { return e.pk !== event.pk });
-			this.setState({ createEvent: false, editEvent: false, events: removed.push(this.updateEvent(matchedEvent, event)) });
-			axios.post('/api/edit_event/', event)
-				.catch(error => this.setState({ errors: error.response.data.messages }))
-		}
-		// ADD EVENT
-		else {
-			axios.post('/api/add_event/', event)
-				.then(response => event.pk = response.data.pk)
-				.then(this.setState({ createEvent: false, events: this.state.events.push(event) }))
-				.catch(error => this.setState({ errors: error.response.data.messages }))
-		}
+		axios.post('/api/add_or_edit_event/', event)
+			.then(response => {
+				const updatedEvent = response.data
+				let events = this.state.events.slice()
+				let edit = false;
+				for (let i = 0; i < events.length; i++){
+					if (events[i].pk === updatedEvent.pk){
+						events[i] = updatedEvent	
+						edit = true;
+						break;
+					}
+				}
+				this.setState({ createEvent: false, editEvent: false, events: edit ? events: [...this.state.events, updatedEvent]})
+			})
+			.catch(error => this.setState({ errors: error.response.data.messages }))
 	}
+	
 	onDeleteEvent(event) {
 		let modifiedEvents = this.state.events.filter(e => { return e.pk !== event.pk });
 		this.setState({ events: modifiedEvents, createEvent: false });
@@ -114,7 +115,7 @@ class MyEvents extends Component {
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
-					{this.state.events.map(event => (
+					{this.state.events.map(event => 
 						<div key={`${event.pk}`}>
 							<EventCard
 								name={event.name}
@@ -125,7 +126,7 @@ class MyEvents extends Component {
 								startDay={this.formatDay(event.start_date)}
 								onClick={() => this.onEdit(event)} />
 						</div>
-					))}
+					)}
 				</GridList>
 				<CreateEvent
 					open={this.state.createEvent}
