@@ -39,6 +39,7 @@ class Event(models.Model):
 
 
 class Tag(models.Model):
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=MAX_TAG_LENGTH)
 
     def __str__(self):
