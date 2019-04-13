@@ -12,6 +12,7 @@ import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import FormError from './FormError'
 
 let google = null;
 let mapCenter = null;
@@ -66,6 +67,14 @@ class CreateEvent extends Component {
 			zoom: 15
 		});
 		placesService = new google.maps.places.PlacesService(map);
+	}
+
+	formComplete(){
+		return this.state.name !== undefined && this.state.name !== "" &&
+			this.state.room !== undefined && this.state.room !== "" &&
+			this.state.location !== undefined && this.state.location !== "" &&
+			this.state.from !== undefined && this.state.from !== "" &&
+			this.state.to !== undefined && this.state.to !== "" 
 	}
 
 	//tomorrow, same hour, 0 minutes
@@ -208,7 +217,7 @@ class CreateEvent extends Component {
 					<Button onClick={this.props.onCancel} color="secondary">
 						Cancel
 					</Button>
-					<Button onClick={this.onPublishEvent.bind(this)} color="primary">
+					<Button onClick={this.onPublishEvent.bind(this)} disabled={!this.formComplete()} color="primary">
 						Publish Event
 					</Button>
 				</DialogActions>
