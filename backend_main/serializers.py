@@ -40,7 +40,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ("pk", "name")
+        fields = ("id", "name")
 
 
 class UpdatedEventsSerializer(serializers.Serializer):
