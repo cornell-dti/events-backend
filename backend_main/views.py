@@ -348,7 +348,7 @@ class OrgFeed(APIView):
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
         json_orgs = OrgSerializer(outdated_orgs, many = True).data
-        serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedOrgSerializer({"orgs":json_orgs, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
@@ -377,7 +377,7 @@ class EventFeed(APIView):
         end_time = dateutil.parser.parse(end_time)
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
         json_events = EventSerializer(outdated_events, many = True).data
-        serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #tbh i have no idea what this function does

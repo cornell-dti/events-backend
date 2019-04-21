@@ -38,13 +38,11 @@ class TagSerializer(serializers.ModelSerializer):
 		fields = ("pk", "name")
 
 class UpdatedEventsSerializer(serializers.Serializer):
-	updated = serializers.JSONField() #pass in serialized events
-	deleted = serializers.ListField()
+	events = serializers.JSONField() #pass in serialized events
 	timestamp = serializers.DateTimeField()
 
 class UpdatedOrgSerializer(serializers.Serializer):
-	updated = serializers.JSONField() #pass in serialized events
-	deleted = serializers.ListField()
+	orgs = serializers.JSONField() #pass in serialized events
 	timestamp = serializers.DateTimeField()
 
 class UserSerializer(serializers.ModelSerializer):
