@@ -352,14 +352,14 @@ class OrgFeed(APIView):
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
-    org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    org_updates = org_updates.distinct('id').order_by('id')
+    #org_updates = Org.history.filter(history_date__gte = in_timestamp)
+    #org_updates = org_updates.distinct('id').order_by('id')
 
-    org_list = org_updates.values_list('id', flat = True).order_by('id')
+    #org_list = org_updates.values_list('id', flat = True).order_by('id')
     #TODO: What if not in list
-    changed_orgs = Org.objects.filter(pk__in=org_list)
-    present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
-    all_deleted_pks = list(set(org_list).difference(set(present_pks)))
+    changed_orgs = Org.objects #.filter(pk__in=org_list)
+    #present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
 class EventFeed(APIView):
@@ -382,13 +382,13 @@ class EventFeed(APIView):
 
 #tbh i have no idea what this function does
 def outdatedEvents(in_timestamp, start_time, end_time):
-    history_set = Event.history.filter(history_date__gte = in_timestamp)
-    unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    pks = unique_set.values_list('id', flat=True).order_by('id')
+    #history_set = Event.history.filter(history_date__gte = in_timestamp)
+    #unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
+    #pks = unique_set.values_list('id', flat=True).order_by('id')
     # #TODO: What if not in list
-    changed_events = Event.objects.filter(pk__in = pks, start_date__gte = start_time, end_date__lte =  end_time)
-    present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
-    all_deleted_pks = list(set(pks).difference(set(present_pks)))
+    changed_events = Event.objects.filter(start_date__gte = start_time, end_date__lte =  end_time)
+    #present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
 #=============================================================
