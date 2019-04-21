@@ -33,7 +33,7 @@ class Login extends Component {
 		};
 
 		axios.post('/api/login/', loginData)
-		.then(response => window.location.href = "/app/events/")
+		.then(response => window.location.href = "/events/")
   		.catch(error =>	self.setState({ errors: error.response.data.messages }));		
 	}
 
