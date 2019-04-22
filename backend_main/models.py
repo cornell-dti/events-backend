@@ -23,6 +23,8 @@ MAX_TAG_LENGTH = 50
 MAX_CONTACT_LENGTH = 100
 MAX_WEBSITE_LENGTH = 100
 MAX_TOKEN_LENGTH = 2056
+MAX_ROOM_LENGTH = 100
+
 
 class UserManager(BaseUserManager):
 
@@ -107,15 +109,19 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
 class Tag(models.Model):
 
     class Meta:
         app_label = 'backend_main'
 
     name = models.CharField(max_length = MAX_TAG_LENGTH)
+    id = models.IntegerField(primary_key=True)
+
 
     def __str__(self):
         return self.name
+
 
 class Event_Tags(models.Model):
 
@@ -124,6 +130,7 @@ class Event_Tags(models.Model):
 
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
+
 
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
@@ -134,10 +141,27 @@ class Event_Org(models.Model):
         app_label = 'backend_main'
 
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
-    org_id = models.ForeignKey('Org',on_delete=models.CASCADE)
+    org_id = models.ForeignKey('Org', on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
+
+class Org(models.Model):
+    name = models.CharField(max_length=MAX_NAME_LENGTH)
+    description = models.CharField(max_length=MAX_DESC_LENGTH)
+    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
+    photo = models.ForeignKey(
+        'Media', on_delete=models.CASCADE, blank=True, null=True)
+    contact = models.CharField(max_length=MAX_CONTACT_LENGTH)
+
+    verified = models.BooleanField(default=False)
+    history = HistoricalRecords()
+    owner = models.ForeignKey(
+        'auth.User', related_name='org', on_delete=models.CASCADE)  # user
+
+    def __str__(self):
+        return self.name    
+
 
 class Org_Tags(models.Model):
 
@@ -150,6 +174,7 @@ class Org_Tags(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
 
+
 class Location(models.Model):
 
     class Meta:
@@ -161,6 +186,7 @@ class Location(models.Model):
 
     def __str__(self):
         return self.building
+
 
 class UserID(models.Model):
 
@@ -182,6 +208,7 @@ class Attendance(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.user_id, self.event_id)
 
+
 class Media(models.Model):
 
     class Meta:
@@ -191,8 +218,10 @@ class Media(models.Model):
     file = models.FileField(upload_to="cu_events_images", blank = False)
     uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
 
+
     def __str__(self):
         return self.name
+
 
 class Event_Media(models.Model):
 
@@ -223,4 +252,5 @@ class Event_Media(models.Model):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
 

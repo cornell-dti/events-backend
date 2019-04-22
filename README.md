@@ -38,11 +38,11 @@ Windows:
 
 #### Make migrations
 If typing `python` gives you version 3.x):
-- `python manage.py makemigrations`
+- `python manage.py makemigrations backend_main`
 - `python manage.py migrate`
 
 Otherwise:
-- `python3 manage.py makemigrations`
+- `python3 manage.py makemigrations backend_main`
 - `python3 manage.py migrate`
 
 ### Everyday

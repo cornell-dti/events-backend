@@ -9,9 +9,11 @@ from django.contrib.auth.models import User
 
 
 class EventSerializer(serializers.ModelSerializer):
-    event_tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
-    event_media = serializers.PrimaryKeyRelatedField(queryset = Event_Media.objects.all(), many=True)
-    
+    event_tags = serializers.PrimaryKeyRelatedField(
+        queryset=Event_Tags.objects.all(), many=True)
+    event_media = serializers.PrimaryKeyRelatedField(
+        queryset=Event_Media.objects.all(), many=True)
+
     class Meta:
         model = Event
         #exclude = ('history',)
@@ -21,9 +23,10 @@ class EventSerializer(serializers.ModelSerializer):
         
 class LocationSerializer(serializers.ModelSerializer):
 
-	class Meta:
-		model = Location
-		fields = ('pk', 'building','room', 'place_id')
+    class Meta:
+        model = Location
+        fields = ('pk', 'building', 'room', 'place_id')
+
 
 class OrgSerializer(serializers.ModelSerializer):
 	org_tags = serializers.PrimaryKeyRelatedField(queryset = Org_Tags.objects.all(), many=True)
@@ -32,26 +35,31 @@ class OrgSerializer(serializers.ModelSerializer):
 		model = Org
 		fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags', 'is_staff', 'org_tags', 'is_active')
 
+
 class TagSerializer(serializers.ModelSerializer):
 
-	class Meta:
-		model = Tag
-		fields = ("pk", "name")
+    class Meta:
+        model = Tag
+        fields = ("id", "name")
+
 
 class UpdatedEventsSerializer(serializers.Serializer):
-	updated = serializers.JSONField() #pass in serialized events
-	deleted = serializers.ListField()
-	timestamp = serializers.DateTimeField()
+    updated = serializers.JSONField()  # pass in serialized events
+    deleted = serializers.ListField()
+    timestamp = serializers.DateTimeField()
+
 
 class UpdatedOrgSerializer(serializers.Serializer):
-	updated = serializers.JSONField() #pass in serialized events
-	deleted = serializers.ListField()
-	timestamp = serializers.DateTimeField()
+    updated = serializers.JSONField()  # pass in serialized events
+    deleted = serializers.ListField()
+    timestamp = serializers.DateTimeField()
+
 
 class UserSerializer(serializers.ModelSerializer):
-	org = serializers.PrimaryKeyRelatedField(many=True, queryset=Org.objects.all())
-	owner = serializers.ReadOnlyField(source='owner.username')
+    org = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Org.objects.all())
+    owner = serializers.ReadOnlyField(source='owner.username')
 
-	class Meta:
-		model = User
-		fields = ('id', 'username', 'org', 'owner')
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'org', 'owner')

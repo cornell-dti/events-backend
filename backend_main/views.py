@@ -320,7 +320,7 @@ class SingleTagDetail(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, tag_id, format=None):
-        tag = Tag.objects.filter(pk = tag_id)
+        tag = Tag.objects.get(id = tag_id)
         serializer = TagSerializer(tag, many=False)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
