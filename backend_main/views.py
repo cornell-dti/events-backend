@@ -38,6 +38,8 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import LimitOffsetPagination
+
 
 from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
@@ -366,6 +368,7 @@ class EventFeed(APIView):
     #TODO: token authentication not working...?
     authentication_classes = () # (TokenAuthentication, )
     permission_classes = () #(permissions.IsAuthenticated, )
+    pagination_class = LimitOffsetPagination()
 
     #get event feed, parse timestamp and return events
     def get(self, request, format=None):
@@ -375,8 +378,11 @@ class EventFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
+        print("hi")
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-        json_events = EventSerializer(outdated_events, many = True).data
+        paginator = self.pagination_class
+        results = paginator.paginate_queryset(outdated_events, request)
+        json_events = EventSerializer(results, many = True).data
         serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
