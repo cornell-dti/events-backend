@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-from .settings_secrets import HIDDEN_SECRET_KEY, HIDDEN_GOOGLE_BACKEND_CLIENT_ID
+from .settings_secrets import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -152,6 +152,17 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'), 
 )
 
+AWS_ACCESS_KEY_ID = HIDDEN_AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = HIDDEN_AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = HIDDEN_AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+DEFAULT_FILE_STORAGE = 'events_backend.storage_backend.MediaStorage' 
+
+
+
 WEBPACK_LOADER = {
     'DEFAULT': {
         'BUNDLE_DIR_NAME': 'bundles/',
@@ -160,12 +171,5 @@ WEBPACK_LOADER = {
 }
 
 # Page to open after login
-LOGIN_REDIRECT_URL = '/post/event/'
 LOGOUT_REDIRECT_URL = '/'
 
-
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'postmaster@cornelldti.org'
-EMAIL_HOST_PASSWORD = '***REMOVED***'
-EMAIL_USE_TLS = True

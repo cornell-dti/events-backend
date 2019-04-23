@@ -103,6 +103,7 @@ class Event(models.Model):
     history = HistoricalRecords()
 
     tags = models.ManyToManyField('Tag', through='Event_Tags')
+    media = models.ManyToManyField('Media', through='Event_Media')
 
     def __str__(self):
         return self.name
@@ -122,7 +123,7 @@ class Event_Tags(models.Model):
     class Meta:
         app_label = 'backend_main'
 
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_tags")
+    event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
     def __str__(self):
@@ -187,20 +188,20 @@ class Media(models.Model):
     class Meta:
         app_label = 'backend_main'
 
-    name = models.CharField(max_length = MAX_NAME_LENGTH)
-    file = models.FileField(upload_to="cu_events_images", blank = False)
+    link = models.TextField()
     uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.link
 
 class Event_Media(models.Model):
 
     class Meta:
         app_label = 'backend_main'
 
-    event_id = models.ForeignKey('Event', on_delete=models.CASCADE, related_name = "event_media")
-    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
+    event = models.ForeignKey('Event', on_delete=models.CASCADE)
+    media = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 # class Org_Media(models.Model):
 #

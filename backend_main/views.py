@@ -6,6 +6,7 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 import dateutil.parser
+import boto3
 
 from datetime import datetime as dt
 from datetime import time
@@ -28,7 +29,7 @@ from rest_framework.renderers import JSONRenderer
 from .permissions import IsOwnerOrReadOnly
 from .forms import TagForm, EventForm, LocationForm, OrgForm, ProfileForm
 
-from google.oauth2 import id_token
+from google.oauth2 import id_token      
 from google.auth.transport import requests
 
 from rest_framework.renderers import JSONRenderer
@@ -39,7 +40,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -163,7 +164,7 @@ class AddOrEditEvent(APIView):
 
         org = request.user
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-
+        
         try:
             event = Event.objects.get(pk = eventData['pk'])
             event.name = eventData['name']
@@ -178,7 +179,7 @@ class AddOrEditEvent(APIView):
             serializer = EventSerializer(event, many=False)
 
         except KeyError:
-            new_event = Event.objects.create(
+            event = Event.objects.create(
                 name = eventData['name'], 
                 location = loc[0],
                 start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
@@ -188,7 +189,12 @@ class AddOrEditEvent(APIView):
                 description = eventData['description'], 
                 organizer = org)
 
-            serializer = EventSerializer(new_event,many=False)
+            serializer = EventSerializer(event,many=False)
+
+        if eventData['imageUrl'] != "":
+            media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
 
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
@@ -215,6 +221,34 @@ class GetEvents(APIView):
         event_set = Event.objects.filter(organizer=org)
         serializer = EventSerializer(event_set, many=True)
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
+
+class GetSignedRequest(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request):
+        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        timeString = dt.now().strftime("%Y%m%d_%H%M%S") 
+        file_name = "user_media/" + str(request.user.id) + "/" + timeString + "_" + request.GET.get('file_name')
+        file_type = request.GET.get('file_type')
+
+        s3 = boto3.client('s3')
+
+        presigned_post = s3.generate_presigned_post(
+            Bucket = S3_BUCKET,
+            Key = file_name,
+            Fields = {"acl": "public-read", "Content-Type": file_type},
+            Conditions = [
+              {"acl": "public-read"},
+              {"Content-Type": file_type}
+            ],
+            ExpiresIn = 3600
+        )
+
+        return JsonResponse({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+        }, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION

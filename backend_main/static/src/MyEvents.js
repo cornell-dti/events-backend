@@ -18,6 +18,7 @@ class MyEvents extends Component {
 		axios.get('/api/get_events/')
 			.then(response => {
 				let org_events = response.data;
+				console.log(org_events)
 				this.setState({ events: org_events })
 			})
 			.catch(error => {
@@ -121,6 +122,7 @@ class MyEvents extends Component {
 								name={event.name}
 								location={event.location}
 								numAttendees={event.num_attendees}
+								imageUrl={"https://***REMOVED***.s3.amazonaws.com/" + event.media[event.media.length- 1].link}
 								startTime={this.formatTime(event.start_time)}
 								startMonth={this.formatMonth(event.start_date)}
 								startDay={this.formatDay(event.start_date)}

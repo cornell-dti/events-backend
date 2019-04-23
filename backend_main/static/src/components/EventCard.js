@@ -17,7 +17,7 @@ class EventCard extends Component {
 				<CardActionArea className={classes.actionArea}>
 					<CardMedia
 						className={classes.image}
-						image="" />
+						image={this.props.imageUrl} />
 					<CardContent>
 						<Typography variant="headline" className={classes.title}>
 							{this.props.name}

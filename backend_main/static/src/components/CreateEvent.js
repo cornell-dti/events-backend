@@ -24,7 +24,6 @@ axios.defaults.headers.post['X-CSRFToken'] = Cookies.get('csrftoken') //get CSRF
 class CreateEvent extends Component {
 	state = {
 		selected: {},
-		image: null,
 		pk: undefined,
 		name: "",
 		room: "",
@@ -37,7 +36,10 @@ class CreateEvent extends Component {
 		errors: [],
 		roomSuggestions: [],
 		locationSuggestions: [],
-		visitedLocations: [] // JS Objects of API Call of All Locations
+		visitedLocations: [], // JS Objects of API Call of All Locations
+
+		image: null,
+		imageChanged: false
 	};
 
 	componentDidUpdate(prevProps) {
@@ -125,13 +127,60 @@ class CreateEvent extends Component {
 		});
 	}
 
-	onPublishEvent() {
+	uploadImage(callback){
+		const file = this.state.image;
+		const self = this;
+		let xhr = new XMLHttpRequest();
+		xhr.open("GET", "/api/sign_s3?file_name="+file.name+"&file_type="+file.type);
+		xhr.onreadystatechange = function(){
+		    if(xhr.readyState === 4){
+			    if(xhr.status === 200){
+		        	const response = JSON.parse(xhr.responseText);
+		        	console.log(response.url)
+					xhr = new XMLHttpRequest();
+					xhr.open("POST", response.data.url);
+
+					let postData = new FormData();
+					for(let key in response.data.fields){
+					    postData.append(key, response.data.fields[key]);
+					}
+					postData.append('file', file);
+
+					xhr.onreadystatechange = function() {
+					    if(xhr.readyState === 4){
+						    if(xhr.status === 200 || xhr.status === 204){
+					        	console.log("File uploaded!");
+					        	callback(response.url.split("/").slice(3).join("/"));
+					      	}
+					    	else{
+						       	alert("Could not upload file.");
+						    }
+					 	}
+					};
+					xhr.send(postData);
+		        	//self.uploadFile(file, response.data, response.url);
+		      	}
+		      	else{
+		        	alert("Could not get signed URL.");
+		      	}
+		    }
+		};
+		xhr.send();
+	}
+	
+	async onPublishEvent() {
+		let imageUrl = ""
 		const location = {
 			building: this.state.location,
 			room: this.state.room,
 			place_id: this.state.place_id
 		};
 
+		if(this.state.imageChanged){
+			let promise = new Promise((res, req) => this.uploadImage(url => res(url)))
+			imageUrl = await promise;
+		}
+		
 		const eventData = {
 			pk: this.state.pk,
 			name: this.state.name,
@@ -140,9 +189,11 @@ class CreateEvent extends Component {
 			end_date: this.state.to.split('T')[0],
 			start_time: this.state.from.split('T')[1],
 			end_time: this.state.to.split('T')[1],
-			description: this.state.description
+			description: this.state.description,
+			imageUrl: this.state.imageChanged ? imageUrl : ""
 		};
 
+		this.setState({ imageChanged: false });
 		this.props.onUpdate(eventData);
 	}
 
@@ -158,7 +209,7 @@ class CreateEvent extends Component {
 				{this.props.edit ? <DialogTitle>Edit an Event</DialogTitle> :
 					<DialogTitle>Create an Event</DialogTitle>}
 				<DialogContent className={classes.content}>
-					<ImageUploader onImageChange={image => this.setState({ image })}
+					<ImageUploader onImageChange={image => this.setState({ image: image, imageChanged: true })}
 						shape={"rectangle"} />
 					<TextField
 						label="Event name"

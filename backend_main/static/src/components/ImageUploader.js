@@ -35,7 +35,9 @@ class ImageUploader extends Component {
 		}
 	}
 	
-	setEditorRef = (editor) => this.editor = editor;
+	setEditorRef = (editor) => {
+		this.editor = editor
+	}
 
 	render() {
 		const { classes } = this.props;
