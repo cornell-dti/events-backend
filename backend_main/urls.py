@@ -13,18 +13,18 @@ dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 spoof = "Clny9jLW4lf2gAvOZ27fJYnPJNyEPqKiMfmkAkFgXzksjoTEkeL9o5M4lHNbyrUCsVnglEv89pTcs1o787xt17KF6HZaHuqDMEjNPfpDdJBeB8nHbFLqJuqGTsEqT5NAai7UGJxgSPcszLTmpMT6PhRY7VATmEcbbqvf3McjsvfZ0Um9UHUVzCwpnj67n6rSbiy4kZm8"
 
 urlpatterns = [
-	path('post/org/', views.OrgFormView.as_view(), name='post_org'),
-	path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
-	path('post/org/<int:pk>/edit/', views.post_edit_org, name='post_edit_org'),
+	#path('post/org/', views.OrgFormView.as_view(), name='post_org'),
+	#path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
+	#path('post/org/<int:pk>/edit/', views.post_edit_org, name='post_edit_org'),
 
-	path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
-	path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
+	#path('post/tag/', views.TagFormView.as_view(), name='post_tag'),
+	#path('post/tag/<int:pk>/', views.post_detail_tag, name='post_detail_tag'),
 
-	path('post/event/', views.EventFormView.as_view(), name='post_event'),
-	path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
+	#path('post/event/', views.EventFormView.as_view(), name='post_event'),
+	#path('post/event/<int:pk>/', views.post_detail_event, name='post_detail_event'),
 
-	path('post/location/', views.LocationFormView.as_view(), name='post_location'),
-	path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
+	#path('post/location/', views.LocationFormView.as_view(), name='post_location'),
+	#path('post/location/<int:pk>/', views.post_detail_location, name='post_detail_location'),
 	
 	url(r'^email/orgEmail=(?P<org_email>.*)&orgName=(?P<org_name>.*)&name=(?P<name>[a-zA-Z\s]+)&netID=(?P<net_id>[a-zA-Z0-9]+)&link=(?P<link>.*)$', views.EmailDetail.as_view(), name='Email Detail'),
 	url(r'^event/(?P<event_id>[0-9]+)/$', views.EventDetail.as_view(), name='Event Details'),
