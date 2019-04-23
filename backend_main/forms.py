@@ -6,7 +6,7 @@ class OrgForm(UserCreationForm):
 
     class Meta:
         model = Org
-        fields = ("name", "email", "password1", "password2")
+        fields = ("name", "email", "password1", "password2", )
 
     def save(self, commit=True):
         user = super(OrgForm, self).save(commit=False)

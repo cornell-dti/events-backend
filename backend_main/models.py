@@ -85,6 +85,22 @@ class Org(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+# class Org(models.Model):
+#     name = models.CharField(max_length=MAX_NAME_LENGTH)
+#     description = models.CharField(max_length=MAX_DESC_LENGTH)
+#     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
+#     photo = models.ForeignKey(
+#         'Media', on_delete=models.CASCADE, blank=True, null=True)
+#     contact = models.CharField(max_length=MAX_CONTACT_LENGTH)
+
+#     verified = models.BooleanField(default=False)
+#     history = HistoricalRecords()
+#     owner = models.ForeignKey(
+#         'auth.User', related_name='org', on_delete=models.CASCADE)  # user
+
+#     def __str__(self):
+#         return self.name  
+
 
 class Event(models.Model):
 
@@ -146,21 +162,7 @@ class Event_Org(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
-class Org(models.Model):
-    name = models.CharField(max_length=MAX_NAME_LENGTH)
-    description = models.CharField(max_length=MAX_DESC_LENGTH)
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-    photo = models.ForeignKey(
-        'Media', on_delete=models.CASCADE, blank=True, null=True)
-    contact = models.CharField(max_length=MAX_CONTACT_LENGTH)
-
-    verified = models.BooleanField(default=False)
-    history = HistoricalRecords()
-    owner = models.ForeignKey(
-        'auth.User', related_name='org', on_delete=models.CASCADE)  # user
-
-    def __str__(self):
-        return self.name    
+  
 
 
 class Org_Tags(models.Model):
@@ -224,6 +226,7 @@ class Media(models.Model):
 
 
 class Event_Media(models.Model):
+
 
     class Meta:
         app_label = 'backend_main'
