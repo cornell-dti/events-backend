@@ -18,7 +18,6 @@ class MyEvents extends Component {
 		axios.get('/api/get_events/')
 			.then(response => {
 				let org_events = response.data;
-				console.log(org_events)
 				this.setState({ events: org_events })
 			})
 			.catch(error => {
@@ -106,9 +105,9 @@ class MyEvents extends Component {
 			start_time: "",
 			end_time: "",
 			description: "",
-			tags: []
+			tags: [],
+			media: []
 		};
-
 
 		return (
 			<div className={classes.root}>
@@ -116,19 +115,22 @@ class MyEvents extends Component {
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
-					{this.state.events.map(event => 
+				{this.state.events.map(event => {
+					let imageUrl = event.media.length > 0 ? "https://***REMOVED***.s3.amazonaws.com/" + event.media.sort((a,b) => Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at))[0].link : ""
+					return (
 						<div key={`${event.pk}`}>
 							<EventCard
 								name={event.name}
 								location={event.location}
 								numAttendees={event.num_attendees}
-								imageUrl={"https://***REMOVED***.s3.amazonaws.com/" + event.media[event.media.length- 1].link}
+								imageUrl={imageUrl} //for now take latest uploaded image
 								startTime={this.formatTime(event.start_time)}
 								startMonth={this.formatMonth(event.start_date)}
 								startDay={this.formatDay(event.start_date)}
 								onClick={() => this.onEdit(event)} />
 						</div>
-					)}
+					)
+				})}
 				</GridList>
 				<CreateEvent
 					open={this.state.createEvent}
@@ -149,7 +151,7 @@ const styles = (theme) => ({
 		alignSelf: 'stretch'
 	},
 	cardsContainer: {
-		width: '100%'
+		width: '98%'
 	},
 	fab: {
 		position: 'absolute',

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-from .settings_secrets import *
+from decouple import Csv, config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,16 +20,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = HIDDEN_SECRET_KEY
+SECRET_KEY = config('SECRET_KEY')
 
 CSRF_COOKIE_SECURE = False
 
-GOOGLE_BACKEND_CLIENT_ID = HIDDEN_GOOGLE_BACKEND_CLIENT_ID
+GOOGLE_BACKEND_CLIENT_ID = config('GOOGLE_BACKEND_CLIENT_ID')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 AUTH_USER_MODEL = 'backend_main.Org'
 
@@ -152,9 +152,9 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'), 
 )
 
-AWS_ACCESS_KEY_ID = HIDDEN_AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY = HIDDEN_AWS_SECRET_ACCESS_KEY
-AWS_STORAGE_BUCKET_NAME = HIDDEN_AWS_STORAGE_BUCKET_NAME
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',

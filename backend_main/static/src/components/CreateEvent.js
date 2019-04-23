@@ -33,6 +33,8 @@ class CreateEvent extends Component {
 		to: this.stringFromDate(this.defaultEndTime()),
 		description: "",
 		tags: [],
+		imageUrl: "",
+
 		errors: [],
 		roomSuggestions: [],
 		locationSuggestions: [],
@@ -55,6 +57,7 @@ class CreateEvent extends Component {
 				to: event.end_date === "" || event.end_time === "" ? this.stringFromDate(this.defaultEndTime()) : event.end_date + 'T' + event.end_time.slice(0, 5),
 				description: event.description,
 				tags: event.tags,
+				imageUrl: event.media.length > 0 ? event.media.sort((a,b) => Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at))[0].link : "",
 				selected: { value: event.location.place_id, label: event.location.building }
 			});
 		}
@@ -209,10 +212,10 @@ class CreateEvent extends Component {
 				{this.props.edit ? <DialogTitle>Edit an Event</DialogTitle> :
 					<DialogTitle>Create an Event</DialogTitle>}
 				<DialogContent className={classes.content}>
-					<ImageUploader onImageChange={image => this.setState({ image: image, imageChanged: true })}
+					<ImageUploader image_url={this.state.imageUrl} onImageChange={image => this.setState({ image: image, imageChanged: true })}
 						shape={"rectangle"} />
 					<TextField
-						label="Event name"
+						label="Event name *"
 						value={this.state.name}
 						onChange={e => this.setState({ name: e.target.value })}
 						margin={"normal"} />
@@ -227,12 +230,12 @@ class CreateEvent extends Component {
 						multiSelect={false}
 						canCreate={true} /> */}
 					<TextField
-						label={"Room"}
+						label={"Room *"}
 						value={this.state.room}
 						onChange={e => this.setState({ room: e.target.value })}
 						margin={"normal"} />
 					<Autocomplete
-						label={"Google Maps location"}
+						label={"Google Maps location *"}
 						value={this.state.selected}
 						data={this.state.locationSuggestions.map(loc =>
 							({ value: loc.place_id, label: loc.name }))}
@@ -242,14 +245,14 @@ class CreateEvent extends Component {
 						multiSelect={false}
 						canCreate={false} />
 					<TextField
-						label="From"
+						label="From *"
 						value={this.state.from}
 						onChange={e => this.setState({ from: e.target.value })}
 						type={"datetime-local"}
 						margin={"normal"}
 						InputLabelProps={{ shrink: true }} />
 					<TextField
-						label="To"
+						label="To *"
 						value={this.state.to}
 						onChange={e => this.setState({ to: e.target.value })}
 						type={"datetime-local"}

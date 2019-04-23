@@ -147,23 +147,6 @@ class Event_Org(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
-class Org(models.Model):
-    name = models.CharField(max_length=MAX_NAME_LENGTH)
-    description = models.CharField(max_length=MAX_DESC_LENGTH)
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-    photo = models.ForeignKey(
-        'Media', on_delete=models.CASCADE, blank=True, null=True)
-    contact = models.CharField(max_length=MAX_CONTACT_LENGTH)
-
-    verified = models.BooleanField(default=False)
-    history = HistoricalRecords()
-    owner = models.ForeignKey(
-        'auth.User', related_name='org', on_delete=models.CASCADE)  # user
-
-    def __str__(self):
-        return self.name    
-
-
 class Org_Tags(models.Model):
 
     class Meta:
@@ -218,7 +201,6 @@ class Media(models.Model):
     link = models.TextField()
     uploaded_by = models.ForeignKey('Org',on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return self.link
