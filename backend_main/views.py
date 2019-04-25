@@ -39,7 +39,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
+from .models import Org, Event, Event_Org, Location, Tag, Event_Tags, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -174,6 +174,13 @@ class AddOrEditEvent(APIView):
             event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
             event.description = eventData['description']
             event.organizer = org
+
+            # check if already in db no idea if this is right
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                if not (Event.objects.filter(event_id = event, tags_id = tag).exists()):
+                    event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
+
             event.save()
             serializer = EventSerializer(event, many=False)
 
@@ -188,6 +195,10 @@ class AddOrEditEvent(APIView):
                 description = eventData['description'], 
                 organizer = org)
 
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                event_tag = Event_Tags.objects.create(event_id = new_event, tags_id = tag)
+
             serializer = EventSerializer(new_event,many=False)
 
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
@@ -196,6 +207,7 @@ class DeleteEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)  
 
+    # TODO: DELETE TAGS
     def post(self, request, event_id, format=None):
         org = request.user
         event_set = get_object_or_404(Event, pk=event_id)
@@ -213,7 +225,20 @@ class GetEvents(APIView):
     def get(self, request, format=None):
         org = request.user
         event_set = Event.objects.filter(organizer=org)
+        # events = []
+        # tags = []
+        # print(event_set)
+        # for event in event_set:
+        #     print(event)
+        #     for tag in event.event_tags:
+        #         tags.push({tag.pk:tag.name})
+        #     events.event_tags = tags
+        #     events.push(event)
+        
+        # event_set = events
+
         serializer = EventSerializer(event_set, many=True)
+        
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
 #=============================================================
@@ -314,25 +339,41 @@ class OrgEvents(APIView):
 #                    TAG INFORMATION
 #=============================================================
 
+# class SingleTagDetail(APIView):
+#     #TODO: alter classes to token and admin?
+#     authentication_classes = (TokenAuthentication, )
+#     permission_classes = (permissions.IsAuthenticated, )
+
+#     def get(self, request, tag_id, format=None):
+#         tag = Tag.objects.filter(pk = tag_id)
+#         serializer = TagSerializer(tag, many=False)
+#         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+#gets multiple tags
 class SingleTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
-    def get(self, request, tag_id, format=None):
-        tag = Tag.objects.filter(pk = tag_id)
-        serializer = TagSerializer(tag, many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+    def get(self, request, format=None):
+        tag_ids = request.data.tag_ids
+        tags = []
+        for i in tag_ids:
+            event_tag = Event_Tags.objects.filter(id = i)
+            tag = Tag.objects.filter(id = event_tag.event_id_id)
+            serializer = TagSerializer(tag, many=False)
+            tags.push(serializer.data)
+        return JsonResponse(tags,status=status.HTTP_200_OK)
 
 class AllTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, safe = False, status=status.HTTP_200_OK)
 
 #=============================================================
 #                           FEEDS

@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 
-from .models import Event, Org, Location, Tag, Org_Tags, Event_Tags, Event_Media
+from .models import Event, Org, Location, Tag, Event_Tags, Org_Tags, Event_Media
 from django.contrib.auth.models import User
 
 

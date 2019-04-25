@@ -102,7 +102,7 @@ class Event(models.Model):
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
     history = HistoricalRecords()
 
-    tags = models.ManyToManyField('Tag', through='Event_Tags')
+    tags = models.ManyToManyField('Tag', through = 'Event_Tags')
 
     def __str__(self):
         return self.name

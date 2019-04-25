@@ -18,6 +18,7 @@ class MyEvents extends Component {
 		axios.get('/api/get_events/')
 			.then(response => {
 				let org_events = response.data;
+				console.log(org_events)
 				this.setState({ events: org_events })
 			})
 			.catch(error => {
@@ -68,18 +69,18 @@ class MyEvents extends Component {
 				const updatedEvent = response.data
 				let events = this.state.events.slice()
 				let edit = false;
-				for (let i = 0; i < events.length; i++){
-					if (events[i].pk === updatedEvent.pk){
-						events[i] = updatedEvent	
+				for (let i = 0; i < events.length; i++) {
+					if (events[i].pk === updatedEvent.pk) {
+						events[i] = updatedEvent
 						edit = true;
 						break;
 					}
 				}
-				this.setState({ createEvent: false, editEvent: false, events: edit ? events: [...this.state.events, updatedEvent]})
+				this.setState({ createEvent: false, editEvent: false, events: edit ? events : [...this.state.events, updatedEvent] })
 			})
 			.catch(error => this.setState({ errors: error.response.data.messages }))
 	}
-	
+
 	onDeleteEvent(event) {
 		let modifiedEvents = this.state.events.filter(e => { return e.pk !== event.pk });
 		this.setState({ events: modifiedEvents, createEvent: false });
@@ -115,7 +116,7 @@ class MyEvents extends Component {
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
-					{this.state.events.map(event => 
+					{this.state.events.map(event =>
 						<div key={`${event.pk}`}>
 							<EventCard
 								name={event.name}

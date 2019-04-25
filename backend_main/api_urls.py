@@ -25,5 +25,7 @@ urlpatterns = [
 	#events
 	url(r'^add_or_edit_event/$', views.AddOrEditEvent.as_view(), name="Add-Or-Edit-Event"),	
 	url(r'^delete_event/(?P<event_id>[0-9]+)/$', views.DeleteEvents.as_view(), name="Delete-Event"),
-	url(r'^get_events/$', views.GetEvents.as_view(), name="Get-Events")
+	url(r'^get_events/$', views.GetEvents.as_view(), name="Get-Events"),
+
+	url(r'^get_all_tags/$', views.AllTagDetail.as_view(), name='Get-Tags'),
 ]
