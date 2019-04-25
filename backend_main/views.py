@@ -38,12 +38,13 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 
 
 from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
+from .paginator import EventFeedPagination
 from django.core.mail import send_mail
 import logging
 import os
@@ -368,7 +369,6 @@ class EventFeed(APIView):
     #TODO: token authentication not working...?
     authentication_classes = () # (TokenAuthentication, )
     permission_classes = () #(permissions.IsAuthenticated, )
-    pagination_class = LimitOffsetPagination()
 
     #get event feed, parse timestamp and return events
     def get(self, request, format=None):
@@ -378,21 +378,21 @@ class EventFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
-        print("hi")
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-        paginator = self.pagination_class
+        paginator = EventFeedPagination()
         results = paginator.paginate_queryset(outdated_events, request)
         json_events = EventSerializer(results, many = True).data
         serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
-#tbh i have no idea what this function does
+
+
 def outdatedEvents(in_timestamp, start_time, end_time):
     #history_set = Event.history.filter(history_date__gte = in_timestamp)
     #unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
     #pks = unique_set.values_list('id', flat=True).order_by('id')
     # #TODO: What if not in list
-    changed_events = Event.objects.filter(start_date__gte = start_time, end_date__lte =  end_time)
+    changed_events = Event.objects.filter(start_date__gte = start_time, end_date__lte =  end_time).order_by('id')
     #present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
     all_deleted_pks = list() #set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
