@@ -350,9 +350,12 @@ class OrgFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
-        json_orgs = OrgSerializer(outdated_orgs, many = True).data
+        paginator = EventFeedPagination()
+        results = paginator.paginate_queryset(outdated_events, request)
+
+        json_orgs = OrgSerializer(results, many = True).data
         serializer = UpdatedOrgSerializer({"orgs":json_orgs, "timestamp":timezone.now()})
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 def outdatedOrgs(in_timestamp):
     #org_updates = Org.history.filter(history_date__gte = in_timestamp)
