@@ -85,6 +85,12 @@ class Org(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+class VerifiedEmails(models.Model):
+    class Meta:
+            app_label = 'backend_main'
+
+    email = models.EmailField(unique=True)
+
 # class Org(models.Model):
 #     name = models.CharField(max_length=MAX_NAME_LENGTH)
 #     description = models.CharField(max_length=MAX_DESC_LENGTH)
