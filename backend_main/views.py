@@ -89,7 +89,7 @@ class Login(APIView):
         return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
 
 #=============================================================
-#                    Web APIs 
+#                ORGANIZATION INFORMATION
 #=============================================================
 
 class UserProfile(APIView):
@@ -154,6 +154,32 @@ class ChangePassword(APIView):
         user.set_password(new_password)
         user.save()
         return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+class OrgDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, org_id, format=None):
+        org_set = Org.objects.get(pk=org_id)
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class OrgEvents(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk = int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
+        event_set = Event.objects.filter(pk__in=org_events_pks)
+        serializer = EventSerializer(event_set,many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
+
+#=============================================================
+#                   EVENT INFORMATION
+#=============================================================
 
 class AddOrEditEvent(APIView):
     authentication_classes = (SessionAuthentication,)
@@ -222,49 +248,6 @@ class GetEvents(APIView):
         serializer = EventSerializer(event_set, many=True)
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
-class GetSignedRequest(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)  
-
-    def get(self, request):
-        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
-        timeString = dt.now().strftime("%Y%m%d_%H%M%S") 
-        file_name = "user_media/" + str(request.user.id) + "/" + timeString + "_" + request.GET.get('file_name')
-        file_type = request.GET.get('file_type')
-
-        s3 = boto3.client('s3')
-
-        presigned_post = s3.generate_presigned_post(
-            Bucket = S3_BUCKET,
-            Key = file_name,
-            Fields = {"acl": "public-read", "Content-Type": file_type},
-            Conditions = [
-              {"acl": "public-read"},
-              {"Content-Type": file_type}
-            ],
-            ExpiresIn = 3600
-        )
-
-        return JsonResponse({
-            'data': presigned_post,
-            'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
-        }, status=status.HTTP_200_OK)
-
-#=============================================================
-#                   EVENT INFORMATION
-#=============================================================
-
-class EmailDetail(APIView):
-    def get(self, request, org_email, org_name, name, net_id, link, format=None):
-        send_mail('New Application',
-                  "Organization Email: " + org_email + "\n" +
-                  "Organization Name: " + org_name + "\n" +
-                  "Creator Name: " + name + "\n" +
-                  "NetID: " + net_id + "\n" +
-                  "Organization Link: " + link,
-                  'noreply@cornell.dti.org', ['sz329@cornell.edu'])
-        return HttpResponse(status=204)
-
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, )
@@ -318,31 +301,6 @@ class AllLocationDetail(APIView):
         serializer = LocationSerializer(location_set,many=True)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
-#=============================================================
-#                ORGANIZATION INFORMATION
-#=============================================================
-
-class OrgDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, org_id, format=None):
-        org_set = Org.objects.get(pk=org_id)
-        serializer = OrgSerializer(org_set,many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-
-class OrgEvents(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, organizer_id, format=None):
-        org = Org.objects.get(pk = int(organizer_id))
-        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
-        event_set = Event.objects.filter(pk__in=org_events_pks)
-        serializer = EventSerializer(event_set,many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
 
 #=============================================================
 #                    TAG INFORMATION
@@ -428,6 +386,34 @@ def outdatedEvents(in_timestamp, start_time, end_time):
 #=============================================================
 #                          MEDIA
 #=============================================================
+
+class GetSignedRequest(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request):
+        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        timeString = dt.now().strftime("%Y%m%d_%H%M%S") 
+        file_name = "user_media/" + str(request.user.id) + "/" + timeString + "_" + request.GET.get('file_name')
+        file_type = request.GET.get('file_type')
+
+        s3 = boto3.client('s3')
+
+        presigned_post = s3.generate_presigned_post(
+            Bucket = S3_BUCKET,
+            Key = file_name,
+            Fields = {"acl": "public-read", "Content-Type": file_type},
+            Conditions = [
+              {"acl": "public-read"},
+              {"Content-Type": file_type}
+            ],
+            ExpiresIn = 3600
+        )
+
+        return JsonResponse({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+        }, status=status.HTTP_200_OK)
 
 def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()

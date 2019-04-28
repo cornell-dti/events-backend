@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"status":"done","chunks":{"main":[{"name":"main-9e1a2b8feea5651bcef8.js","path":"D:\\dti\\events-backend\\backend_main\\static\\bundles\\main-9e1a2b8feea5651bcef8.js"}]}}
+=======
+{"status":"done","chunks":{"main":[{"name":"main-b2626707c5e7d82d77be.js","path":"D:\\dti\\events-backend\\backend_main\\static\\bundles\\main-b2626707c5e7d82d77be.js"}]}}
+>>>>>>> parent of 7333000... .gitignore fix
