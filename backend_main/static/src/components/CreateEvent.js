@@ -134,7 +134,7 @@ class CreateEvent extends Component {
 		const file = this.state.image;
 		const self = this;
 		let xhr = new XMLHttpRequest();
-		xhr.open("GET", "/api/sign_s3?file_name="+file.name+"&file_type="+file.type);
+		xhr.open("GET", "/api/sign_s3/?file_name="+file.name+"&file_type="+file.type);
 		xhr.onreadystatechange = function(){
 		    if(xhr.readyState === 4){
 			    if(xhr.status === 200){
