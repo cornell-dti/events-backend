@@ -86,7 +86,7 @@ class Main extends Component {
 					<Switch>
 						{Object.values(routes.noAuth).map(obj => <Route exact key={obj.route} path={obj.route}
 						component={obj.component} />)}
-						{Object.values(routes.auth).map(obj => <Redirect key={obj.route} from={obj.route} to={"/app/login/"} />)}
+						{Object.values(routes.auth).map(obj => <Redirect key={obj.route} from={obj.route} to={"/login/"} />)}
 						<Redirect to={"/"} />
 					</Switch>
 				}

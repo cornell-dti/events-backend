@@ -73,19 +73,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
-class UserID(models.Model):
+class App_User(models.Model):
 
     class Meta:
         app_label = 'backend_main'
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    token = models.CharField(max_length = MAX_TOKEN_LENGTH)
-    #TODO: can a token be stored as a string
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    mobile_id = models.CharField(max_length = MAX_TOKEN_LENGTH)
 
 class Org(models.Model):
 
     class Meta:
         app_label = 'backend_main'
+
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
     name = models.CharField(max_length=30)
     bio = models.CharField(max_length=MAX_DESC_LENGTH, default="", blank=True)
@@ -95,7 +96,7 @@ class Org(models.Model):
     photo = models.ForeignKey('Media', on_delete=models.CASCADE, blank=True, null=True)
     history = HistoricalRecords()
 
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+
 
 class Org_Tags(models.Model):
 
@@ -106,7 +107,7 @@ class Org_Tags(models.Model):
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.event_id, self.tags_id)
+        return "{0} - {1}".format(self.org_id, self.tags_id)
 
 # class Org(models.Model):
 #     name = models.CharField(max_length=MAX_NAME_LENGTH)

@@ -24,15 +24,20 @@ class LocationSerializer(serializers.ModelSerializer):
         model = Location
         fields = ('pk', 'building', 'room', 'place_id')
 
-
 class OrgSerializer(serializers.ModelSerializer):
-	org_tags = serializers.PrimaryKeyRelatedField(queryset = Org_Tags.objects.all(), many=True)
+    org_tags = serializers.PrimaryKeyRelatedField(queryset = Org_Tags.objects.all(), many=True)
+    email = serializers.SerializerMethodField()
 
-	class Meta:
-		model = Org
-		fields = ('pk', 'name', 'bio', 'photo', 'website', 'tags', 'org_tags')
+    class Meta:
+        model = Org
+        fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags', 'org_tags')
 
-
+    def get_email(self, obj):
+        try:
+            return self.context['email']
+        except KeyError:
+            return ""
+            
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -60,3 +65,5 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'org', 'owner')
+
+

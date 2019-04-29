@@ -39,7 +39,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media
+from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -106,14 +106,14 @@ class UserProfile(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
-        org_id = request.user.org.id
+        org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
-        serializer = OrgSerializer(org_set,many=False)
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         orgData = request.data
-        org_id = request.user.org.id
+        org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
 
         org_set.name = orgData['name']
@@ -122,7 +122,7 @@ class UserProfile(APIView):
 
         org_set.save()
 
-        serializer = OrgSerializer(org_set,many=False)
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class ChangeOrgEmail(APIView):
@@ -458,8 +458,8 @@ class ObtainToken(APIView):
 
     def get(self, request, mobile_id, format=None):
 
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
+        app_user_set = App_User.objects.filter(mobile_id=mobile_id)
+        if app_user_set.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
@@ -473,13 +473,12 @@ class ObtainToken(APIView):
             user.set_unusable_password()
             user.save()
 
-            newUserID = UserID(user = user, token = mobile_id)
-            newUserID.save()
+            new_app_user = App_User(user = user, mobile_id = mobile_id)
+            new_app_user.save()
 
             #generate token
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
-
 
 
 class ResetToken(APIView):
@@ -487,10 +486,10 @@ class ResetToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
-            userID = userIDSet[0]
-            token = Token.objects.get(user = userID.user)
+        app_user_set = App_User.objects.filter(token=mobile_id)
+        if app_user_set.exists():
+            user = app_user_set[0]
+            token = Token.objects.get(user = user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")
