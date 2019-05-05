@@ -38,13 +38,11 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
 
 
 from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
-from .paginator import EventFeedPagination
 from django.core.mail import send_mail
 import logging
 import os
@@ -350,12 +348,10 @@ class OrgFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
-        paginator = EventFeedPagination()
-        results = paginator.paginate_queryset(outdated_events, request)
 
-        json_orgs = OrgSerializer(results, many = True).data
+        json_orgs = OrgSerializer(outdated_orgs, many = True).data
         serializer = UpdatedOrgSerializer({"orgs":json_orgs, "timestamp":timezone.now()})
-        return paginator.get_paginated_response(serializer.data)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
     #org_updates = Org.history.filter(history_date__gte = in_timestamp)
@@ -382,12 +378,9 @@ class EventFeed(APIView):
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
-        paginator = EventFeedPagination()
-        results = paginator.paginate_queryset(outdated_events, request)
-        json_events = EventSerializer(results, many = True).data
+        json_events = EventSerializer(outdated_events, many = True).data
         serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
-        return paginator.get_paginated_response(serializer.data)
-
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 
 def outdatedEvents(in_timestamp, start_time, end_time):
