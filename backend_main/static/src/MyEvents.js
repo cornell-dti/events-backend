@@ -116,7 +116,7 @@ class MyEvents extends Component {
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
 				{this.state.events.map(event => {
-					let imageUrl = event.media.length > 0 ? "https://***REMOVED***.s3.amazonaws.com/" + event.media.sort((a,b) => Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at))[0].link : ""
+					let imageUrl = event.media.length > 0 ? event.media.sort((a,b) => Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at))[0].link : ""
 					return (
 						<div key={`${event.pk}`}>
 							<EventCard

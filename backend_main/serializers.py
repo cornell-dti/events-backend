@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from .models import Event, Org, Location, Tag, Org_Tags, Media, Event_Tags, Event_Media
 from django.contrib.auth.models import User
-
+from django.conf import settings
 
 class EventSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
@@ -17,6 +17,13 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
         	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'tags', 'media')
         depth = 1
+
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        for media in ret['media']:
+            media['link'] = "https://" + settings.AWS_STORAGE_BUCKET_NAME + ".s3.amazonaws.com/" + media['link']
+        return ret
         
 class LocationSerializer(serializers.ModelSerializer):
 
