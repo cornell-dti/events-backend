@@ -103,7 +103,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
-       'DEFAULT_PERMISSION_CLASSES': (
+    'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
@@ -148,8 +148,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    #This lets Django's collectstatic store our bundles
-    os.path.join(BASE_DIR, 'assets'), 
+    # This lets Django's collectstatic store our bundles
+    os.path.join(BASE_DIR, 'assets'),
 )
 
 AWS_ACCESS_KEY_ID = config('BUCKETEER_AWS_ACCESS_KEY_ID')
@@ -159,8 +159,7 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-DEFAULT_FILE_STORAGE = 'events_backend.storage_backend.MediaStorage' 
-
+DEFAULT_FILE_STORAGE = 'events_backend.storage_backend.MediaStorage'
 
 
 WEBPACK_LOADER = {
@@ -172,4 +171,3 @@ WEBPACK_LOADER = {
 
 # Page to open after login
 LOGOUT_REDIRECT_URL = '/'
-
