@@ -82,9 +82,9 @@ class CreateEvent extends Component {
 			this.state.to !== undefined && this.state.to !== "" 
 	}
 
-	//returns whether end datetime of event is after start 
-	checkDate() {
-
+	//returns whether end Date() object of event is after start Date()
+	checkDate(start, end) {
+		return start <= end
 	}
 
 	//tomorrow, same hour, 0 minutes
