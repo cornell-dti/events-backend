@@ -18,7 +18,6 @@ class MyEvents extends Component {
 		axios.get('/api/get_events/')
 			.then(response => {
 				let org_events = response.data;
-				console.log(org_events)
 				this.setState({ events: org_events })
 			})
 			.catch(error => {
@@ -48,20 +47,6 @@ class MyEvents extends Component {
 	onEdit(event) {
 		this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
 	}
-
-	/*updateEvent(origEvent, updatedEvent) {
-		origEvent.name = updatedEvent.name;
-		// origEvent.image = updatedEvent.image
-		origEvent.location = updatedEvent.location;
-		origEvent.start_date = updatedEvent.start_date;
-		origEvent.end_date = updatedEvent.end_date;
-		origEvent.start_time = updatedEvent.start_time;
-		origEvent.end_time = updatedEvent.end_time;
-		origEvent.description = updatedEvent.description;
-		// origEvent.tags = updatedEvent.tags
-
-		return origEvent
-	}*/
 
 	onUpdate(event) {
 		axios.post('/api/add_or_edit_event/', event)
@@ -157,3 +142,4 @@ const styles = (theme) => ({
 });
 
 export default withStyles(styles)(MyEvents);
+

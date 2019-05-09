@@ -8,7 +8,6 @@ import Login from "./Login";
 import ChangePassword from "./ChangePassword";
 import ChangeOrgEmail from "./ChangeOrgEmail";
 import Landing from "./Landing";
-import DescribeOrg from "./DescribeOrg";
 import Button from "@material-ui/core/Button/Button";
 
 export default {

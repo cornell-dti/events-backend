@@ -164,6 +164,7 @@ class AddOrEditEvent(APIView):
         org = request.user
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
 
+        # edit
         try:
             event = Event.objects.get(pk = eventData['pk'])
             event.name = eventData['name']
@@ -175,15 +176,18 @@ class AddOrEditEvent(APIView):
             event.description = eventData['description']
             event.organizer = org
 
-            # check if already in db no idea if this is right
+            
+            # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
+            Event_Tags.objects.filter(event_id = event).delete()
+
             for t in eventData['tags']:
                 tag = Tag.objects.get(name = t['label'])
-                if not (Event.objects.filter(event_id = event, tags_id = tag).exists()):
-                    event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
-
+                event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
             event.save()
             serializer = EventSerializer(event, many=False)
 
+
+        # add
         except KeyError:
             new_event = Event.objects.create(
                 name = eventData['name'], 
@@ -218,6 +222,7 @@ class DeleteEvents(APIView):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
+# edit tags doesnt workd
 class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)  
@@ -225,21 +230,19 @@ class GetEvents(APIView):
     def get(self, request, format=None):
         org = request.user
         event_set = Event.objects.filter(organizer=org)
-        # events = []
-        # tags = []
-        # print(event_set)
-        # for event in event_set:
-        #     print(event)
-        #     for tag in event.event_tags:
-        #         tags.push({tag.pk:tag.name})
-        #     events.event_tags = tags
-        #     events.push(event)
-        
-        # event_set = events
-
         serializer = EventSerializer(event_set, many=True)
         
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
+
+class GetAllTags(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data, safe = False, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION
@@ -339,41 +342,25 @@ class OrgEvents(APIView):
 #                    TAG INFORMATION
 #=============================================================
 
-# class SingleTagDetail(APIView):
-#     #TODO: alter classes to token and admin?
-#     authentication_classes = (TokenAuthentication, )
-#     permission_classes = (permissions.IsAuthenticated, )
-
-#     def get(self, request, tag_id, format=None):
-#         tag = Tag.objects.filter(pk = tag_id)
-#         serializer = TagSerializer(tag, many=False)
-#         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-
-#gets multiple tags
 class SingleTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication, )
+    authentication_classes = (TokenAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
-    def get(self, request, format=None):
-        tag_ids = request.data.tag_ids
-        tags = []
-        for i in tag_ids:
-            event_tag = Event_Tags.objects.filter(id = i)
-            tag = Tag.objects.filter(id = event_tag.event_id_id)
-            serializer = TagSerializer(tag, many=False)
-            tags.push(serializer.data)
-        return JsonResponse(tags,status=status.HTTP_200_OK)
+    def get(self, request, tag_id, format=None):
+        tag = Tag.objects.get(id = tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class AllTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication, )
+    authentication_classes = (TokenAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, safe = False, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 #=============================================================
 #                           FEEDS

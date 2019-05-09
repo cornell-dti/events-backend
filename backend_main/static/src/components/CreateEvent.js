@@ -41,9 +41,11 @@ class CreateEvent extends Component {
 	};
 
 	componentDidUpdate(prevProps) {
-		const event = this.props.event;
+		var event = this.props.event;
+
 		if (prevProps.event !== event && event !== {}) {
-			console.log(event.tags)
+			try { event.tags = event.tags.map(tag => ({ value: tag.id, label: tag.name })) } catch (err) { }
+
 			this.setState({
 				pk: event.pk,
 				name: event.name,
@@ -144,13 +146,16 @@ class CreateEvent extends Component {
 			description: this.state.description,
 			tags: this.state.tags
 		};
-
 		this.props.onUpdate(eventData);
 	}
 
 	onDeleteEvent() {
 		const event = this.props.event;
 		this.props.onDelete(event);
+	}
+
+	onCancelEvent() {
+		// restore to old value
 	}
 
 	render() {

@@ -11,10 +11,15 @@ class TagField extends Component {
 		this.state = { tags: [] }
 	}
 
+	isEqual(tags, t) {
+		for (var i = 0; i < tags.length; i++) {
+			if (tags[i].value === t.value) return true;
+		}
+	}
 	componentDidMount() {
 		axios.get('/api/get_all_tags/')
 			.then(response => {
-				this.setState({ tags: response.data })
+				this.setState({ tags: response.data.map(tag => ({ value: tag.pk, label: tag.name })) })
 			})
 			.catch(error => {
 				if (error.response.status === 404)
@@ -23,20 +28,25 @@ class TagField extends Component {
 	}
 
 	newTags(addedTags) {
-		const tags = this.props.tags;
-		const newTag = addedTags[addedTags.length - 1];
-
-		if (!tags.includes(newTag)) {
-			tags.push(newTag);
-			this.props.onNewTags(tags);
-		}
+		this.props.onNewTags(addedTags);
 	}
+
+	inputValue() {
+		if (this.props.tags === undefined) return
+		const tags = this.props.tags
+		const newTag = tags.pop()
+		if (newTag === undefined || this.isEqual(this.props.tags, newTag)) return tags
+		tags.push(newTag)
+		return tags
+	}
+	// MAKE CHECK THAT ONLY CAN ADD 5 EVENTS
+	// EVEN WHEN PRESS CANCEL CHANGES THE EVENT
 	render() {
 		return (<Autocomplete
 			label={"Tags"}
+			value={this.inputValue()}
 			placeholder={"Select at most 5 tags"}
-			data={this.state.tags.map(tag =>
-				({ value: tag.pk, label: tag.name }))}
+			data={this.state.tags}
 			onUpdate={this.newTags.bind(this)}
 			multiSelect={true} />);
 	}
@@ -50,16 +60,4 @@ TagField.propTypes = {
 	})).isRequired
 };
 
-// function mapStateToProps(state) {
-// 	return {
-// 		tags: []
-// 	};
-// }
-// function mapDispatchToProps(dispatch) {
-// 	return {
-
-// 	};
-// }
-
-// TagField = connect(mapStateToProps, mapDispatchToProps)(TagField);
 export default TagField;
