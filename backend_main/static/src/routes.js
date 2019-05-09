@@ -8,6 +8,7 @@ import Login from "./Login";
 import ChangePassword from "./ChangePassword";
 import ChangeOrgEmail from "./ChangeOrgEmail";
 import Landing from "./Landing";
+import Button from "@material-ui/core/Button/Button";
 
 export default {
 	auth: {
@@ -17,6 +18,7 @@ export default {
 		changeOrgEmail: { route: "/change_org_email/", component: ChangeOrgEmail },
 		myEvents: { route: "/events/", component: MyEvents },
 		//onboarding
+		//describeTags: { route: "/app/describe", component: DescribeOrg }
 	},
 	noAuth: {
 		home: { route: "/", component: Landing },
@@ -26,5 +28,4 @@ export default {
 	//verifyCornellStatus: { route: "/verifyCornellStatus/", component: VerifyCornellStatus },
 	//verifyOrg: { route: "/verifyOrg", component: VerifyOrg },
 	//verifyDone: { route: "/verifyDone", component: VerifyDone }
-
 };

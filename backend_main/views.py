@@ -39,7 +39,11 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+<<<<<<< HEAD
 from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media
+=======
+from .models import Org, Event, Event_Org, Location, Tag, Event_Tags, Media, Attendance, UserID
+>>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -198,7 +202,12 @@ class AddOrEditEvent(APIView):
 
         org = request.user.org
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+<<<<<<< HEAD
         
+=======
+
+        # edit
+>>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
         try:
             event = Event.objects.get(pk = eventData['pk'])
             event.name = eventData['name']
@@ -209,9 +218,19 @@ class AddOrEditEvent(APIView):
             event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
             event.description = eventData['description']
             event.organizer = org
+
+            
+            # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
+            Event_Tags.objects.filter(event_id = event).delete()
+
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
             event.save()
             serializer = EventSerializer(event, many=False)
 
+
+        # add
         except KeyError:
             event = Event.objects.create(
                 name = eventData['name'], 
@@ -223,12 +242,20 @@ class AddOrEditEvent(APIView):
                 description = eventData['description'], 
                 organizer = org)
 
+<<<<<<< HEAD
             serializer = EventSerializer(event,many=False)
 
         if eventData['imageUrl'] != "":
             media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
             event_media = Event_Media(event=event, media=media)
             event_media.save()
+=======
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                event_tag = Event_Tags.objects.create(event_id = new_event, tags_id = tag)
+
+            serializer = EventSerializer(new_event,many=False)
+>>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
 
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
@@ -236,6 +263,7 @@ class DeleteEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)  
 
+    # TODO: DELETE TAGS
     def post(self, request, event_id, format=None):
         org = request.user.org
         event_set = get_object_or_404(Event, pk=event_id)
@@ -246,6 +274,7 @@ class DeleteEvents(APIView):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
+# edit tags doesnt workd
 class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)  
@@ -254,8 +283,37 @@ class GetEvents(APIView):
         org = request.user.org
         event_set = Event.objects.filter(organizer=org)
         serializer = EventSerializer(event_set, many=True)
+        
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
+<<<<<<< HEAD
+=======
+class GetAllTags(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data, safe = False, status=status.HTTP_200_OK)
+
+#=============================================================
+#                   EVENT INFORMATION
+#=============================================================
+
+class EmailDetail(APIView):
+    def get(self, request, org_email, org_name, name, net_id, link, format=None):
+        send_mail('New Application',
+                  "Organization Email: " + org_email + "\n" +
+                  "Organization Name: " + org_name + "\n" +
+                  "Creator Name: " + name + "\n" +
+                  "NetID: " + net_id + "\n" +
+                  "Organization Link: " + link,
+                  'noreply@cornell.dti.org', ['sz329@cornell.edu'])
+        return HttpResponse(status=204)
+
+>>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, )

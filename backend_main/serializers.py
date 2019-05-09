@@ -3,14 +3,11 @@
 # 21st June 2018
 
 from rest_framework import serializers
-
 from .models import Event, Org, Location, Tag, Org_Tags, Media, Event_Tags, Event_Media
 from django.contrib.auth.models import User
 from django.conf import settings
 
 class EventSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
-    
     class Meta:
         model = Event
         #exclude = ('history',)
@@ -24,7 +21,7 @@ class EventSerializer(serializers.ModelSerializer):
         for media in ret['media']:
             media['link'] = "https://" + settings.AWS_STORAGE_BUCKET_NAME + ".s3.amazonaws.com/" + media['link']
         return ret
-        
+
 class LocationSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -49,8 +46,8 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ("id", "name")
 
+        fields = ("pk", "name")
 
 class UpdatedEventsSerializer(serializers.Serializer):
     updated = serializers.JSONField()  # pass in serialized events
@@ -72,5 +69,3 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'org', 'owner')
-
-

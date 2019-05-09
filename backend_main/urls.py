@@ -33,7 +33,7 @@ urlpatterns = [
 	url(r'^loc/(?P<location_id>[0-9]+)/$', views.SingleLocationDetail.as_view(), name='Location Details'),
 	url(r'^loc/all/$', views.AllLocationDetail.as_view(), name='All Location Details'),
 	url(r'^tag/(?P<tag_id>[0-9]+)/$', views.SingleTagDetail.as_view(), name='Single Tag Details'),
-	url(r'^tag/all/$', views.AllTagDetail.as_view(), name='Single Tag Details'),
+
 	url(r'^media/(?P<img_id>[0-9]+)/$',  views.ImageDetail.as_view(), name='Media Detail'),
 	url(r'^feed/events/$', views.EventFeed.as_view(), name='Updated Events Feed'), 
 	url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.OrgFeed.as_view(), name='Updated Organizer Feed'),

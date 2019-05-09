@@ -48,38 +48,24 @@ class MyEvents extends Component {
 		this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
 	}
 
-	/*updateEvent(origEvent, updatedEvent) {
-		origEvent.name = updatedEvent.name;
-		// origEvent.image = updatedEvent.image
-		origEvent.location = updatedEvent.location;
-		origEvent.start_date = updatedEvent.start_date;
-		origEvent.end_date = updatedEvent.end_date;
-		origEvent.start_time = updatedEvent.start_time;
-		origEvent.end_time = updatedEvent.end_time;
-		origEvent.description = updatedEvent.description;
-		// origEvent.tags = updatedEvent.tags
-
-		return origEvent
-	}*/
-
 	onUpdate(event) {
 		axios.post('/api/add_or_edit_event/', event)
 			.then(response => {
 				const updatedEvent = response.data
 				let events = this.state.events.slice()
 				let edit = false;
-				for (let i = 0; i < events.length; i++){
-					if (events[i].pk === updatedEvent.pk){
-						events[i] = updatedEvent	
+				for (let i = 0; i < events.length; i++) {
+					if (events[i].pk === updatedEvent.pk) {
+						events[i] = updatedEvent
 						edit = true;
 						break;
 					}
 				}
-				this.setState({ createEvent: false, editEvent: false, events: edit ? events: [...this.state.events, updatedEvent]})
+				this.setState({ createEvent: false, editEvent: false, events: edit ? events : [...this.state.events, updatedEvent] })
 			})
 			.catch(error => this.setState({ errors: error.response.data.messages }))
 	}
-	
+
 	onDeleteEvent(event) {
 		let modifiedEvents = this.state.events.filter(e => { return e.pk !== event.pk });
 		this.setState({ events: modifiedEvents, createEvent: false });
@@ -160,3 +146,4 @@ const styles = (theme) => ({
 });
 
 export default withStyles(styles)(MyEvents);
+
