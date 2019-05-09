@@ -8,11 +8,11 @@ import FormError from "./components/FormError";
 import axios from 'axios';
 
 class SignUp extends Component {
-	state = { 
-		name: "", 
-		email: "", 
-		password: "", 
-		confirmPassword: "", 
+	state = {
+		name: "",
+		email: "",
+		password: "",
+		confirmPassword: "",
 		errors: []
 	};
 
@@ -26,9 +26,7 @@ class SignUp extends Component {
 			!this.confirmPasswordError();
 	}
 	onClick() {
-
 		const self = this;
-
 		const signUpData = {
 			name: this.state.name,
 			email: this.state.email,
@@ -37,8 +35,8 @@ class SignUp extends Component {
 		};
 
 		axios.post('/api/signup/', signUpData)
-		.then(response => window.location.href = "/app/events/")
-  		.catch(error =>	self.setState({ errors: error.response.data.messages }));	 
+			.then(response => window.location.href = "/app/events/")
+			.catch(error => self.setState({ errors: error.response.data.messages }));
 	}
 	onEnter(e) {
 		if (e.key === 'Enter') {
@@ -47,13 +45,14 @@ class SignUp extends Component {
 	}
 	render() {
 		const { classes } = this.props;
+
 		return (
 			<Onboarding
 				title={"Create an Organization Account"}
 				button={"Continue"}
 				canClick={this.canContinue()}
 				onClick={this.onClick.bind(this)} >
-				<FormError errors={this.state.errors}/>
+				<FormError errors={this.state.errors} />
 				<TextField
 					label="Organization name"
 					className={classes.textField}

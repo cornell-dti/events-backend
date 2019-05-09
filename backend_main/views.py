@@ -68,7 +68,7 @@ class SignUp(APIView):
             username = form.cleaned_data.get('email')
 
             if (username not in verified):
-                return JsonResponse({'message': ['Your organization email has not been verified. Please contact _']}, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse({'messages': ['Your organization email has not been verified. Please contact cue@cornelldti.org to sign up.']}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 form.save()
                 raw_password = form.cleaned_data.get('password1')   
