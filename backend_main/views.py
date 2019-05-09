@@ -39,13 +39,8 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-<<<<<<< HEAD
 from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media
-=======
-from .models import Org, Event, Event_Org, Location, Tag, Event_Tags, Media, Attendance, UserID
->>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
-from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
-                            TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
+from .serializers import (EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
 import logging
 import os
@@ -202,12 +197,8 @@ class AddOrEditEvent(APIView):
 
         org = request.user.org
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
-<<<<<<< HEAD
-        
-=======
 
         # edit
->>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
         try:
             event = Event.objects.get(pk = eventData['pk'])
             event.name = eventData['name']
@@ -242,20 +233,16 @@ class AddOrEditEvent(APIView):
                 description = eventData['description'], 
                 organizer = org)
 
-<<<<<<< HEAD
-            serializer = EventSerializer(event,many=False)
-
-        if eventData['imageUrl'] != "":
-            media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
-            event_media = Event_Media(event=event, media=media)
-            event_media.save()
-=======
             for t in eventData['tags']:
                 tag = Tag.objects.get(name = t['label'])
                 event_tag = Event_Tags.objects.create(event_id = new_event, tags_id = tag)
 
             serializer = EventSerializer(new_event,many=False)
->>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
+
+        if eventData['imageUrl'] != "":
+            media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
 
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
@@ -286,8 +273,6 @@ class GetEvents(APIView):
         
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
 
-<<<<<<< HEAD
-=======
 class GetAllTags(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication, )
@@ -313,7 +298,6 @@ class EmailDetail(APIView):
                   'noreply@cornell.dti.org', ['sz329@cornell.edu'])
         return HttpResponse(status=204)
 
->>>>>>> 4d9fbefec287e395c3c4d55b44b70b3998414d87
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = (TokenAuthentication, )

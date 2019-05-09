@@ -22,6 +22,6 @@ urlpatterns = [
 	url(r'^delete_event/(?P<event_id>[0-9]+)/$', views.DeleteEvents.as_view(), name="Delete-Event"),
 	url(r'^get_events/$', views.GetEvents.as_view(), name="Get-Events"),
 
-	url(r'^sign_s3/$', views.GetSignedRequest.as_view(), name="Get-Signed-Request")
-    url(r'^get_all_tags/$', views.GetAllTags.as_view(), name='Get-Tags'),
+	url(r'^sign_s3/$', views.GetSignedRequest.as_view(), name="Get-Signed-Request"),
+    url(r'^get_all_tags/$', views.GetAllTags.as_view(), name='Get-Tags')
 ]
