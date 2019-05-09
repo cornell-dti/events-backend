@@ -1,0 +1,52 @@
+{
+  "addons": [
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "description": "Review applications setup for Events Backend on Heroku.",
+  "env": {
+    "ALLOWED_HOSTS": {
+      "required": true
+    },
+    "BUCKETEER_AWS_ACCESS_KEY_ID": {
+      "required": true
+    },
+    "BUCKETEER_AWS_REGION": {
+      "required": true
+    },
+    "BUCKETEER_AWS_SECRET_ACCESS_KEY": {
+      "required": true
+    },
+    "BUCKETEER_BUCKET_NAME": {
+      "required": true
+    },
+    "CORS_ORIGIN_ALLOW_ALL": {
+      "required": true
+    },
+    "GOOGLE_BACKEND_CLIENT_ID": {
+      "required": true
+    },
+    "MAILGUN_HOST_PASSWORD": {
+      "required": true
+    },
+    "SECRET_KEY": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "events-backend",
+  "scripts": {
+  },
+  "stack": "heroku-18"
+}
