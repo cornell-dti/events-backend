@@ -39,7 +39,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media
+from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, Event_Tags
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
 import logging
@@ -235,9 +235,9 @@ class AddOrEditEvent(APIView):
 
             for t in eventData['tags']:
                 tag = Tag.objects.get(name = t['label'])
-                event_tag = Event_Tags.objects.create(event_id = new_event, tags_id = tag)
+                event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
 
-            serializer = EventSerializer(new_event,many=False)
+            serializer = EventSerializer(event,many=False)
 
         if eventData['imageUrl'] != "":
             media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
