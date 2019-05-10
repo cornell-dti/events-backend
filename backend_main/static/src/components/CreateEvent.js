@@ -139,9 +139,8 @@ class CreateEvent extends Component {
 		    if(xhr.readyState === 4){
 			    if(xhr.status === 200){
 		        	const response = JSON.parse(xhr.responseText);
-		        	console.log(response);
 					xhr = new XMLHttpRequest();
-					xhr.open("POST", response.data.url);
+					xhr.open("POST", response.url);
 
 					let postData = new FormData();
 					for(let key in response.data.fields){
