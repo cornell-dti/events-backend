@@ -168,7 +168,6 @@ AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('S3_BUCKET_NAME')
 MEDIA_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
-#MEDIA_ROOT = BASE_DIR
 DEFAULT_FILE_STORAGE = 'events_backend.storage_backend.MediaStorage'
 
 
