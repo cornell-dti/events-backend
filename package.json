@@ -59,7 +59,7 @@
   "scripts": {
     "start": "npm run remove-junk && npm run frontend & npm run copy-settings && npm run backend",
     "start3": "npm run remove-junk && npm run frontend & npm run copy-settings && npm run backend3",
-    "start-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run copy-settings-windows && npm run backend",
+    "start-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run backend",
     "start3-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run copy-settings-windows && npm run backend3",
     "frontend": "webpack --config webpack.config.js --watch",
     "remove-junk": "rm -rf backend_main/static/bundles",

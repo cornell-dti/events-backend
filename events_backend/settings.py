@@ -24,7 +24,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 GOOGLE_BACKEND_CLIENT_ID = config('GOOGLE_BACKEND_CLIENT_ID')
 
-CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL")
+CORS_ORIGIN_ALLOW_ALL = config("CORS_ORIGIN_ALLOW_ALL", cast=bool)
 CORS_ALLOW_CREDENTIALS = True
 
 # X_FRAME_OPTIONS = config('X_FRAME_OPTIONS')
@@ -46,7 +46,7 @@ DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-
+AUTH_USER_MODEL = 'backend_main.User'
 # Application definition
 
 INSTALLED_APPS = [
