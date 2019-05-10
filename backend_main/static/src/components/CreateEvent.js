@@ -140,6 +140,7 @@ class CreateEvent extends Component {
 			    if(xhr.status === 200){
 		        	const response = JSON.parse(xhr.responseText);
 					xhr = new XMLHttpRequest();
+					console.log(response);
 					xhr.open("PUT", response.url);
 
 					let postData = new FormData();
