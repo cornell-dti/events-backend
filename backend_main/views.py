@@ -41,6 +41,7 @@ from rest_framework.views import APIView
 
 from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, Event_Tags, VerifiedEmails
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer
+
 from django.core.mail import send_mail
 import os
 import re
@@ -392,25 +393,26 @@ class OrgFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+
         json_orgs = OrgSerializer(outdated_orgs, many = True).data
-        serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedOrgSerializer({"orgs":json_orgs, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
-    org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    org_updates = org_updates.distinct('id').order_by('id')
+    #org_updates = Org.history.filter(history_date__gte = in_timestamp)
+    #org_updates = org_updates.distinct('id').order_by('id')
 
-    org_list = org_updates.values_list('id', flat = True).order_by('id')
+    #org_list = org_updates.values_list('id', flat = True).order_by('id')
     #TODO: What if not in list
-    changed_orgs = Org.objects.filter(pk__in=org_list)
-    present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
-    all_deleted_pks = list(set(org_list).difference(set(present_pks)))
+    changed_orgs = Org.objects #.filter(pk__in=org_list)
+    #present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
 class EventFeed(APIView):
     #TODO: token authentication not working...?
-    # authentication_classes = (TokenAuthentication, )
-    # permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () # (TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     #get event feed, parse timestamp and return events
     def get(self, request, format=None):
@@ -422,18 +424,18 @@ class EventFeed(APIView):
         end_time = dateutil.parser.parse(end_time)
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
         json_events = EventSerializer(outdated_events, many = True).data
-        serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-#tbh i have no idea what this function does
+
 def outdatedEvents(in_timestamp, start_time, end_time):
-    history_set = Event.history.filter(history_date__gte = in_timestamp)
-    unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    pks = unique_set.values_list('id', flat=True).order_by('id')
+    #history_set = Event.history.filter(history_date__gte = in_timestamp)
+    #unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
+    #pks = unique_set.values_list('id', flat=True).order_by('id')
     # #TODO: What if not in list
-    changed_events = Event.objects.filter(pk__in = pks, start_date__gte = start_time, end_date__lte =  end_time)
-    present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
-    all_deleted_pks = list(set(pks).difference(set(present_pks)))
+    changed_events = Event.objects.filter(start_date__gte = start_time, end_date__lte =  end_time).order_by('id')
+    #present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
 #=============================================================

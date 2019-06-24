@@ -7,26 +7,6 @@ from .models import Event, Org, Location, Tag, Org_Tags, Media, Event_Tags, Even
 from django.contrib.auth.models import User
 from django.conf import settings
 
-class EventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        #exclude = ('history',)
-        fields = ('pk', 'name', 'description', 'start_date', 'end_date', 
-        	'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'tags', 'media')
-        depth = 1
-
-    def to_representation(self, instance):
-        """Convert `username` to lowercase."""
-        ret = super().to_representation(instance)
-        for media in ret['media']:
-            media['link'] = "https://" + settings.AWS_STORAGE_BUCKET_NAME + ".s3.amazonaws.com/" + media['link']
-        return ret
-
-class LocationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Location
-        fields = ('pk', 'building', 'room', 'place_id')
 
 class OrgSerializer(serializers.ModelSerializer):
     org_tags = serializers.PrimaryKeyRelatedField(queryset = Org_Tags.objects.all(), many=True)
@@ -41,7 +21,34 @@ class OrgSerializer(serializers.ModelSerializer):
             return self.context['email']
         except KeyError:
             return ""
-            
+
+
+class EventSerializer(serializers.ModelSerializer):
+    event_tags = serializers.PrimaryKeyRelatedField(queryset = Event_Tags.objects.all(), many=True)
+    event_media = serializers.PrimaryKeyRelatedField(queryset = Event_Media.objects.all(), many=True)
+    organizer = OrgSerializer()
+
+    class Meta:
+        model = Event
+        fields = ('pk', 'organizer', 'name', 'description', 'start_date', 'end_date', 'start_time', 'end_time',
+                  'num_attendees', 'is_public', 'location', 'event_tags', 'event_media')
+        depth = 1
+
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        for media in ret['media']:
+            media['link'] = "https://" + settings.AWS_STORAGE_BUCKET_NAME + ".s3.amazonaws.com/" + media['link']
+        return ret
+
+
+class LocationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Location
+        fields = ('pk', 'building', 'room', 'place_id')
+
+
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -49,16 +56,15 @@ class TagSerializer(serializers.ModelSerializer):
 
         fields = ("pk", "name")
 
+
 class UpdatedEventsSerializer(serializers.Serializer):
-    updated = serializers.JSONField()  # pass in serialized events
-    deleted = serializers.ListField()
-    timestamp = serializers.DateTimeField()
+	events = serializers.JSONField() #pass in serialized events
+	timestamp = serializers.DateTimeField()
 
 
 class UpdatedOrgSerializer(serializers.Serializer):
-    updated = serializers.JSONField()  # pass in serialized events
-    deleted = serializers.ListField()
-    timestamp = serializers.DateTimeField()
+	orgs = serializers.JSONField() #pass in serialized events
+	timestamp = serializers.DateTimeField()
 
 
 class UserSerializer(serializers.ModelSerializer):
