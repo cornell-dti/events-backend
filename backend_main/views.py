@@ -40,7 +40,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media
+from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media, VerifiedEmails
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -63,12 +63,18 @@ class SignUp(APIView):
         form = OrgForm(orgData)
 
         if form.is_valid():
-            form.save()
+            # Verifying organization
+            verified = VerifiedEmails.objects.values_list('email', flat=True)
             username = form.cleaned_data.get('email')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+            if (username not in verified):
+                return JsonResponse({'messages': ['Your organization email has not been verified. Please contact cue@cornelldti.org to sign up.']}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                form.save()
+                raw_password = form.cleaned_data.get('password1')   
+                user = authenticate(username=username, password=raw_password)
+                login(request, user)
+                return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
         else:
             errorList = []
             errors = dict(form.errors.items())
