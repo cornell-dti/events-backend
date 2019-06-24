@@ -45,8 +45,11 @@ class CreateEvent extends Component {
 	};
 
 	componentDidUpdate(prevProps) {
-		const event = this.props.event;
+		var event = this.props.event;
+
 		if (prevProps.event !== event && event !== {}) {
+			try { event.tags = event.tags.map(tag => ({ value: tag.id, label: tag.name })) } catch (err) { }
+
 			this.setState({
 				pk: event.pk,
 				name: event.name,
@@ -74,12 +77,12 @@ class CreateEvent extends Component {
 		placesService = new google.maps.places.PlacesService(map);
 	}
 
-	formComplete(){
+	formComplete() {
 		return this.state.name !== undefined && this.state.name !== "" &&
 			this.state.room !== undefined && this.state.room !== "" &&
 			this.state.location !== undefined && this.state.location !== "" &&
 			this.state.from !== undefined && this.state.from !== "" &&
-			this.state.to !== undefined && this.state.to !== "" 
+			this.state.to !== undefined && this.state.to !== ""
 	}
 
 	//returns whether end Date() object of event is after start Date()
@@ -197,6 +200,7 @@ class CreateEvent extends Component {
 			start_time: this.state.from.split('T')[1],
 			end_time: this.state.to.split('T')[1],
 			description: this.state.description,
+			tags: this.state.tags,
 			imageUrl: this.state.imageChanged ? imageUrl : ""
 		};
 
@@ -209,8 +213,13 @@ class CreateEvent extends Component {
 		this.props.onDelete(event);
 	}
 
+	onCancelEvent() {
+		// restore to old value
+	}
+
 	render() {
 		const { classes } = this.props;
+
 		return (
 			<Dialog open={this.props.open} scroll={"body"}>
 				{this.props.edit ? <DialogTitle>Edit an Event</DialogTitle> :
@@ -236,6 +245,7 @@ class CreateEvent extends Component {
 					<TextField
 						label={"Room *"}
 						value={this.state.room}
+						placeholder={"Building + room to display (e.g. Gates G01)"}
 						onChange={e => this.setState({ room: e.target.value })}
 						margin={"normal"} />
 					<Autocomplete
@@ -268,7 +278,10 @@ class CreateEvent extends Component {
 						onChange={e => this.setState({ description: e.target.value })}
 						multiline={true}
 						margin={"normal"} />
-					<TagField onNewTags={(tags) => this.setState({ tags: tags })} />
+					<TagField
+						tags={this.state.tags}
+						onNewTags={tags => this.setState({ tags: tags })}
+					/>
 				</DialogContent>
 				<DialogActions>
 					{this.props.edit ? <Button onClick={this.onDeleteEvent.bind(this)} color="primary"> Delete	</Button> : null}

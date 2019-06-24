@@ -11,10 +11,10 @@ import Typography from "@material-ui/core/Typography/Typography";
 
 class Autocomplete extends Component {
 	state = { selected: null };
-	
+
 	componentDidMount() {
-		this.setState({ selected: this.props.value});
-  	}	
+		this.setState({ selected: this.props.value });
+	}
 	onSelect(val) {
 		this.setState({ selected: val });
 		this.props.onUpdate(val);
@@ -50,10 +50,10 @@ Autocomplete.propTypes = {
 	multiSelect: PropTypes.bool.isRequired,
 	placeholder: PropTypes.string.isRequired,
 	label: PropTypes.string.isRequired,
-	data: PropTypes.arrayOf(PropTypes.shape({
-		value: PropTypes.string,
-		label: PropTypes.string
-	})).isRequired,
+	// data: PropTypes.arrayOf(PropTypes.shape({
+	// 	value: PropTypes.string,
+	// 	label: PropTypes.string
+	// })).isRequired,
 	onChange: PropTypes.func,
 	onUpdate: PropTypes.func.isRequired
 };

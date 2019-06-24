@@ -35,7 +35,7 @@ class SignUp extends Component {
 		};
 
 		axios.post('/api/signup/', signUpData)
-			.then(response => window.location.href = "/app/events/")
+			.then(() => window.location.href = "/events/")
 			.catch(error => self.setState({ errors: error.response.data.messages }));
 	}
 	onEnter(e) {
