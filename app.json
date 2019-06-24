@@ -15,16 +15,16 @@
     "ALLOWED_HOSTS": {
       "required": true
     },
-    "BUCKETEER_AWS_ACCESS_KEY_ID": {
+    "AWS_ACCESS_KEY_ID": {
       "required": true
     },
-    "BUCKETEER_AWS_REGION": {
+    "AWS_REGION": {
       "required": true
     },
-    "BUCKETEER_AWS_SECRET_ACCESS_KEY": {
+    "AWS_SECRET_ACCESS_KEY": {
       "required": true
     },
-    "BUCKETEER_BUCKET_NAME": {
+    "S3_BUCKET_NAME": {
       "required": true
     },
     "CORS_ORIGIN_ALLOW_ALL": {
@@ -33,10 +33,10 @@
     "GOOGLE_BACKEND_CLIENT_ID": {
       "required": true
     },
-    "MAILGUN_HOST_PASSWORD": {
+    "SECRET_KEY": {
       "required": true
     },
-    "SECRET_KEY": {
+    "DEBUG": {
       "required": true
     }
   },

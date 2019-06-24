@@ -14,6 +14,7 @@
 
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -51,7 +52,6 @@ chrome-user-data
 *.swo
 
 backend_main/static/bundles
-backend_main/migrations
 db.sqlite3
 
 webpack-stats.json

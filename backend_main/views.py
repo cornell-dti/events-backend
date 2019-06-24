@@ -13,7 +13,6 @@ from datetime import time
 
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
-from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -27,7 +26,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import TagForm, EventForm, LocationForm, OrgForm, ProfileForm
+from .forms import TagForm, EventForm, LocationForm, OrgForm, ProfileForm, CustomUserCreationForm
 
 from google.oauth2 import id_token      
 from google.auth.transport import requests
@@ -40,7 +39,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media, VerifiedEmails
+from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media, VerifiedEmails
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
@@ -59,19 +58,23 @@ class SignUp(APIView):
 
     #@csrf_exempt
     def post(self, request):
-        orgData = request.data
-        form = OrgForm(orgData)
+        org_name = request.data['name']
+        user_data = {
+            'username': request.data['email'],
+            'password1': request.data['password1'],
+            'password2': request.data['password2']
+        }
+        form = CustomUserCreationForm(user_data)
 
         if form.is_valid():
-            # Verifying organization
             verified = VerifiedEmails.objects.values_list('email', flat=True)
-            username = form.cleaned_data.get('email')
-
+            username = form.cleaned_data.get('username')
             if (username not in verified):
                 return JsonResponse({'messages': ['Your organization email has not been verified. Please contact cue@cornelldti.org to sign up.']}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                form.save()
-                raw_password = form.cleaned_data.get('password1')   
+                user = form.save()
+                Org.objects.create(name=org_name, owner=user)
+                raw_password = form.cleaned_data.get('password1')
                 user = authenticate(username=username, password=raw_password)
                 login(request, user)
                 return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
@@ -87,8 +90,12 @@ class Login(APIView):
 
     #@csrf_exempt
     def post(self, request):
-        orgData = request.data
-        user = authenticate(username=orgData['email'], password=orgData['password'])
+        user_data = {
+            'username': request.data['email'],
+            'password': request.data['password'],
+        }
+
+        user = authenticate(username=user_data['username'], password=user_data['password'])
         if user is None:
             return JsonResponse({'messages': ['Your email or password is incorrect. Please try again.']}, status=status.HTTP_401_UNAUTHORIZED)
         login(request, user)
@@ -105,7 +112,7 @@ class UserProfile(APIView):
     def get(self, request, format=None):
         org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
-        serializer = OrgSerializer(org_set,many=False)
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -119,7 +126,7 @@ class UserProfile(APIView):
 
         org_set.save()
 
-        serializer = OrgSerializer(org_set,many=False)
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class ChangeOrgEmail(APIView):
@@ -127,23 +134,22 @@ class ChangeOrgEmail(APIView):
     permission_classes = (permissions.IsAuthenticated, )   
 
     def post(self, request):
-        orgEmail = request.data
+        org_email = request.data
 
-        if not validate_email(orgEmail['new_email']):
+        if not validate_email(org_email['new_email']):
             return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            Org.objects.get(email=orgEmail['new_email'])
+            User.objects.get(username=org_email['new_email'])
             return JsonResponse({ 'messages': ['Organization email is taken. Please try another email.'] }, status=status.HTTP_409_CONFLICT)
             
         except ObjectDoesNotExist: 
-            org_id = request.user.id
-            org_set = get_object_or_404(Org, pk=org_id)
-            org_set.email = orgEmail['new_email']
-            org_set.save()
+            user_id = request.user.id
+            user_set = get_object_or_404(User, pk=user_id)
+            user_set.username = org_email['new_email']
+            user_set.save()
 
-            serializer = OrgSerializer(org_set,many=False)
-            return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+            return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
             
 class ChangePassword(APIView):
     authentication_classes = (SessionAuthentication, )
@@ -194,7 +200,7 @@ class AddOrEditEvent(APIView):
     def post(self, request):
         eventData = request.data
 
-        org = request.user
+        org = request.user.org
         loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
         
         try:
@@ -235,7 +241,7 @@ class DeleteEvents(APIView):
     permission_classes = (permissions.IsAuthenticated,)  
 
     def post(self, request, event_id, format=None):
-        org = request.user
+        org = request.user.org
         event_set = get_object_or_404(Event, pk=event_id)
 
         if (event_set.organizer == org):
@@ -249,7 +255,7 @@ class GetEvents(APIView):
     permission_classes = (permissions.IsAuthenticated,)  
 
     def get(self, request, format=None):
-        org = request.user
+        org = request.user.org
         event_set = Event.objects.filter(organizer=org)
         serializer = EventSerializer(event_set, many=True)
         return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
@@ -456,8 +462,8 @@ class ObtainToken(APIView):
 
     def get(self, request, mobile_id, format=None):
 
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
+        app_user_set = App_User.objects.filter(mobile_id=mobile_id)
+        if app_user_set.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
@@ -471,13 +477,12 @@ class ObtainToken(APIView):
             user.set_unusable_password()
             user.save()
 
-            newUserID = UserID(user = user, token = mobile_id)
-            newUserID.save()
+            new_app_user = App_User(user = user, mobile_id = mobile_id)
+            new_app_user.save()
 
             #generate token
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
-
 
 
 class ResetToken(APIView):
@@ -485,10 +490,10 @@ class ResetToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
-            userID = userIDSet[0]
-            token = Token.objects.get(user = userID.user)
+        app_user_set = App_User.objects.filter(token=mobile_id)
+        if app_user_set.exists():
+            user = app_user_set[0]
+            token = Token.objects.get(user = user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")

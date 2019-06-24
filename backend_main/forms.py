@@ -1,22 +1,27 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from .models import Tag, Event, Location, Org
+from .models import Tag, Event, Location, Org, User
 
-class OrgForm(UserCreationForm):
+class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
-        model = Org
-        fields = ("name", "email", "password1", "password2", )
+        model = User
+        fields = ("username", "password1", "password2", )
 
     def save(self, commit=True):
-        user = super(OrgForm, self).save(commit=False)
-        user.name = self.cleaned_data["name"]
-        user.email = self.cleaned_data["email"]
+        user = super(CustomUserCreationForm, self).save(commit=False)
+        user.username = self.cleaned_data["username"]
         user.password1 = self.cleaned_data["password1"]
         user.password2 = self.cleaned_data["password2"]
         if commit:
             user.save()
         return user
+
+class OrgForm(forms.ModelForm):
+
+    class Meta:
+        model = Org
+        fields = ("name", )
 
 class EventForm(forms.ModelForm):
 
@@ -63,7 +68,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Org
-        fields = ("name", "email", "website", "bio")
+        fields = ("name", "website", "bio")
 
         website = forms.CharField(required=False)
         bio = forms.CharField(required=False)
@@ -71,7 +76,6 @@ class ProfileForm(forms.ModelForm):
     def save(self, commit=True):
         user = super(ProfileForm, self).save(commit=False)
         user.name = self.cleaned_data["name"]
-        user.email = self.cleaned_data["email"]
         user.website = self.cleaned_data["website"]
         user.bio = self.cleaned_data["bio"]
         if commit:
