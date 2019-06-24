@@ -39,7 +39,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, UserID, Event_Media, VerifiedEmails
+from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, VerifiedEmails
 from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
                             TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
 from django.core.mail import send_mail
