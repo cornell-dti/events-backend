@@ -2,43 +2,25 @@ import React, {Component} from 'react';
 import Typography from "@material-ui/core/Typography/Typography";
 import {withStyles} from "@material-ui/core";
 
-/**
- * Displays Django errors from form submission.
- */
 class FormError extends Component {
-	state = {error: ""};
+	state = { errors: [] };
 
-	constructor(props) {
-		super(props);
-		//see templates/main.html
-		document.addEventListener("animationstart", this.showDjangoError.bind(this), false);
-	}
-
-	/**
-	 * When a new node is created (the error text), an animation is triggered in
-	 * main.html named "nodeInserted". We then display the error.
-	 */
-	showDjangoError() {
-		if (event.animationName !== 'nodeInserted')
-			return;
-		const errorList = document.getElementsByClassName("errorlist")[0];
-		if (errorList === undefined)
-			return;
-		const error = errorList.getElementsByTagName("li")[0];
-		if (error === undefined)
-			return;
-		this.setState({error: error.textContent});
+	componentWillReceiveProps(nextProps){
+		this.setState({ errors: nextProps.errors })
 	}
 
 	render() {
 		const {classes} = this.props;
+		const errorString = this.state.errors.join(" ");
 		return (
-			<Typography className={classes.error} variant={"title"} color={"secondary"}>
-				{this.state.error}
+			<Typography className={classes.error} variant={"title"} color={"secondary"} align={"center"}>
+				{errorString}
 			</Typography>
 		);
 	}
 }
+
+FormError.defaultProps = { errors: [] };
 
 const styles = (theme) => ({
 	error: {

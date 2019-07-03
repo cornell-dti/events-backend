@@ -3,22 +3,38 @@
 # 21st June 2018
 
 from rest_framework import serializers
-
-from .models import Org, Event, Location, Tag, Event_Tags, Event_Media
+from .models import Event, Org, Location, Tag, Org_Tags, Media, Event_Tags, Event_Media
 from django.contrib.auth.models import User
+from django.conf import settings
+
+
+class OrgSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Org
+        fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags')
+
+    def get_email(self, org):
+        try:
+            return self.context['email']
+        except KeyError:
+            return ""
 
 
 class EventSerializer(serializers.ModelSerializer):
-    event_tags = serializers.PrimaryKeyRelatedField(
-        queryset=Event_Tags.objects.all(), many=True)
-    event_media = serializers.PrimaryKeyRelatedField(
-        queryset=Event_Media.objects.all(), many=True)
-
     class Meta:
         model = Event
-        #exclude = ('history',)
-        fields = ('pk', 'name', 'description', 'start_date', 'end_date',
-                  'start_time', 'end_time', 'num_attendees', 'is_public', 'organizer', 'location', 'event_tags', 'event_media')
+        fields = ('pk', 'organizer', 'name', 'description', 'start_date', 'end_date', 'start_time', 'end_time',
+                  'num_attendees', 'is_public', 'location', 'tags', 'media')
+        depth = 1
+
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        for media in ret['media']:
+            media['link'] = "https://" + settings.AWS_STORAGE_BUCKET_NAME + ".s3.amazonaws.com/" + media['link']
+        return ret
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -28,31 +44,22 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = ('pk', 'building', 'room', 'place_id')
 
 
-class OrgSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Org
-        fields = ('pk', 'name', 'description',
-                  'contact', 'verified', 'photo_id')
-
-
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ("id", "name")
+
+        fields = ("pk", "name")
 
 
 class UpdatedEventsSerializer(serializers.Serializer):
-    updated = serializers.JSONField()  # pass in serialized events
-    deleted = serializers.ListField()
+    events = serializers.JSONField() #pass in serialized events
     timestamp = serializers.DateTimeField()
 
 
 class UpdatedOrgSerializer(serializers.Serializer):
-    updated = serializers.JSONField()  # pass in serialized events
-    deleted = serializers.ListField()
-    timestamp = serializers.DateTimeField()
+	orgs = serializers.JSONField() #pass in serialized events
+	timestamp = serializers.DateTimeField()
 
 
 class UserSerializer(serializers.ModelSerializer):

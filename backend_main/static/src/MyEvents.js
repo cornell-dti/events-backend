@@ -5,83 +5,124 @@ import Icon from "@material-ui/core/Icon/Icon";
 import CreateEvent from "./components/CreateEvent";
 import EventCard from "./components/EventCard";
 import GridList from "@material-ui/core/GridList/GridList";
-import PropTypes from 'prop-types';
-import connect from "react-redux/es/connect/connect";
-
-let DEMO_EVENTS = [{
-	pk: 42,
-	name: "Night at the Johnson",
-	description: "Experience the magic of an after-hours event at Cornell's wonderful Johnson Museum with art, music, food, desserts, and drinks. Dress up or dress down and get ready for a fun time!",
-	location: "Eddy St, Ithaca NY 14850",
-	start_date: "2018-01-21",
-	end_date: "2018-01-21",
-	start_time: "19:30:00",
-	end_time: "22:00:00",
-	num_attendees: 39,
-	is_public: true,
-	organizer: 3,
-	event_tags: [1, 2]
-}];
+import axios from 'axios';
 
 class MyEvents extends Component {
-	state = { createEvent: false, data: [] };
 
-	// constructor(props) {
-	// 	super(props);
+	state = { createEvent: false, selectedEvent: {}, editEvent: false, events: [], deleteEvent: false };
 
-	// 	const url = 'http://cuevents-app.herokuapp.com/app/org/:id/events';
-	// 	fetch(url)
-	// 		.then(resp => this.setState({ data: resp.parse }));
-	// }
-
+	componentDidMount() {
+		axios.get('/api/get_events/')
+			.then(response => {
+				let org_events = response.data;
+				this.setState({ events: org_events })
+			})
+			.catch(error => {
+				if (error.response && error.response.status === 404)
+					this.setState({ errors: ['An error has occurred while retrieving your events. Please try again later.'] })
+			})
+	}
 	formatTime(time) {
 		const [hour, minute, second] = time.split(":");
 		const hour12 = hour % 12 === 0 ? 12 : hour % 12; //0 o'clock = 12AM
 		const am_pm = hour < 12 ? 'AM' : 'PM';
 		return `${hour12}:${minute} ${am_pm}`;
 	}
+	formatMonth(date) {
+		const [year, month, day] = date.split("-");
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Oct", "Nov", "Dec"]
+		return `${months[month - 1]}`;
+	}
+	formatDay(date) {
+		const [year, month, day] = date.split("-");
+		return `${day}`;
+	}
 	onCancelCreate() {
 		this.setState({ createEvent: false });
 	}
-	onPublishEvent() {
-		this.setState({ createEvent: false });
-		document.getElementById("id_name").value = this.props.event.eventName;
-		document.getElementById("id_description").value = this.props.event.eventDesc;
-		document.getElementById("id_start_date").value = this.props.event.startDate.split(',')[0];
-		document.getElementById("id_end_date").value = this.props.event.endDate.split(',')[0];
-		document.getElementById("id_start_time").value = this.props.event.startDate.split(',')[1];
-		document.getElementById("id_end_time").value = this.props.event.endDate.split(',')[1];
-		document.getElementById("id_is_public").value = true;
-		document.getElementById("id_location").value = this.props.event.room + " " + this.props.event.location;
 
-		const form = document.getElementsByTagName("form")[0];
-		form.submit();
+	onEdit(event) {
+		this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
 	}
-	editEvent(event) {
-		this.setState({ createEvent: true });
+
+	onUpdate(event) {
+		axios.post('/api/add_or_edit_event/', event)
+			.then(response => {
+				const updatedEvent = response.data
+				let events = this.state.events.slice()
+				let edit = false;
+				for (let i = 0; i < events.length; i++) {
+					if (events[i].pk === updatedEvent.pk) {
+						events[i] = updatedEvent
+						edit = true;
+						break;
+					}
+				}
+				this.setState({ createEvent: false, editEvent: false, events: edit ? events : [...this.state.events, updatedEvent] })
+			})
+			.catch(error => this.setState({ errors: error.response.data.messages }))
 	}
+
+	onDeleteEvent(event) {
+		let modifiedEvents = this.state.events.filter(e => { return e.pk !== event.pk });
+		this.setState({ events: modifiedEvents, createEvent: false });
+		axios.post('/api/delete_event/' + event.pk + '/')
+			.catch(error => {
+				if (error.response && (error.response.status === 404 || error.response.status === 405))
+					this.setState({ errors: ['An error has occurred while deleting your event. Please try again later.'] })
+			})
+	}
+
 	render() {
 		const { classes } = this.props;
+		const newEvent = {
+			image: null,
+			name: "",
+			location: {
+				building: "",
+				room: "",
+				place_id: ""
+			},
+			start_date: "",
+			end_date: "",
+			start_time: "",
+			end_time: "",
+			description: "",
+			tags: [],
+			media: []
+		};
+
 		return (
 			<div className={classes.root}>
-				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true })}>
+				<Button variant={"fab"} color={"primary"} className={classes.fab} onClick={() => this.setState({ createEvent: true, editEvent: false, selectedEvent: newEvent })}>
 					<Icon>add</Icon>
 				</Button>
 				<GridList className={classes.cardsContainer} cellHeight={"auto"} cols={3} spacing={50}>
-					{DEMO_EVENTS.map(event => (
+				{this.state.events.map(event => {
+					let imageUrl = event.media.length > 0 ? event.media.sort((a,b) => Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at))[0].link : ""
+					return (
 						<div key={`${event.pk}`}>
 							<EventCard
 								name={event.name}
 								location={event.location}
 								numAttendees={event.num_attendees}
+								imageUrl={imageUrl} //for now take latest uploaded image
 								startTime={this.formatTime(event.start_time)}
-								onClick={() => this.editEvent(event)} />
+								startMonth={this.formatMonth(event.start_date)}
+								startDay={this.formatDay(event.start_date)}
+								onClick={() => this.onEdit(event)} />
 						</div>
-					))}
+					)
+				})}
 				</GridList>
-				<CreateEvent open={this.state.createEvent}
+				<CreateEvent
+					open={this.state.createEvent}
+					edit={this.state.editEvent}
+					event={this.state.selectedEvent}
 					onCancel={this.onCancelCreate.bind(this)}
-					onPublish={this.onPublishEvent.bind(this)} />
+					onUpdate={this.onUpdate.bind(this)}
+					onDelete={this.onDeleteEvent.bind(this)}
+				/>
 			</div>
 		);
 	}
@@ -93,7 +134,7 @@ const styles = (theme) => ({
 		alignSelf: 'stretch'
 	},
 	cardsContainer: {
-		width: '100%'
+		width: '98%'
 	},
 	fab: {
 		position: 'absolute',
@@ -101,22 +142,5 @@ const styles = (theme) => ({
 	}
 });
 
-MyEvents.propTypes = {
-	event: PropTypes.shape({
-		eventName: PropTypes.string,
-		eventDesc: PropTypes.string,
-		startDate: PropTypes.string,
-		endDate: PropTypes.string,
-		isPublic: PropTypes.bool,
-		room: PropTypes.string,
-		location: PropTypes.string
-	}).isRequired
-};
-
-function mapStateToProps(state) {
-	return {
-		event: state.event
-	};
-}
-MyEvents = connect(mapStateToProps)(MyEvents);
 export default withStyles(styles)(MyEvents);
+

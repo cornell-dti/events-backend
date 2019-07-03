@@ -6,32 +6,29 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
 import dateutil.parser
+import boto3
+
+from datetime import datetime as dt
+from datetime import time
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
-
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.utils import timezone
-from django.shortcuts import redirect
-from django.shortcuts import render, get_object_or_404
-from django.template import loader
-
+from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.renderers import JSONRenderer
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import OrgForm, TagForm, EventForm, LocationForm
+from .forms import TagForm, EventForm, LocationForm, OrgForm, ProfileForm, CustomUserCreationForm
 
-from google.oauth2 import id_token
+from google.oauth2 import id_token      
 from google.auth.transport import requests
 
 from rest_framework.renderers import JSONRenderer
@@ -42,12 +39,254 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Org, Event, Event_Org, Location, Tag, Media, Attendance, UserID
-from .serializers import (EventSerializer, LocationSerializer, OrgSerializer,
-                            TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer)
+from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, Event_Tags, VerifiedEmails
+from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer
+
 from django.core.mail import send_mail
-import logging
 import os
+import re
+
+User = get_user_model()
+
+#=============================================================
+#                    LOGIN/SIGNUP
+#=============================================================
+
+class SignUp(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    #@csrf_exempt
+    def post(self, request):
+        org_name = request.data['name']
+        user_data = {
+            'username': request.data['email'],
+            'password1': request.data['password1'],
+            'password2': request.data['password2']
+        }
+        form = CustomUserCreationForm(user_data)
+
+        if form.is_valid():
+            verified = VerifiedEmails.objects.values_list('email', flat=True)
+            username = form.cleaned_data.get('username')
+            if (username not in verified):
+                return JsonResponse({'messages': ['Your organization email has not been verified. Please contact cue@cornelldti.org to sign up.']}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                user = form.save()
+                Org.objects.create(name=org_name, owner=user)
+                raw_password = form.cleaned_data.get('password1')
+                user = authenticate(username=username, password=raw_password)
+                login(request, user)
+                return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+        else:
+            errorList = []
+            errors = dict(form.errors.items())
+            for key, value in errors.items():
+                errorList += value
+            return JsonResponse({'messages': errorList}, status=status.HTTP_400_BAD_REQUEST)
+
+class Login(APIView):
+    permission_classes = (permissions.AllowAny, )  
+
+    #@csrf_exempt
+    def post(self, request):
+        user_data = {
+            'username': request.data['email'],
+            'password': request.data['password'],
+        }
+
+        user = authenticate(username=user_data['username'], password=user_data['password'])
+        if user is None:
+            return JsonResponse({'messages': ['Your email or password is incorrect. Please try again.']}, status=status.HTTP_401_UNAUTHORIZED)
+        login(request, user)
+        return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+#=============================================================
+#                ORGANIZATION INFORMATION
+#=============================================================
+
+class UserProfile(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        orgData = request.data
+        org_id = request.user.id
+        org_set = get_object_or_404(Org, pk=org_id)
+
+        org_set.name = orgData['name']
+        org_set.website = orgData['website']
+        org_set.bio = orgData['bio']
+
+        org_set.save()
+
+        serializer = OrgSerializer(org_set,many=False, context={'email': request.user.username})
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class ChangeOrgEmail(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )   
+
+    def post(self, request):
+        org_email = request.data
+
+        if not validate_email(org_email['new_email']):
+            return JsonResponse({ 'messages': ['Please enter a valid email address.'] }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            User.objects.get(username=org_email['new_email'])
+            return JsonResponse({ 'messages': ['Organization email is taken. Please try another email.'] }, status=status.HTTP_409_CONFLICT)
+            
+        except ObjectDoesNotExist: 
+            user_id = request.user.id
+            user_set = get_object_or_404(User, pk=user_id)
+            user_set.username = org_email['new_email']
+            user_set.save()
+
+            return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+            
+class ChangePassword(APIView):
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        old_password = request.data['old_password']
+        new_password = request.data['new_password']
+        user = request.user
+
+        if not user.check_password(old_password):
+            return JsonResponse({ 'messages': ['Your password is incorrect. Please try again.'] }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user.set_password(new_password)
+        user.save()
+        return JsonResponse({'messages': []}, status=status.HTTP_200_OK)
+
+class OrgDetail(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, org_id, format=None):
+        org_set = Org.objects.get(pk=org_id)
+        serializer = OrgSerializer(org_set,many=False)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class OrgEvents(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk = int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
+        event_set = Event.objects.filter(pk__in=org_events_pks)
+        serializer = EventSerializer(event_set,many=True)
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
+
+#=============================================================
+#                   EVENT INFORMATION
+#=============================================================
+
+class AddOrEditEvent(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        eventData = request.data
+
+        org = request.user.org
+        loc = Location.objects.get_or_create(room = eventData['location']['room'], building = eventData['location']['building'], place_id = eventData['location']['place_id'])
+
+        # edit
+        try:
+            event = Event.objects.get(pk = eventData['pk'])
+            event.name = eventData['name']
+            event.location = loc[0]
+            event.start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date()
+            event.end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date()
+            event.start_time = dt.strptime(eventData['start_time'], '%H:%M').time()
+            event.end_time = dt.strptime(eventData['end_time'], '%H:%M').time()
+            event.description = eventData['description']
+            event.organizer = org
+
+            
+            # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
+            Event_Tags.objects.filter(event_id = event).delete()
+
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
+            event.save()
+            serializer = EventSerializer(event, many=False)
+
+
+        # add
+        except KeyError:
+            event = Event.objects.create(
+                name = eventData['name'], 
+                location = loc[0],
+                start_date = dt.strptime(eventData['start_date'], '%Y-%m-%d').date(), 
+                end_date = dt.strptime(eventData['end_date'], '%Y-%m-%d').date(), 
+                start_time = dt.strptime(eventData['start_time'], '%H:%M').time(),
+                end_time = dt.strptime(eventData['end_time'], '%H:%M').time(),
+                description = eventData['description'], 
+                organizer = org)
+
+            for t in eventData['tags']:
+                tag = Tag.objects.get(name = t['label'])
+                event_tag = Event_Tags(event_id = event, tags_id = tag)
+                event_tag.save()
+
+            serializer = EventSerializer(event, many=False)
+
+        if eventData['imageUrl'] != "":
+            media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
+
+        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
+
+class DeleteEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    # TODO: DELETE TAGS
+    def post(self, request, event_id, format=None):
+        org = request.user.org
+        event_set = get_object_or_404(Event, pk=event_id)
+
+        if (event_set.organizer == org):
+            event_set.delete()
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
+# edit tags doesnt workd
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request, format=None):
+        org = request.user.org
+        event_set = Event.objects.filter(organizer=org)
+        serializer = EventSerializer(event_set, many=True)
+        
+        return JsonResponse(serializer.data, safe= False, status=status.HTTP_200_OK)
+
+class GetAllTags(APIView):
+    #TODO: alter classes to token and admin?
+    authentication_classes = (SessionAuthentication, )
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data, safe = False, status=status.HTTP_200_OK)
 
 #=============================================================
 #                   EVENT INFORMATION
@@ -117,31 +356,6 @@ class AllLocationDetail(APIView):
         serializer = LocationSerializer(location_set,many=True)
         return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe=False)
 
-#=============================================================
-#                ORGANIZATION INFORMATION
-#=============================================================
-
-class OrgDetail(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, org_id, format=None):
-        org_set = Org.objects.get(pk=org_id)
-        serializer = OrgSerializer(org_set,many=False)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK)
-
-class OrgEvents(APIView):
-    #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request, organizer_id, format=None):
-        org = Org.objects.get(pk = int(organizer_id))
-        org_events_pks = Event_Org.objects.filter(org_id = org).values_list('event_id', flat=True)
-        event_set = Event.objects.filter(pk__in=org_events_pks)
-        serializer = EventSerializer(event_set,many=True)
-        return JsonResponse(serializer.data,status=status.HTTP_200_OK, safe = False)
 
 #=============================================================
 #                    TAG INFORMATION
@@ -180,25 +394,26 @@ class OrgFeed(APIView):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         #json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+
         json_orgs = OrgSerializer(outdated_orgs, many = True).data
-        serializer = UpdatedOrgSerializer({"updated":json_orgs, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedOrgSerializer({"orgs":json_orgs, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 def outdatedOrgs(in_timestamp):
-    org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    org_updates = org_updates.distinct('id').order_by('id')
+    #org_updates = Org.history.filter(history_date__gte = in_timestamp)
+    #org_updates = org_updates.distinct('id').order_by('id')
 
-    org_list = org_updates.values_list('id', flat = True).order_by('id')
+    #org_list = org_updates.values_list('id', flat = True).order_by('id')
     #TODO: What if not in list
-    changed_orgs = Org.objects.filter(pk__in=org_list)
-    present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
-    all_deleted_pks = list(set(org_list).difference(set(present_pks)))
+    changed_orgs = Org.objects #.filter(pk__in=org_list)
+    #present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
 class EventFeed(APIView):
     #TODO: token authentication not working...?
-    # authentication_classes = (TokenAuthentication, )
-    # permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () # (TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     #get event feed, parse timestamp and return events
     def get(self, request, format=None):
@@ -210,23 +425,51 @@ class EventFeed(APIView):
         end_time = dateutil.parser.parse(end_time)
         outdated_events, all_deleted = outdatedEvents(old_timestamp, start_time, end_time)
         json_events = EventSerializer(outdated_events, many = True).data
-        serializer = UpdatedEventsSerializer({"updated":json_events, "deleted":all_deleted, "timestamp":timezone.now()})
+        serializer = UpdatedEventsSerializer({"events":json_events, "timestamp":timezone.now()})
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
-#tbh i have no idea what this function does
+
 def outdatedEvents(in_timestamp, start_time, end_time):
-    history_set = Event.history.filter(history_date__gte = in_timestamp)
-    unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    pks = unique_set.values_list('id', flat=True).order_by('id')
+    #history_set = Event.history.filter(history_date__gte = in_timestamp)
+    #unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
+    #pks = unique_set.values_list('id', flat=True).order_by('id')
     # #TODO: What if not in list
-    changed_events = Event.objects.filter(pk__in = pks, start_date__gte = start_time, end_date__lte =  end_time)
-    present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
-    all_deleted_pks = list(set(pks).difference(set(present_pks)))
+    changed_events = Event.objects.filter(start_date__gte = start_time, end_date__lte =  end_time).order_by('id')
+    #present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
+    all_deleted_pks = list() #set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
 #=============================================================
 #                          MEDIA
 #=============================================================
+
+class GetSignedRequest(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)  
+
+    def get(self, request):
+        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        timeString = dt.now().strftime("%Y%m%d_%H%M%S") 
+        file_name = "user_media/" + str(request.user.id) + "/" + timeString + "_" + request.GET.get('file_name')
+        file_type = request.GET.get('file_type')
+
+        s3 = boto3.client('s3')
+
+        presigned_post = s3.generate_presigned_post(
+            Bucket = S3_BUCKET,
+            Key = file_name,
+            Fields = {"acl": "public-read", "Content-Type": file_type},
+            Conditions = [
+              {"acl": "public-read"},
+              {"Content-Type": file_type}
+            ],
+            ExpiresIn = 3600
+        )
+
+        return JsonResponse({
+            'data': presigned_post,
+            'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+        }, status=status.HTTP_200_OK)
 
 def tagDetail(tag_id=0, all=False):
     tags = Tag.objects.all()
@@ -263,8 +506,8 @@ class ObtainToken(APIView):
 
     def get(self, request, mobile_id, format=None):
 
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
+        app_user_set = App_User.objects.filter(mobile_id=mobile_id)
+        if app_user_set.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
@@ -278,13 +521,12 @@ class ObtainToken(APIView):
             user.set_unusable_password()
             user.save()
 
-            newUserID = UserID(user = user, token = mobile_id)
-            newUserID.save()
+            new_app_user = App_User(user = user, mobile_id = mobile_id)
+            new_app_user.save()
 
             #generate token
             token = Token.objects.create(user=user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
-
 
 
 class ResetToken(APIView):
@@ -292,13 +534,17 @@ class ResetToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
-        userIDSet = UserID.objects.filter(token=mobile_id)
-        if userIDSet.exists():
-            userID = userIDSet[0]
-            token = Token.objects.get(user = userID.user)
+        app_user_set = App_User.objects.filter(token=mobile_id)
+        if app_user_set.exists():
+            user = app_user_set[0]
+            token = Token.objects.get(user = user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")
+
+#=============================================================
+#                        FORMS
+#=============================================================
 
 class TagFormView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -348,7 +594,6 @@ class EventFormView(APIView):
                 return redirect('post_detail_event_error.html')
             
             e.save()
-            print(e)
             return redirect('post_detail_event', pk=e.pk)
     
 
@@ -366,9 +611,34 @@ class LocationFormView(APIView):
             post.save()
             return redirect('post_detail_location', pk=post.pk)
 
+class OrgFormView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        form = OrgForm()
+        return render(request, 'post_edit.html', {'form': form})
+
+    def post(self, request):
+        form = OrgForm(request.POST)
+        if form.is_valid():
+            o = Org()
+            o.name = form.cleaned_data['name']
+            o.description = form.cleaned_data['description']
+            o.verified = form.cleaned_data['verified']
+            o.website = form.cleaned_data['website']
+            o.photo = form.cleaned_data['photo']
+
+            o.owner = request.user
+
+            o.save()
+            return redirect('post_detail_org', pk=o.pk)
+
 #=============================================================
 #                        HELPERS
 #=============================================================
+def check_login_status(request):
+    return JsonResponse({ 'status': request.user.is_authenticated })
+
 def extractToken(header):
     return header[header.find(" ") + 1:]
 
@@ -392,6 +662,10 @@ def post_detail_event(request, pk):
 def post_detail_location(request, pk):
     post = get_object_or_404(Location, pk=pk)
     return render(request, 'post_detail_location.html', {'post': post})
+
+def post_detail_user(request, pk):
+    post = get_object_or_404(User, pk=pk)
+    return render(request, 'post_detail_user.html', {'post': post})
 
 def post_edit_org(request, pk):
     post = get_object_or_404(Org, pk=pk)
@@ -417,6 +691,10 @@ def post_event_edit(request, pk):
         form = EventForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
 
+def validate_email(email):
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"  
+    return re.match(pattern, email)
+
 def validate_firebase(mobile_id):
     try:
         idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
@@ -432,48 +710,12 @@ class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
 
-
 class Authentication(APIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     def perform_create(self, serializer): 
         serializer.save(owner = self.request.user)
 
-class OrgFormView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-
-    def get(self, request):
-        form = OrgForm()
-        return render(request, 'post_edit.html', {'form': form})
-
-    def post(self, request):
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            o = Org()
-            o.name = form.cleaned_data['name']
-            o.description = form.cleaned_data['description']
-            o.verified = form.cleaned_data['verified']
-            o.website = form.cleaned_data['website']
-            o.photo = form.cleaned_data['photo']
-
-            o.owner = request.user
-
-            o.save()
-            return redirect('post_detail_org', pk=o.pk)
-
 
 #=============================================
-@csrf_exempt
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
-    else:
-        form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+

@@ -6,7 +6,15 @@ import AvatarEditor from 'react-avatar-editor';
 // import classNames from "classnames";
 
 class ImageUploader extends Component {
-	state = { hasImage: false, image_file: null, scaled_image: null };
+	state = { hasImage: false, image_file: null, image_url: "", scaled_image: null };
+
+	componentDidMount() {
+		if (this.props.image_url !== "")
+			this.setState({	
+				image_url: "https://***REMOVED***.s3.amazonaws.com/" + this.props.image_url,
+				hasImage: true
+			});
+	}
 
 	onFileChange(e) {
 		const image = e.target.files[0];
@@ -22,6 +30,7 @@ class ImageUploader extends Component {
 	onUploadClick() {
 		document.getElementById("fileInput").click();
 	}
+
 	classForShape(shape, classes) {
 		switch (shape) {
 			case "circle":
@@ -33,7 +42,10 @@ class ImageUploader extends Component {
 				return null;
 		}
 	}
-	setEditorRef = (editor) => this.editor = editor;
+	
+	setEditorRef = (editor) => {
+		this.editor = editor
+	}
 
 	render() {
 		const { classes } = this.props;
@@ -45,10 +57,9 @@ class ImageUploader extends Component {
 				<Button className={classes.button} onClick={this.onUploadClick}>
 					{this.state.hasImage ? "Change image" : "Upload image"}
 				</Button>
-				{this.state.hasImage
-					?
-					<AvatarEditor ref={this.setEditorRef} image={this.state.image_file} width={500} height={300} border={0} />
-					: null}
+				{this.state.hasImage ?
+					<AvatarEditor ref={this.setEditorRef} image={this.state.image_file || this.state.image_url } width={500} height={300} border={0} />
+				: null}
 			</div>
 		);
 	}

@@ -33,10 +33,10 @@
     "GOOGLE_BACKEND_CLIENT_ID": {
       "required": true
     },
-    "MAILGUN_HOST_PASSWORD": {
+    "SECRET_KEY": {
       "required": true
     },
-    "SECRET_KEY": {
+    "DEBUG": {
       "required": true
     }
   },
