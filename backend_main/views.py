@@ -239,9 +239,10 @@ class AddOrEditEvent(APIView):
 
             for t in eventData['tags']:
                 tag = Tag.objects.get(name = t['label'])
-                event_tag = Event_Tags.objects.create(event_id = event, tags_id = tag)
+                event_tag = Event_Tags(event_id = event, tags_id = tag)
+                event_tag.save()
 
-            serializer = EventSerializer(event,many=False)
+            serializer = EventSerializer(event, many=False)
 
         if eventData['imageUrl'] != "":
             media = Media.objects.create(link= eventData['imageUrl'], uploaded_by= org)

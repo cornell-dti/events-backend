@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Autocomplete from "./Autocomplete";
-import connect from "react-redux/es/connect/connect";
 import axios from 'axios';
 
 class TagField extends Component {

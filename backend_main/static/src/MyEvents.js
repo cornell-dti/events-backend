@@ -5,10 +5,7 @@ import Icon from "@material-ui/core/Icon/Icon";
 import CreateEvent from "./components/CreateEvent";
 import EventCard from "./components/EventCard";
 import GridList from "@material-ui/core/GridList/GridList";
-import PropTypes from 'prop-types';
-import connect from "react-redux/es/connect/connect";
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 class MyEvents extends Component {
 

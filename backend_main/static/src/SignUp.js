@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
 import Onboarding from "./components/Onboarding";
-import routes from './routes';
-import { SET_ORG_EMAIL, SET_ORG_NAME } from "./redux/user";
 import FormError from "./components/FormError";
 import axios from 'axios';
 

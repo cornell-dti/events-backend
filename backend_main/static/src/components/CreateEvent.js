@@ -12,7 +12,6 @@ import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import FormError from './FormError'
 
 let google = null;
 let mapCenter = null;

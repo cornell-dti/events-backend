@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
-import LinkColorless from "./LinkColorless";
 
 class Onboarding extends Component {
 	render() {

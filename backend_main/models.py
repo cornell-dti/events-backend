@@ -97,7 +97,6 @@ class Org(models.Model):
     history = HistoricalRecords()
 
 
-
 class Org_Tags(models.Model):
 
     class Meta:
@@ -179,6 +178,7 @@ class Attendance(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.user_id, self.event_id)
 
+
 class Event_Org(models.Model):
 
     class Meta:
@@ -190,6 +190,7 @@ class Event_Org(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
 
+
 class Event_Tags(models.Model):
 
     class Meta:
@@ -198,9 +199,9 @@ class Event_Tags(models.Model):
     event_id = models.ForeignKey('Event', on_delete=models.CASCADE)
     tags_id = models.ForeignKey('Tag',on_delete=models.CASCADE)
 
-
     def __str__(self):
         return "{0} - {1}".format(self.event_id, self.tags_id)
+
 
 class Event_Media(models.Model):
 
