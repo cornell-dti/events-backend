@@ -18,14 +18,14 @@ from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from rest_framework.authtoken import views as authviews
-from events_backend import views
+from . import views
 
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 spoof = "Clny9jLW4lf2gAvOZ27fJYnPJNyEPqKiMfmkAkFgXzksjoTEkeL9o5M4lHNbyrUCsVnglEv89pTcs1o787xt17KF6HZaHuqDMEjNPfpDdJBeB8nHbFLqJuqGTsEqT5NAai7UGJxgSPcszLTmpMT6PhRY7VATmEcbbqvf3McjsvfZ0Um9UHUVzCwpnj67n6rSbiy4kZm8"
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('events_backend.api_urls')),
+    url(r'^api/', include('app.api_urls')),
 
     #path('post/org/', views.OrgFormView.as_view(), name='post_org'),
     #path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),

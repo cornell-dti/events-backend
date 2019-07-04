@@ -62,16 +62,20 @@
   "scripts": {
     "start": "npm run remove-junk && npm run frontend & npm run copy-settings && npm run backend",
     "start3": "npm run remove-junk && npm run frontend & npm run copy-settings && npm run backend3",
-    "start-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run copy-settings-windows && npm run backend",
-    "start3-windows": "npm run remove-junk-windows && start /B npm run frontend && npm run copy-settings-windows && npm run backend3",
-    "frontend": "webpack --config webpack.dev.js --watch",
+    "start-windows": "npm run remove-junk-windows && start /B npm run frontend-windows && npm run copy-settings-windows && npm run backend-windows",
+    "start3-windows": "npm run remove-junk-windows && start /B npm run frontend-windows && npm run copy-settings-windows && npm run backend3-windows",
+    "frontend": "webpack --config events_frontend/webpack.dev.js --watch",
+    "frontend-windows": "webpack --config \"events_frontend\\webpack.dev.js\" --watch",
     "remove-junk": "rm -rf assets/bundles",
     "remove-junk-windows": "if exist \"assets\\bundles\" rmdir /S /Q \"assets\\bundles\"",
-    "copy-settings": "cp -f events_backend/config/dev_settings.py events_backend/config/settings.py",
-    "copy-settings-windows": "xcopy \"events_backend\\config\\dev_settings.py\" \"events_backend\\config\\settings.py\" /Y",
-    "backend": "python manage.py runserver",
-    "backend3": "python3 manage.py runserver",
-    "heroku-postbuild": "webpack --config webpack.prod.js"
+    "copy-settings": "cp -f events_backend/project/dev_settings.py events_backend/project/settings.py",
+    "copy-settings-windows": "xcopy \"events_backend\\project\\dev_settings.py\" \"events_backend\\project\\settings.py\" /Y",
+    "backend": "python events_backend/manage.py runserver",
+    "backend3": "python3 events_backend/manage.py runserver",
+    "backend-windows": "python \"events_backend\\manage.py\" runserver",
+    "backend3-windows": "python3 \"events_backend\\manage.py\" runserver",
+    "heroku-postbuild": "webpack --config events_frontend/webpack.prod.js",
+    "heroku-postbuild-windows": "webpack --config \"events_frontend\\webpack.prod.js\""
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

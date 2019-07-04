@@ -5,7 +5,7 @@ const BundleTracker = require('webpack-bundle-tracker');
 module.exports = {
     context: __dirname,
 
-    entry: ['babel-polyfill', './events_frontend/src/index'],
+    entry: ['babel-polyfill', './src/index'],
 
     output: {
         path: path.resolve('./assets/bundles/'),
@@ -13,7 +13,7 @@ module.exports = {
     },
 
     plugins: [
-        new BundleTracker({filename: './webpack-stats.json'}),
+        new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
     ],
     module: {
         rules: [

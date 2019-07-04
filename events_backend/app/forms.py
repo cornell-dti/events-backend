@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from events_backend.models import Tag, Event, Location, Org, User
+from .models import Tag, Event, Location, Org, User
 
 class CustomUserCreationForm(UserCreationForm):
 

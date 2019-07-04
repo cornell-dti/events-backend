@@ -4,7 +4,7 @@
 
 from django.conf.urls import url
 from django.views.decorators.csrf import ensure_csrf_cookie
-from events_backend import views
+from . import views
 
 urlpatterns = [
     # login/signup
