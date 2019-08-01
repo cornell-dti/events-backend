@@ -7,8 +7,8 @@ import {withStyles} from "@material-ui/core";
 import CardContent from "@material-ui/core/CardContent/CardContent";
 import Typography from "@material-ui/core/Typography/Typography";
 
-class EventCard extends Component
-{
+class EventCard extends Component {
+
 	render()
 	{
 		const {classes} = this.props;
@@ -17,21 +17,21 @@ class EventCard extends Component
 				<CardActionArea className={classes.actionArea}>
 					<CardMedia
 						className={classes.image}
-						image="" />
+						image={this.props.imageUrl} />
 					<CardContent>
 						<Typography variant="headline" className={classes.title}>
 							{this.props.name}
 						</Typography>
 						<Typography variant={"body1"} className={classes.location}>
-							{this.props.location}
+							{this.props.location.building}
 						</Typography>
 						<div className={classes.horizLayout}>
 							<div className={classes.vertLayout}>
 								<Typography variant={"body1"} className={classes.bold}>
-									May
+									{this.props.startMonth}
 								</Typography>
 								<Typography variant={"body1"} className={classes.num}>
-									99
+									{this.props.startDay}
 								</Typography>
 							</div>
 							<div className={classes.vertLayout}>
@@ -61,7 +61,7 @@ class EventCard extends Component
 EventCard.propTypes = {
 	name: PropTypes.string.isRequired,
 	startTime: PropTypes.string.isRequired,
-	location: PropTypes.string.isRequired,
+	location: PropTypes.object.isRequired,
 	numAttendees: PropTypes.number.isRequired,
 	onClick: PropTypes.func.isRequired
 };

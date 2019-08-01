@@ -1,15 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from "@material-ui/core";
+import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
-import LinkColorless from "./LinkColorless";
 
-class Onboarding extends Component
-{
-	render()
-	{
-		const {classes} = this.props;
+class Onboarding extends Component {
+	render() {
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
 				<Typography variant={"headline"} className={classes.title}>
@@ -23,11 +20,11 @@ class Onboarding extends Component
 				{this.props.children}
 				{this.props.button !== undefined
 					?
-					<LinkColorless to={this.props.link} disabled={!this.props.canClick}>
-						<Button disabled={!this.props.canClick} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.props.onClick} >
-							{this.props.button}
-						</Button>
-					</LinkColorless>
+					// <LinkColorless to={this.props.link} disabled={!this.props.canClick}>
+					<Button disabled={!this.props.canClick} color={"primary"} variant={"contained"} className={classes.spaced} onClick={this.props.onClick} id={"op-button"} >
+						{this.props.button}
+					</Button>
+					// </LinkColorless>
 					: null}
 			</div>
 		);
