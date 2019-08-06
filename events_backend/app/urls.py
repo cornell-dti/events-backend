@@ -21,7 +21,6 @@ from rest_framework.authtoken import views as authviews
 from . import views
 
 dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
-spoof = "Clny9jLW4lf2gAvOZ27fJYnPJNyEPqKiMfmkAkFgXzksjoTEkeL9o5M4lHNbyrUCsVnglEv89pTcs1o787xt17KF6HZaHuqDMEjNPfpDdJBeB8nHbFLqJuqGTsEqT5NAai7UGJxgSPcszLTmpMT6PhRY7VATmEcbbqvf3McjsvfZ0Um9UHUVzCwpnj67n6rSbiy4kZm8"
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -52,7 +51,7 @@ urlpatterns = [
     url(r'^feed/events/$', views.EventFeed.as_view(), name='Updated Events Feed'),
     url(r'^feed/org/timestamp=(?P<in_timestamp>{0})/$'.format(dateRegex), views.OrgFeed.as_view(), name='Updated Organizer Feed'),
     url(r'^generate_token/(?P<mobile_id>.*)/$', views.ObtainToken.as_view(), name='Create Mobile Token'),
-    url(r'^reset_token/(?P<mobile_id>.*)/{0}/$'.format(spoof), views.ResetToken.as_view(), name='Reset Mobile Token'),
+    url(r'^reset_token/(?P<mobile_id>.*)/$', views.ResetToken.as_view(), name='Reset Mobile Token'),
     url(r'^attendance/$', views.IncrementAttendance.as_view(), name="Update Attendance"),
 
     url(r'^users/$', views.UserList.as_view()),
