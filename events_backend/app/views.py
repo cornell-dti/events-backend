@@ -156,7 +156,7 @@ class ChangePassword(APIView):
 
 class OrgDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = ()#(TokenAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, org_id, format=None):
@@ -166,7 +166,7 @@ class OrgDetail(APIView):
 
 class OrgEvents(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = ()#(TokenAuthentication, )
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, organizer_id, format=None):
@@ -293,8 +293,8 @@ class EmailDetail(APIView):
 
 class EventDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = ()#(TokenAuthentication, )
+    permission_classes = ()#(permissions.IsAuthenticated, )
 
     def get(self, request, event_id, format=None):
         event_set = Event.objects.get(pk=event_id)
@@ -302,8 +302,8 @@ class EventDetail(APIView):
         return JsonResponse(serializer.data,status=status.HTTP_200_OK)
 
 class IncrementAttendance(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = ()#(TokenAuthentication,)
+    permission_classes = ()#(permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
         event = Event.objects.filter(pk=request.data["event"])[0]
@@ -326,8 +326,8 @@ class IncrementAttendance(APIView):
 class SingleLocationDetail(APIView):
 
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = ()#(TokenAuthentication, )
+    permission_classes = ()#(permissions.IsAuthenticated, )
 
     def get(self, request, location_id, format=None):
         location_set = Location.objects.get(pk=location_id)
@@ -336,8 +336,8 @@ class SingleLocationDetail(APIView):
 
 class AllLocationDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = ()#(TokenAuthentication, )
+    permission_classes = ()#(permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         location_set = Location.objects.all()
@@ -351,8 +351,8 @@ class AllLocationDetail(APIView):
 
 class SingleTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () #(TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     def get(self, request, tag_id, format=None):
         tag = Tag.objects.get(id = tag_id)
@@ -361,8 +361,8 @@ class SingleTagDetail(APIView):
 
 class AllTagDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () #(TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
@@ -375,8 +375,8 @@ class AllTagDetail(APIView):
 
 class OrgFeed(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = () #(TokenAuthentication, )
+    permission_classes = () #(permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
@@ -470,8 +470,8 @@ def tagDetail(tag_id=0, all=False):
 
 class ImageDetail(APIView):
     #TODO: alter classes to token and admin?
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = ()#(TokenAuthentication, )
+    permission_classes = ()#(permissions.IsAuthenticated, )
 
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk = img_id)[0].file.name
@@ -493,7 +493,6 @@ class ObtainToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
-
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
