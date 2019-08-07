@@ -3,43 +3,31 @@
 # 17th Sept. 2018
 
 from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 import dateutil.parser
 import boto3
 
 from datetime import datetime as dt
-from datetime import time
 
 from django.conf import settings
-from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.contrib.auth import login, authenticate, get_user_model
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
-from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template import loader
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.utils.decorators import method_decorator
-from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
-from rest_framework.renderers import JSONRenderer
-
 from .permissions import IsOwnerOrReadOnly
-from .forms import TagForm, EventForm, LocationForm, OrgForm, ProfileForm, CustomUserCreationForm
+from .forms import TagForm, EventForm, LocationForm, OrgForm, CustomUserCreationForm
 
 from google.oauth2 import id_token      
 from google.auth.transport import requests
 
-from rest_framework.renderers import JSONRenderer
 from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.decorators import permission_classes, authentication_classes
-from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
 
-from .models import Org, App_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, Event_Tags, VerifiedEmails
+from .models import Org, Mobile_User, Event, Event_Org, Location, Tag, Media, Attendance, Event_Media, Event_Tags, Verified_Emails
 from .serializers import EventSerializer, LocationSerializer, OrgSerializer, TagSerializer, UpdatedEventsSerializer, UpdatedOrgSerializer, UserSerializer
 
 from django.core.mail import send_mail
@@ -66,7 +54,7 @@ class SignUp(APIView):
         form = CustomUserCreationForm(user_data)
 
         if form.is_valid():
-            verified = VerifiedEmails.objects.values_list('email', flat=True)
+            verified = Verified_Emails.objects.values_list('email', flat=True)
             username = form.cleaned_data.get('username')
             if (username not in verified):
                 return JsonResponse({'messages': ['Your organization email has not been verified. Please contact cue@cornelldti.org to sign up.']}, status=status.HTTP_400_BAD_REQUEST)
@@ -506,8 +494,8 @@ class ObtainToken(APIView):
 
     def get(self, request, mobile_id, format=None):
 
-        app_user_set = App_User.objects.filter(mobile_id=mobile_id)
-        if app_user_set.exists():
+        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
+        if mobile_user_set.exists():
                 return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
@@ -521,8 +509,8 @@ class ObtainToken(APIView):
             user.set_unusable_password()
             user.save()
 
-            new_app_user = App_User(user = user, mobile_id = mobile_id)
-            new_app_user.save()
+            new_mobile_user = Mobile_User(user = user, mobile_id = mobile_id)
+            new_mobile_user.save()
 
             #generate token
             token = Token.objects.create(user=user)
@@ -534,9 +522,9 @@ class ResetToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, mobile_id, format=None):
-        app_user_set = App_User.objects.filter(token=mobile_id)
-        if app_user_set.exists():
-            user = app_user_set[0]
+        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
+        if mobile_user_set.exists():
+            user = mobile_user_set[0]
             token = Token.objects.get(user = user)
             return JsonResponse({'token': token.key}, status=status.HTTP_200_OK)
         else:

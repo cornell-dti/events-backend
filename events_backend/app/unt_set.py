@@ -38,7 +38,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 # Application definition
 
 INSTALLED_APPS = [
-    'backend_main.apps.BackendMainConfig',
+    'events_backend',
     'simple_history',
     'django.contrib.admin',
     'django.contrib.auth',

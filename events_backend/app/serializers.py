@@ -15,7 +15,7 @@ class OrgSerializer(serializers.ModelSerializer):
         model = Org
         fields = ('pk', 'name', 'email', 'bio', 'photo', 'website', 'tags')
 
-    def get_email(self, org):
+    def get_email(self, obj):
         try:
             return self.context['email']
         except KeyError:
