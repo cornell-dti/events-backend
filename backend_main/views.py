@@ -241,7 +241,6 @@ class AddOrEditEvent(APIView):
             event.save()
             serializer = EventSerializer(event, many=False)
 
-
         # add
         except KeyError:
             event = Event.objects.create(
