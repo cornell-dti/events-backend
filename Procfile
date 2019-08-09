@@ -1,3 +1,2 @@
 web: gunicorn events_backend.wsgi --log-file -
-release: webpack --config webpack.prod.js
-
+release: node_modules/.bin/webpack --config webpack.config.js
