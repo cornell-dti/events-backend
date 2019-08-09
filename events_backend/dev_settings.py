@@ -187,5 +187,6 @@ WEBPACK_LOADER = {
     }
 }
 
+
 # Page to open after login
 LOGOUT_REDIRECT_URL = '/'
