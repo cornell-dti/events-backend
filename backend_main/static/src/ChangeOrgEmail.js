@@ -1,41 +1,46 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { withStyles } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField/TextField";
 import Typography from "@material-ui/core/Typography/Typography";
-import Button from '@material-ui/core/Button';
+import Button from "@material-ui/core/Button";
 import FormError from "./components/FormError";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-axios.defaults.headers.post['X-CSRFToken'] = Cookies.get("csrftoken");
+axios.defaults.headers.post["X-CSRFToken"] = Cookies.get("csrftoken");
 
 class ChangeOrgEmail extends Component {
   state = { newOrgEmail: "", emailUpdated: false, errors: [] };
 
   canContinue() {
-    return this.state.newOrgEmail !== undefined && this.state.newOrgEmail !== ""
+    return (
+      this.state.newOrgEmail !== undefined && this.state.newOrgEmail !== ""
+    );
   }
+
   onClick() {
-    this.setState({ emailUpdated: false })
+    this.setState({ emailUpdated: false });
     const email = {
-        new_email: this.state.newOrgEmail
+      new_email: this.state.newOrgEmail
     };
-    axios.post("/api/change_org_email/", email)
-        .then(response => {
-          this.setState({
-            errors: [],
-            newOrgEmail: "",
-            emailUpdated: true
-          })
-        })
-        .catch(error => this.setState({errors: error.response.data.messages}));
+    axios
+      .post("/api/change_org_email/", email)
+      .then(response => {
+        this.setState({
+          errors: [],
+          newOrgEmail: "",
+          emailUpdated: true
+        });
+      })
+      .catch(error => this.setState({ errors: error.response.data.messages }));
   }
 
   onEnter(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       document.getElementById("op-button").click();
     }
   }
+
   render() {
     const { classes } = this.props;
     return (
@@ -54,8 +59,8 @@ class ChangeOrgEmail extends Component {
           <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
         </Typography> */}
         <Typography className={classes.title} variant={"h5"} color={"inherit"}>
-          Change Your Organization Email 
-				</Typography>
+          Change Your Organization Email
+        </Typography>
         <Typography className={classes.disclaimer} color={"primary"}>
           Warning: Doing so will change your login email as well!
         </Typography>
@@ -68,27 +73,37 @@ class ChangeOrgEmail extends Component {
           type={"username"}
           onKeyPress={this.onEnter.bind(this)}
         />
-        {this.state.emailUpdated ?
-          <Typography className={classes.verify} variant={"title"} color={"primary"} align={"center"}>
+        {this.state.emailUpdated ? (
+          <Typography
+            className={classes.verify}
+            variant={"title"}
+            color={"primary"}
+            align={"center"}
+          >
             Organization email updated successfully!
-          </Typography> : null 
-        }
+          </Typography>
+        ) : null}
         <FormError errors={this.state.errors} />
-        <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} 
-          className={classes.spaced} onClick={this.onClick.bind(this)} id={"op-button"}>
+        <Button
+          disabled={!this.canContinue()}
+          color={"primary"}
+          variant={"contained"}
+          className={classes.spaced}
+          onClick={this.onClick.bind(this)}
+          id={"op-button"}
+        >
           Update Organization Email
         </Button>
       </div>
     );
   }
-
 }
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
   },
   title: {
     marginTop: theme.spacing.unit * 5,
@@ -101,7 +116,7 @@ const styles = (theme) => ({
   textField: {
     marginLeft: theme.spacing.unit * 25,
     marginRight: theme.spacing.unit * 25,
-    width: '100%'
+    width: "100%"
   },
   spaced: {
     marginTop: theme.spacing.unit * 3
@@ -109,4 +124,4 @@ const styles = (theme) => ({
   verify: {}
 });
 
-export default withStyles(styles)(ChangeOrgEmail)
+export default withStyles(styles)(ChangeOrgEmail);
