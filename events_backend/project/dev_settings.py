@@ -50,7 +50,7 @@ AUTH_USER_MODEL = 'app.User'
 # Application definition
 
 INSTALLED_APPS = [
-    'app',
+    'events_backend.app',
     'simple_history',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -80,7 +80,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'app.urls'
+ROOT_URLCONF = 'events_backend.app.urls'
 
 TEMPLATES = [
     {

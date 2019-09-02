@@ -80,7 +80,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'app.urls'
+ROOT_URLCONF = 'events_backend.app.urls'
 
 TEMPLATES = [
     {
