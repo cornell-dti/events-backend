@@ -57,14 +57,14 @@ class Migration(migrations.Migration):
             name='Event_Org',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Event')),
+                ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Event')),
             ],
         ),
         migrations.CreateModel(
             name='Event_Tags',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Event')),
+                ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Event')),
             ],
         ),
         migrations.CreateModel(
@@ -158,13 +158,13 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=30)),
                 ('bio', models.CharField(blank=True, default='', max_length=500)),
                 ('website', models.CharField(blank=True, default='', max_length=100)),
-                ('photo', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Media')),
+                ('photo', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='app.Media')),
             ],
         ),
         migrations.AddField(
             model_name='org_tags',
             name='tags_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Tag'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Tag'),
         ),
         migrations.AddField(
             model_name='historicalorg',
@@ -179,7 +179,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalorg',
             name='photo',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='events_backend.app.Media'),
+            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='app.Media'),
         ),
         migrations.AddField(
             model_name='historicalevent',
@@ -189,37 +189,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalevent',
             name='location',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='events_backend.app.Location'),
+            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='app.Location'),
         ),
         migrations.AddField(
             model_name='event_tags',
             name='tags_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Tag'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Tag'),
         ),
         migrations.AddField(
             model_name='event_media',
             name='media',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Media'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Media'),
         ),
         migrations.AddField(
             model_name='event',
             name='location',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Location'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Location'),
         ),
         migrations.AddField(
             model_name='event',
             name='media',
-            field=models.ManyToManyField(through='events_backend.app.Event_Media', to='events_backend.app.Media'),
+            field=models.ManyToManyField(through='app.Event_Media', to='app.Media'),
         ),
         migrations.AddField(
             model_name='event',
             name='tags',
-            field=models.ManyToManyField(through='events_backend.app.Event_Tags', to='events_backend.app.Tag'),
+            field=models.ManyToManyField(through='app.Event_Tags', to='app.Tag'),
         ),
         migrations.AddField(
             model_name='attendance',
             name='event_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Event'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Event'),
         ),
         migrations.AddField(
             model_name='attendance',
@@ -239,31 +239,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='org_tags',
             name='org_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='org_tags', to='events_backend.app.Org'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='org_tags', to='app.Org'),
         ),
         migrations.AddField(
             model_name='org',
             name='tags',
-            field=models.ManyToManyField(through='events_backend.app.Org_Tags', to='events_backend.app.Tag'),
+            field=models.ManyToManyField(through='app.Org_Tags', to='app.Tag'),
         ),
         migrations.AddField(
             model_name='media',
             name='uploaded_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Org'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Org'),
         ),
         migrations.AddField(
             model_name='historicalevent',
             name='organizer',
-            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='events_backend.app.Org'),
+            field=models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='app.Org'),
         ),
         migrations.AddField(
             model_name='event_org',
             name='org_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Org'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Org'),
         ),
         migrations.AddField(
             model_name='event',
             name='organizer',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_backend.app.Org'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.Org'),
         ),
     ]
