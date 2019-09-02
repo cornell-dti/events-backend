@@ -1,2 +1,2 @@
-web: cd events_backend && gunicorn events_backend.wsgi --log-file -
+web: gunicorn events_backend.events_backend.wsgi --log-file -
 
