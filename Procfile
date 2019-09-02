@@ -1,2 +1,2 @@
-web: gunicorn events_backend.events_backend.wsgi --log-file -
+web: gunicorn events_backend.project.wsgi:application --log-file -
 
