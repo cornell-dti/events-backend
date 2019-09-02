@@ -50,7 +50,7 @@ AUTH_USER_MODEL = 'app.User'
 # Application definition
 
 INSTALLED_APPS = [
-    'app',
+    'events_backend.app',
     'simple_history',
     'django.contrib.admin',
     'django.contrib.auth',
