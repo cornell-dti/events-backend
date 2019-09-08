@@ -7,9 +7,17 @@ import Main from "./Main";
 import { BrowserRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core";
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import ReactGA from 'react-ga';
 
 const store = createStore(reducers, {});
+
 export default class App extends Component {
+	constructor() {
+    super();
+    ReactGA.initialize('UA-146557345-1');
+		ReactGA.pageview(window.location.pathname + window.location.search);
+	}
+
 	render() {
 		return (
 			<Provider store={store}>

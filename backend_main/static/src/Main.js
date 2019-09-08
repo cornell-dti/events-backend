@@ -63,6 +63,21 @@ class Main extends Component {
 			);
 	}
 
+	getFooter(classes) {
+		return (
+			<React.Fragment>
+				<img src={"/static/dti_logo.png"} className={classes.logo} alt="Logo" />
+				<div className={classes.buttonContainer}>
+						<a href={"/"} className={classes.appButton}>
+							<img src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"} alt="Download on the App Store" />
+						</a>
+						<a href={"/"} className={classes.appButton}>
+							<img src={"https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg"} alt="Download on the Google Play Store" />
+						</a>
+				</div>
+			</React.Fragment>
+		);
+	}
 	render() {
 		const { classes } = this.props;
 		return (
@@ -91,6 +106,9 @@ class Main extends Component {
 					</Switch>
 				}
 
+				<AppBar color={"default"} className={classes.footer}>
+					{this.getFooter(classes)}
+				</AppBar>
 			</div>
 		);
 	}
@@ -103,6 +121,29 @@ Main.propTypes = {
 };
 
 const styles = (theme) => ({
+	footer: {
+		bottom: 0,
+		top: 'auto',
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-evenly',
+	},
+	buttonContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginTop: theme.spacing.unit * 2,
+		marginBottom: theme.spacing.unit * 2
+	},
+	appButton: {
+		height: '40%',
+		width: '10vw',
+		marginRight: theme.spacing.unit * 2
+	},
+	logo: {
+		width: '15vw',
+	},
 	root: {
 		flexGrow: 1,
 		display: 'flex',

@@ -30,7 +30,7 @@ class MyEvents extends Component {
 	}
 	formatMonth(date) {
 		const [year, month, day] = date.split("-");
-		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Oct", "Nov", "Dec"]
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 		return `${months[month - 1]}`;
 	}
 	formatDay(date) {
@@ -131,6 +131,7 @@ class MyEvents extends Component {
 const styles = (theme) => ({
 	root: {
 		padding: theme.spacing.unit * 4,
+		marginBottom: '10vh',
 		alignSelf: 'stretch'
 	},
 	cardsContainer: {
