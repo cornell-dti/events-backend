@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import React, { Component } from "react";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import reducers from "./redux/reducers";
@@ -14,7 +14,8 @@ const store = createStore(reducers, {});
 export default class App extends Component {
 	constructor() {
     super();
-    ReactGA.initialize('UA-146557345-1');
+    const trackingId = "UA-146557345-1";
+    ReactGA.initialize(trackingId);
 		ReactGA.pageview(window.location.pathname + window.location.search);
 	}
 
@@ -33,15 +34,15 @@ export default class App extends Component {
 }
 
 const theme = createMuiTheme({
-	typography: {
-		fontFamily: 'Dosis'
-	},
-	palette: {
-		primary: {
-			main: '#fd565b'
-		},
-		secondary: {
-			main: '#fd565b'
-		}
-	}
+  typography: {
+    fontFamily: "Dosis"
+  },
+  palette: {
+    primary: {
+      main: "#fd565b"
+    },
+    secondary: {
+      main: "#fd565b"
+    }
+  }
 });

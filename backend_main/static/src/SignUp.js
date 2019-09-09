@@ -45,6 +45,7 @@ class SignUp extends Component {
 		const { classes } = this.props;
 
 		return (
+			<div className={classes.root}>
 			<Onboarding
 				title={"Create an Organization Account"}
 				button={"Continue"}
@@ -82,11 +83,15 @@ class SignUp extends Component {
 					onKeyPress={this.onEnter.bind(this)}
 				/>
 			</Onboarding>
+			</div>
 		);
 	}
 }
 
 const styles = (theme) => ({
+	root: {
+		marginBottom: '10%'
+	},
 	textField: {
 		width: '100%',
 		margin: theme.spacing.unit * 3

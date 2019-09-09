@@ -6,20 +6,12 @@ import AvatarEditor from 'react-avatar-editor';
 // import classNames from "classnames";
 
 class ImageUploader extends Component {
-	state = { hasImage: false, image_file: null, image_url: "", scaled_image: null };
-
-	componentDidMount() {
-		if (this.props.image_url !== "")
-			this.setState({	
-				image_url: "https://***REMOVED***.s3.amazonaws.com/" + this.props.image_url,
-				hasImage: true
-			});
-	}
+	state = { image_file: null, scaled_image: null };
 
 	onFileChange(e) {
 		const image = e.target.files[0];
 		this.props.onImageChange(image);
-		this.setState({ hasImage: true, image_file: image });
+		this.setState({ image_file: image });
 
 		if (this.editor) {
 			const canvasScaled = this.editor.getImageScaledToCanvas();
@@ -55,10 +47,10 @@ class ImageUploader extends Component {
 					<input id={"fileInput"} type={"file"} onChange={this.onFileChange.bind(this)} accept={"image/*"} />
 				</div>
 				<Button className={classes.button} onClick={this.onUploadClick}>
-					{this.state.hasImage ? "Change image" : "Upload image"}
+					{ this.state.image_file || this.props.image_url ? "Change image" : "Upload image"}
 				</Button>
-				{this.state.hasImage ?
-					<AvatarEditor ref={this.setEditorRef} image={this.state.image_file || this.state.image_url } width={500} height={300} border={0} />
+				{this.state.image_file || this.props.image_url ?
+					<AvatarEditor ref={this.setEditorRef} image={this.state.image_file || this.props.image_url } width={500} height={300} border={0} />
 				: null}
 			</div>
 		);

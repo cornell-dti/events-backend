@@ -200,7 +200,7 @@ class CreateEvent extends Component {
 			end_time: this.state.to.split('T')[1],
 			description: this.state.description,
 			tags: this.state.tags,
-			imageUrl: this.state.imageChanged ? imageUrl : ""
+			imageUrl: imageUrl
 		};
 
 		this.setState({ imageChanged: false });
