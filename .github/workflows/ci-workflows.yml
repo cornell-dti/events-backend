@@ -11,7 +11,7 @@ jobs:
       - name: NPM Install
         run: npm install
       - name: Run ESLint
-        run: npm lint
+        run: npm run lint
   build:
     runs-on: ubuntu-latest
     steps:
