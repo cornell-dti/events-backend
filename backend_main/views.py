@@ -439,7 +439,7 @@ class IncrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def post(self, request, event_id, format=None):
+    def get(self, request, event_id, format=None):
         event = Event.objects.filter(pk=event_id)[0]
         event.num_attendees = event.num_attendees + 1
         event.save()
@@ -462,7 +462,7 @@ class UnincrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def post(self, request, event_id, format=None):
+    def get(self, request, event_id, format=None):
         event = Event.objects.filter(pk=event_id)[0]
         event.num_attendees = event.num_attendees - 1
         if event.num_attendees < 0:
