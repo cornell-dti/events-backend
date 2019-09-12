@@ -190,7 +190,8 @@ class UserProfile(APIView):
         org_set.save()
 
         if orgData["imageUrl"] != "":
-            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
+            media = Media.objects.create(
+                link=orgData["imageUrl"], uploaded_by=org_set)
             org_media = Org_Media(org=org_set, media=media)
             org_media.save()
 
@@ -303,9 +304,12 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
+            event.start_date = dt.strptime(
+                eventData["start_date"], "%Y-%m-%d").date()
+            event.end_date = dt.strptime(
+                eventData["end_date"], "%Y-%m-%d").date()
+            event.start_time = dt.strptime(
+                eventData["start_time"], "%H:%M").time()
             event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
             event.description = eventData["description"]
             event.organizer = org
@@ -315,7 +319,8 @@ class AddOrEditEvent(APIView):
 
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
-                event_tag = Event_Tags.objects.create(event_id=event, tags_id=tag)
+                event_tag = Event_Tags.objects.create(
+                    event_id=event, tags_id=tag)
             event.save()
             serializer = EventSerializer(event, many=False)
 
@@ -324,9 +329,11 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
+                start_date=dt.strptime(
+                    eventData["start_date"], "%Y-%m-%d").date(),
                 end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
+                start_time=dt.strptime(
+                    eventData["start_time"], "%H:%M").time(),
                 end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
                 description=eventData["description"],
                 organizer=org,
@@ -340,7 +347,8 @@ class AddOrEditEvent(APIView):
             serializer = EventSerializer(event, many=False)
 
         if eventData["imageUrl"] != "":
-            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            media = Media.objects.create(
+                link=eventData["imageUrl"], uploaded_by=org)
             event_media = Event_Media(event=event, media=media)
             event_media.save()
 
@@ -431,18 +439,35 @@ class IncrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def post(self, request, format=None):
-        event = Event.objects.filter(pk=request.data["event"])[0]
-        user = Token.objects.filter(
-            pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-        )[0].user
-        attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+    def post(self, request, event_id, format=None):
+        event = Event.objects.filter(pk=event_id)[0]
+        event.num_attendees = event.num_attendees + 1
+        event.save()
+        # user = Token.objects.filter(
+        #     pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
+        # )[0].user
+        # attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
 
-        if not attendingSet.exists():
-            attendance = Attendance(user_id=user, event_id=event)
-            attendance.save()
-            event.num_attendees += 1
-            event.save()
+        # if not attendingSet.exists():
+        #     attendance = Attendance(user_id=user, event_id=event)
+        #     attendance.save()
+        #     event.num_attendees += 1
+        #     event.save()
+
+        return HttpResponse(status=status.HTTP_200_OK)
+        # TODO: if exists then response
+
+
+class UnincrementAttendance(APIView):
+    authentication_classes = ()  # (TokenAuthentication,)
+    permission_classes = ()  # (permissions.IsAuthenticated,)
+
+    def post(self, request, event_id, format=None):
+        event = Event.objects.filter(pk=event_id)[0]
+        event.num_attendees = event.num_attendees - 1
+        if event.num_attendees < 0:
+            event.num_attendees = 0
+        event.save()
 
         return HttpResponse(status=status.HTTP_200_OK)
         # TODO: if exists then response
@@ -636,7 +661,8 @@ class ImageDetail(APIView):
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk=img_id)[0].file.name
         name, extension = os.path.splitext(media)
-        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID,
+                          settings.AWS_SECRET_ACCESS_KEY)
         s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
         s3key = s3bucket.get_key(media)
         response = HttpResponse(
@@ -796,7 +822,7 @@ def check_login_status(request):
 
 
 def extractToken(header):
-    return header[header.find(" ") + 1 :]
+    return header[header.find(" ") + 1:]
 
 
 def generateUserName():
@@ -880,7 +906,8 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class Authentication(APIView):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

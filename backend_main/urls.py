@@ -43,7 +43,8 @@ urlpatterns = [
         views.SingleLocationDetail.as_view(),
         name="Location Details",
     ),
-    url(r"^loc/all/$", views.AllLocationDetail.as_view(), name="All Location Details"),
+    url(r"^loc/all/$", views.AllLocationDetail.as_view(),
+        name="All Location Details"),
     url(
         r"^tag/(?P<tag_id>[0-9]+)/$",
         views.SingleTagDetail.as_view(),
@@ -69,7 +70,10 @@ urlpatterns = [
         name="Reset Mobile Token",
     ),
     url(
-        r"^attendance/$", views.IncrementAttendance.as_view(), name="Update Attendance"
+        r"^attendance/increment/(?P<event_id>[0-9]+)/$", views.IncrementAttendance.as_view(), name="Increment Attendance"
+    ),
+    url(
+        r"^attendance/unincrement/(?P<event_id>[0-9]+)/$", views.UnincrementAttendance.as_view(), name="Increment Attendance"
     ),
     url(r"^users/$", views.UserList.as_view()),
     url(r"^users/(?P<pk>[0-9]+)/$", views.UserDetail.as_view()),
