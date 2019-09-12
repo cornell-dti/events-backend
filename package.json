@@ -66,6 +66,7 @@
     "start3-windows": "npm run remove-junk-windows && start /B npm run frontend-windows && npm run copy-settings-windows && npm run backend3-windows",
     "frontend": "webpack --config events_frontend/webpack.dev.js --watch",
     "frontend-windows": "webpack --config \"events_frontend\\webpack.dev.js\" --watch",
+    "lint": "eslint .",
     "remove-junk": "rm -rf assets/bundles",
     "remove-junk-windows": "if exist \"assets\\bundles\" rmdir /S /Q \"assets\\bundles\"",
     "copy-settings": "cp -f events_backend/project/dev_settings.py events_backend/project/settings.py",

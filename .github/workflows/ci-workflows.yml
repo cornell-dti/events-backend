@@ -1,0 +1,24 @@
+name: CI
+on: pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Node
+        uses: actions/setup-node@v1
+      - name: NPM Install
+        run: npm install
+      - name: Run ESLint
+        run: npm run lint
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Node
+        uses: actions/setup-node@v1
+      - name: NPM Install
+        run: npm install
+      - name: Run Webpack Build
+        run: npm run heroku-postbuild
