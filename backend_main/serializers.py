@@ -9,18 +9,18 @@ from django.conf import settings
 
 
 class OrgSerializer(serializers.ModelSerializer):
-    email = serializers.SerializerMethodField()
+    # email = serializers.SerializerMethodField()
 
     class Meta:
         model = Org
         fields = ("pk", "name", "email", "bio", "photo", "website", "tags")
         depth = 1
 
-    def get_email(self, obj):
-        try:
-            return self.context["email"]
-        except KeyError:
-            return ""
+    # def get_email(self, obj):
+    #     try:
+    #         return self.context["email"]
+    #     except KeyError:
+    #         return ""
 
     def to_representation(self, instance):
         """Convert `username` to lowercase."""
@@ -92,7 +92,8 @@ class UpdatedOrgSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    org = serializers.PrimaryKeyRelatedField(many=True, queryset=Org.objects.all())
+    org = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Org.objects.all())
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:

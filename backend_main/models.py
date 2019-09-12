@@ -77,7 +77,8 @@ class App_User(models.Model):
     class Meta:
         app_label = "backend_main"
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
     mobile_id = models.CharField(max_length=MAX_TOKEN_LENGTH)
 
 
@@ -85,11 +86,15 @@ class Org(models.Model):
     class Meta:
         app_label = "backend_main"
 
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    owner = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
 
     name = models.CharField(max_length=30)
     bio = models.CharField(max_length=MAX_DESC_LENGTH, default="", blank=True)
-    website = models.CharField(max_length=MAX_WEBSITE_LENGTH, default="", blank=True)
+    website = models.CharField(
+        max_length=MAX_WEBSITE_LENGTH, default="", blank=True)
+    email = models.CharField(
+        max_length=MAX_WEBSITE_LENGTH, default="", blank=True)
 
     history = HistoricalRecords()
 
@@ -101,7 +106,8 @@ class Org_Tags(models.Model):
     class Meta:
         app_label = "backend_main"
 
-    org_id = models.ForeignKey("Org", on_delete=models.CASCADE, related_name="org_tags")
+    org_id = models.ForeignKey(
+        "Org", on_delete=models.CASCADE, related_name="org_tags")
     tags_id = models.ForeignKey("Tag", on_delete=models.CASCADE)
 
     def __str__(self):
@@ -172,7 +178,8 @@ class Attendance(models.Model):
     class Meta:
         app_label = "backend_main"
 
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
 
     def __str__(self):
