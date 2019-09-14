@@ -28,7 +28,7 @@ MAX_ROOM_LENGTH = 100
 
 class UserManager(BaseUserManager):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     def _create_user(self, username, password, **extra_fields):
         """
@@ -56,7 +56,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     username = models.TextField(unique=True)
     is_active = models.BooleanField(default=True)
@@ -72,10 +72,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+class Mobile_User(models.Model):
 
 class App_User(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
@@ -84,7 +85,7 @@ class App_User(models.Model):
 
 class Org(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
@@ -104,7 +105,7 @@ class Org(models.Model):
 
 class Org_Tags(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     org_id = models.ForeignKey(
         "Org", on_delete=models.CASCADE, related_name="org_tags")
@@ -113,10 +114,9 @@ class Org_Tags(models.Model):
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.tags_id)
 
-
-class VerifiedEmails(models.Model):
+class Verified_Emails(models.Model):
     class Meta:
-        app_label = "backend_main"
+            app_label = 'app'
 
     email = models.EmailField(unique=True)
 
@@ -140,7 +140,7 @@ class VerifiedEmails(models.Model):
 
 class Event(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     name = models.CharField(max_length=MAX_NAME_LENGTH)
     description = models.CharField(max_length=MAX_DESC_LENGTH)
@@ -164,11 +164,11 @@ class Event(models.Model):
 
 class Location(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
-    room = models.CharField(max_length=MAX_NAME_LENGTH)
-    building = models.CharField(max_length=MAX_NAME_LENGTH)
-    place_id = models.CharField(max_length=MAX_NAME_LENGTH)
+    room = models.CharField(max_length = MAX_NAME_LENGTH)
+    building = models.CharField(max_length = MAX_NAME_LENGTH)
+    place_id = models.CharField(max_length = MAX_NAME_LENGTH)
 
     def __str__(self):
         return self.building
@@ -176,7 +176,7 @@ class Location(models.Model):
 
 class Attendance(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     user_id = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -188,7 +188,7 @@ class Attendance(models.Model):
 
 class Event_Org(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
     org_id = models.ForeignKey("Org", on_delete=models.CASCADE)
@@ -199,7 +199,7 @@ class Event_Org(models.Model):
 
 class Event_Tags(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
     tags_id = models.ForeignKey("Tag", on_delete=models.CASCADE)
@@ -218,7 +218,7 @@ class Event_Media(models.Model):
 
 class Org_Media(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     org = models.ForeignKey("Org", on_delete=models.CASCADE)
     media = models.ForeignKey("Media", on_delete=models.CASCADE)
@@ -226,7 +226,7 @@ class Org_Media(models.Model):
 
 class Tag(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     name = models.CharField(max_length=MAX_TAG_LENGTH)
 
@@ -236,7 +236,7 @@ class Tag(models.Model):
 
 class Media(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = 'app'
 
     link = models.TextField()
     uploaded_by = models.ForeignKey("Org", on_delete=models.CASCADE)
@@ -244,7 +244,13 @@ class Media(models.Model):
 
     def __str__(self):
         return self.link
-
+# class Org_Media(models.Model):
+#
+#    class Meta:
+#        app_label = 'app'
+#
+#    #org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
+#    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
 
 # class Profile(models.Model):
 #    org_name = models.CharField(max_length=30, blank=True)

@@ -12,8 +12,8 @@ import dj_database_url
 from decouple import Csv, config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -45,11 +45,11 @@ DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
-AUTH_USER_MODEL = "backend_main.User"
+AUTH_USER_MODEL = "app.User"
 # Application definition
 
 INSTALLED_APPS = [
-    "backend_main",
+    "app",
     "simple_history",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -79,7 +79,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
-ROOT_URLCONF = "events_backend.urls"
+ROOT_URLCONF = "app.urls"
 
 TEMPLATES = [
     {
@@ -97,7 +97,7 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "events_backend.wsgi.application"
+WSGI_APPLICATION = "project.wsgi.application"
 
 
 # Database
@@ -161,12 +161,13 @@ AWS_SECRET_ACCESS_KEY = config("BUCKETEER_AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = config("BUCKETEER_BUCKET_NAME")
 AWS_S3_CUSTOM_DOMAIN = "%s.s3.amazonaws.com" % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-DEFAULT_FILE_STORAGE = "events_backend.storage_backend.MediaStorage"
+DEFAULT_FILE_STORAGE = "project.storage_backend.MediaStorage"
+
 
 WEBPACK_LOADER = {
     "DEFAULT": {
         "BUNDLE_DIR_NAME": "bundles/",
-        "STATS_FILE": os.path.join(BASE_DIR, "webpack-stats.json"),
+        "STATS_FILE": os.path.join(BASE_DIR, "events_frontend", "webpack-stats.json"),
     }
 }
 

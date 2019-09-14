@@ -3,61 +3,33 @@
 # 17th Sept. 2018
 
 from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 import dateutil.parser
 import boto3
 
 from datetime import datetime as dt
-from datetime import time
 
 from django.conf import settings
-from django.contrib.auth import login, logout, authenticate, get_user_model, get_user
-from django.http import (
-    HttpResponse,
-    HttpResponseRedirect,
-    JsonResponse,
-    HttpResponseBadRequest,
-)
+from django.contrib.auth import login, authenticate, get_user_model
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
-from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template import loader
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.utils.decorators import method_decorator
-from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
-from rest_framework.renderers import JSONRenderer
-
 from .permissions import IsOwnerOrReadOnly
-from .forms import (
-    TagForm,
-    EventForm,
-    LocationForm,
-    OrgForm,
-    ProfileForm,
-    CustomUserCreationForm,
-)
+from .forms import TagForm, EventForm, LocationForm, OrgForm, CustomUserCreationForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from rest_framework.renderers import JSONRenderer
 from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
-from rest_framework.authentication import (
-    SessionAuthentication,
-    BasicAuthentication,
-    TokenAuthentication,
-)
-from rest_framework.decorators import permission_classes, authentication_classes
-from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
 
 from .models import (
     Org,
-    App_User,
+    Mobile_User,
     Event,
     Event_Org,
     Location,
@@ -66,9 +38,7 @@ from .models import (
     Attendance,
     Event_Media,
     Event_Tags,
-    VerifiedEmails,
-    User,
-    Org_Media,
+    Verified_Emails,
 )
 from .serializers import (
     EventSerializer,
@@ -85,7 +55,6 @@ import os
 import re
 
 User = get_user_model()
-
 
 # =============================================================
 #                    LOGIN/SIGNUP
@@ -106,7 +75,7 @@ class SignUp(APIView):
         form = CustomUserCreationForm(user_data)
 
         if form.is_valid():
-            verified = VerifiedEmails.objects.values_list("email", flat=True)
+            verified = Verified_Emails.objects.values_list("email", flat=True)
             username = form.cleaned_data.get("username")
             if username not in verified:
                 return JsonResponse(
@@ -179,7 +148,6 @@ class UserProfile(APIView):
 
     def post(self, request, format=None):
         orgData = request.data
-
         org_id = request.user.id
         org_set = get_object_or_404(Org, pk=org_id)
 
@@ -188,12 +156,6 @@ class UserProfile(APIView):
         org_set.bio = orgData["bio"]
 
         org_set.save()
-
-        if orgData["imageUrl"] != "":
-            media = Media.objects.create(
-                link=orgData["imageUrl"], uploaded_by=org_set)
-            org_media = Org_Media(org=org_set, media=media)
-            org_media.save()
 
         serializer = OrgSerializer(
             org_set, many=False, context={"email": request.user.username}
@@ -257,7 +219,7 @@ class ChangePassword(APIView):
 class OrgDetail(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, org_id, format=None):
         org_set = Org.objects.get(pk=org_id)
@@ -268,7 +230,7 @@ class OrgDetail(APIView):
 class OrgEvents(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, organizer_id, format=None):
         org = Org.objects.get(pk=int(organizer_id))
@@ -304,12 +266,9 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(
-                eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(
-                eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(
-                eventData["start_time"], "%H:%M").time()
+            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
+            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
+            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
             event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
             event.description = eventData["description"]
             event.organizer = org
@@ -319,8 +278,7 @@ class AddOrEditEvent(APIView):
 
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
-                event_tag = Event_Tags.objects.create(
-                    event_id=event, tags_id=tag)
+                event_tag = Event_Tags.objects.create(event_id=event, tags_id=tag)
             event.save()
             serializer = EventSerializer(event, many=False)
 
@@ -329,11 +287,9 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(
-                    eventData["start_date"], "%Y-%m-%d").date(),
+                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
                 end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(
-                    eventData["start_time"], "%H:%M").time(),
+                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
                 end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
                 description=eventData["description"],
                 organizer=org,
@@ -347,8 +303,7 @@ class AddOrEditEvent(APIView):
             serializer = EventSerializer(event, many=False)
 
         if eventData["imageUrl"] != "":
-            media = Media.objects.create(
-                link=eventData["imageUrl"], uploaded_by=org)
+            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
             event_media = Event_Media(event=event, media=media)
             event_media.save()
 
@@ -439,35 +394,18 @@ class IncrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def get(self, request, event_id, format=None):
-        event = Event.objects.filter(pk=event_id)[0]
-        event.num_attendees = event.num_attendees + 1
-        event.save()
-        # user = Token.objects.filter(
-        #     pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-        # )[0].user
-        # attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+    def post(self, request, format=None):
+        event = Event.objects.filter(pk=request.data["event"])[0]
+        user = Token.objects.filter(
+            pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
+        )[0].user
+        attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
 
-        # if not attendingSet.exists():
-        #     attendance = Attendance(user_id=user, event_id=event)
-        #     attendance.save()
-        #     event.num_attendees += 1
-        #     event.save()
-
-        return HttpResponse(status=status.HTTP_200_OK)
-        # TODO: if exists then response
-
-
-class UnincrementAttendance(APIView):
-    authentication_classes = ()  # (TokenAuthentication,)
-    permission_classes = ()  # (permissions.IsAuthenticated,)
-
-    def get(self, request, event_id, format=None):
-        event = Event.objects.filter(pk=event_id)[0]
-        event.num_attendees = event.num_attendees - 1
-        if event.num_attendees < 0:
-            event.num_attendees = 0
-        event.save()
+        if not attendingSet.exists():
+            attendance = Attendance(user_id=user, event_id=event)
+            attendance.save()
+            event.num_attendees += 1
+            event.save()
 
         return HttpResponse(status=status.HTTP_200_OK)
         # TODO: if exists then response
@@ -479,6 +417,7 @@ class UnincrementAttendance(APIView):
 
 
 class SingleLocationDetail(APIView):
+
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
     permission_classes = ()  # (permissions.IsAuthenticated, )
@@ -538,7 +477,6 @@ class OrgFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     def get(self, request, in_timestamp, format=None):
-
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
         # json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
@@ -620,11 +558,7 @@ class GetSignedRequest(APIView):
         )
         file_type = request.GET.get("file_type")
 
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        )
+        s3 = boto3.client("s3")
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,
@@ -661,8 +595,7 @@ class ImageDetail(APIView):
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk=img_id)[0].file.name
         name, extension = os.path.splitext(media)
-        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID,
-                          settings.AWS_SECRET_ACCESS_KEY)
+        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
         s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
         s3key = s3bucket.get_key(media)
         response = HttpResponse(
@@ -682,9 +615,8 @@ class ObtainToken(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, mobile_id, format=None):
-
-        app_user_set = App_User.objects.filter(mobile_id=mobile_id)
-        if app_user_set.exists():
+        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
+        if mobile_user_set.exists():
             return HttpResponseBadRequest("Token Already Assigned to User")
         else:
             validated, valid_info = validate_firebase(mobile_id)
@@ -697,8 +629,8 @@ class ObtainToken(APIView):
             user.set_unusable_password()
             user.save()
 
-            new_app_user = App_User(user=user, mobile_id=mobile_id)
-            new_app_user.save()
+            new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
+            new_mobile_user.save()
 
             # generate token
             token = Token.objects.create(user=user)
@@ -710,9 +642,9 @@ class ResetToken(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, mobile_id, format=None):
-        app_user_set = App_User.objects.filter(token=mobile_id)
-        if app_user_set.exists():
-            user = app_user_set[0]
+        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
+        if mobile_user_set.exists():
+            user = mobile_user_set[0]
             token = Token.objects.get(user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         else:
@@ -822,7 +754,7 @@ def check_login_status(request):
 
 
 def extractToken(header):
-    return header[header.find(" ") + 1:]
+    return header[header.find(" ") + 1 :]
 
 
 def generateUserName():
@@ -906,11 +838,11 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class Authentication(APIView):
-    permission_classes = (
-        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
 # =============================================
+

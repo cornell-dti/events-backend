@@ -15,16 +15,16 @@
     "ALLOWED_HOSTS": {
       "required": true
     },
-    "AWS_ACCESS_KEY_ID": {
+    "BUCKETEER_AWS_ACCESS_KEY_ID": {
       "required": true
     },
-    "AWS_REGION": {
+    "BUCKETEER_AWS_REGION": {
       "required": true
     },
-    "AWS_SECRET_ACCESS_KEY": {
+    "BUCKETEER_AWS_SECRET_ACCESS_KEY": {
       "required": true
     },
-    "S3_BUCKET_NAME": {
+    "BUCKETEER_BUCKET_NAME": {
       "required": true
     },
     "CORS_ORIGIN_ALLOW_ALL": {
