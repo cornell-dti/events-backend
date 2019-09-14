@@ -20,7 +20,7 @@ class Landing extends Component {
 							<img src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"} alt="Download on the App Store" />
 						</a>
 						<a href={"/"} className={classes.button}>
-							<img src={"https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg"} alt="Download on the Google Play Store" />
+							<img src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"} alt="Download on the Google Play Store" />
 						</a>
 					</div>
 				</div>

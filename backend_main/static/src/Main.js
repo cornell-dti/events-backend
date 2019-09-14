@@ -70,13 +70,20 @@ class Main extends Component {
 	getFooter(classes) {
 		return (
 			<React.Fragment>
-				<img src={"/static/dti_logo.png"} className={classes.logo} alt="Logo" />
+        <a href={"https://www.cornelldti.org/"}>
+          <img src={"/static/dti_logo.png"} className={classes.logo} alt="Logo" />
+        </a>
+
+        <a target="_blank" style={{textDecoration: 'none'}}  href={"https://forms.gle/UUCa8mzi6b9fnfxq9"}>
+            <Typography variant="h6" color="primary"> Contact Us </Typography>
+        </a>
+
 				<div className={classes.buttonContainer}>
 						<a href={"/"} className={classes.appButton}>
 							<img src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"} alt="Download on the App Store" />
 						</a>
 						<a href={"/"} className={classes.appButton}>
-							<img src={"https://upload.wikimedia.org/wikipedia/commons/c/cd/Get_it_on_Google_play.svg"} alt="Download on the Google Play Store" />
+							<img src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"} alt="Download on the Google Play Store" />
 						</a>
 				</div>
 			</React.Fragment>
