@@ -41,5 +41,4 @@ export function event(state = initState, action) {
     default:
       return state;
   }
-
 }
