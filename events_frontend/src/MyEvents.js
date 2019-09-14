@@ -6,9 +6,12 @@ import CreateEvent from "./components/CreateEvent";
 import EventCard from "./components/EventCard";
 import GridList from "@material-ui/core/GridList/GridList";
 import axios from "axios";
+import PageNavigator from "./components/PageNavigator";
+import routes from "./routes";
 
 class MyEvents extends Component {
   state = {
+    lastPage: 1,
     createEvent: false,
     selectedEvent: {},
     editEvent: false,
@@ -17,11 +20,23 @@ class MyEvents extends Component {
   };
 
   componentDidMount() {
+    this.retrievePageEvents();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.match.params.id !== this.props.match.params.id) {
+      this.retrievePageEvents();
+    }
+  }
+
+  retrievePageEvents() {
     axios
-      .get("/api/get_events/")
+      .get(`/api/get_events/${parseInt(this.props.match.params.id) || 1}/`)
       .then(response => {
-        let org_events = response.data;
-        this.setState({ events: org_events });
+        this.setState({
+          events: response.data.events,
+          lastPage: response.data.last_page
+        });
       })
       .catch(error => {
         if (error.response && error.response.status === 404)
@@ -68,6 +83,7 @@ class MyEvents extends Component {
     this.setState({ createEvent: true, selectedEvent: event, editEvent: true });
   }
 
+  //have to dynamically update event since we are paginating
   onUpdate(event) {
     axios
       .post("/api/add_or_edit_event/", event)
@@ -82,35 +98,42 @@ class MyEvents extends Component {
             break;
           }
         }
+        if (edit) {
+          this.setState({ events: events });
+        } else {
+          this.retrievePageEvents();
+        }
         this.setState({
           createEvent: false,
-          editEvent: false,
-          events: edit ? events : [...this.state.events, updatedEvent]
+          editEvent: false
         });
       })
       .catch(error => this.setState({ errors: error.response.data.messages }));
   }
 
   onDeleteEvent(event) {
-    let modifiedEvents = this.state.events.filter(e => {
-      return e.pk !== event.pk;
-    });
-    this.setState({ events: modifiedEvents, createEvent: false });
-    axios.post("/api/delete_event/" + event.pk + "/").catch(error => {
-      if (
-        error.response &&
-        (error.response.status === 404 || error.response.status === 405)
-      )
-        this.setState({
-          errors: [
-            "An error has occurred while deleting your event. Please try again later."
-          ]
-        });
-    });
+    axios
+      .post("/api/delete_event/" + event.pk + "/")
+      .then(() => {
+        this.retrievePageEvents();
+        this.setState({ createEvent: false });
+      })
+      .catch(error => {
+        if (
+          error.response &&
+          (error.response.status === 404 || error.response.status === 405)
+        )
+          this.setState({
+            errors: [
+              "An error has occurred while deleting your event. Please try again later."
+            ]
+          });
+      });
   }
 
   render() {
     const { classes } = this.props;
+    const currPage = parseInt(this.props.match.params.id) || 1;
     const newEvent = {
       image: null,
       name: "",
@@ -144,36 +167,46 @@ class MyEvents extends Component {
         >
           <Icon>add</Icon>
         </Button>
-        <GridList
-          className={classes.cardsContainer}
-          cellHeight={"auto"}
-          cols={3}
-          spacing={50}
-        >
-          {this.state.events.map(event => {
-            let imageUrl =
-              event.media.length > 0
-                ? event.media.sort(
-                    (a, b) =>
-                      Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
-                  )[0].link
-                : "";
-            return (
-              <div key={`${event.pk}`}>
-                <EventCard
-                  name={event.name}
-                  location={event.location}
-                  numAttendees={event.num_attendees}
-                  imageUrl={imageUrl} //for now take latest uploaded image
-                  startTime={this.formatTime(event.start_time)}
-                  startMonth={this.formatMonth(event.start_date)}
-                  startDay={this.formatDay(event.start_date)}
-                  onClick={() => this.onEdit(event)}
-                />
-              </div>
-            );
-          })}
-        </GridList>
+        {this.state.events.length > 0 && (
+          <GridList
+            className={classes.cardsContainer}
+            cellHeight={"auto"}
+            cols={3}
+            spacing={50}
+          >
+            {this.state.events.map(event => {
+              let imageUrl =
+                event.media.length > 0
+                  ? event.media.sort(
+                      (a, b) =>
+                        Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
+                    )[0].link
+                  : "";
+              return (
+                <div key={`${event.pk}`}>
+                  <EventCard
+                    name={event.name}
+                    location={event.location}
+                    numAttendees={event.num_attendees}
+                    imageUrl={imageUrl} //for now take latest uploaded image
+                    startTime={this.formatTime(event.start_time)}
+                    startMonth={this.formatMonth(event.start_date)}
+                    startDay={this.formatDay(event.start_date)}
+                    onClick={() => this.onEdit(event)}
+                  />
+                </div>
+              );
+            })}
+          </GridList>
+        )}
+        {this.state.lastPage !== 1 && currPage <= this.state.lastPage && (
+          <PageNavigator
+            currPage={currPage}
+            lastPage={this.state.lastPage}
+            prevPageLink={`${routes.auth.myEventsDefault.route}${currPage - 1}`}
+            nextPageLink={`${routes.auth.myEventsDefault.route}${currPage + 1}`}
+          />
+        )}
         <CreateEvent
           open={this.state.createEvent}
           edit={this.state.editEvent}

@@ -42,7 +42,8 @@ const styles = theme => ({
   container: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: "12px"
   },
   button: {},
   pageIndicator: {}
