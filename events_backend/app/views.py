@@ -54,7 +54,10 @@ from django.core.mail import send_mail
 import os
 import re
 
+from math import ceil;
+
 User = get_user_model()
+EVENTS_PER_PAGE = 15
 
 # =============================================================
 #                    LOGIN/SIGNUP
@@ -331,12 +334,13 @@ class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, format=None):
+    def get(self, request, page, format=None):
         org = request.user.org
-        event_set = Event.objects.filter(organizer=org)
+        event_count = Event.objects.count()
+        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
         serializer = EventSerializer(event_set, many=True)
-
-        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        last_page= ceil(event_count / EVENTS_PER_PAGE)
+        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 
 class GetAllTags(APIView):

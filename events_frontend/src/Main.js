@@ -53,7 +53,7 @@ class Main extends Component {
               Profile
             </Button>
           </LinkColorless>
-          <LinkColorless to={routes.auth.myEvents.route}>
+          <LinkColorless to={routes.auth.myEventsDefault.route}>
             <Button color={"primary"} className={classes.button}>
               My Events
             </Button>
@@ -88,7 +88,6 @@ class Main extends Component {
             Contact Us{" "}
           </Typography>
         </a>
-
         <div className={classes.buttonContainer}>
           <a href={"/"} className={classes.appButton}>
             <img

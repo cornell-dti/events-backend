@@ -15,7 +15,8 @@ export default {
     profile: { route: "/profile/", component: Profile },
     changePassword: { route: "/change_password/", component: ChangePassword },
     changeOrgEmail: { route: "/change_org_email/", component: ChangeOrgEmail },
-    myEvents: { route: "/events/", component: MyEvents }
+    myEvents: { route: "/events/:id(\\d+)", component: MyEvents },
+    myEventsDefault: { route: "/events/", component: MyEvents }
     //onboarding
     //describeTags: { route: "/app/describe", component: DescribeOrg }
   },
