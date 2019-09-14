@@ -2,11 +2,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from .models import Tag, Event, Location, Org, User
 
-class CustomUserCreationForm(UserCreationForm):
 
+class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ("username", "password1", "password2", )
+        fields = ("username", "password1", "password2")
 
     def save(self, commit=True):
         user = super(CustomUserCreationForm, self).save(commit=False)
@@ -17,39 +17,53 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
         return user
 
-class OrgForm(forms.ModelForm):
 
+class OrgForm(forms.ModelForm):
     class Meta:
         model = Org
-        fields = ("name", )
+        fields = ("name",)
+
 
 class EventForm(forms.ModelForm):
-
     class Meta:
         model = Event
-        fields = ('name', 'description', 'start_date', 'end_date', 'start_time', 'end_time', 'is_public', 'organizer', 'existing_location', 'new_location_placeid', 'new_location_building')
+        fields = (
+            "name",
+            "description",
+            "start_date",
+            "end_date",
+            "start_time",
+            "end_time",
+            "is_public",
+            "organizer",
+            "existing_location",
+            "new_location_placeid",
+            "new_location_building",
+        )
 
-    existing_location = forms.ModelChoiceField(queryset = Location.objects.all(),required=False)
+    existing_location = forms.ModelChoiceField(
+        queryset=Location.objects.all(), required=False
+    )
     new_location_building = forms.CharField(required=False)
     new_location_placeid = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
 
-class TagForm(forms.ModelForm):
 
+class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
-        fields = ('name',)
+        fields = ("name",)
 
 
 class LocationForm(forms.ModelForm):
-
     class Meta:
         model = Location
-        fields = ('building', 'place_id')
+        fields = ("building", "place_id")
 
-'''
+
+"""
 class SignUpForm(UserCreationForm):
     name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     netid = forms.CharField(max_length=30, required=False, help_text='Optional.')
@@ -62,10 +76,10 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('org_name', 'password1', 'password2', 'name', 'netid', 'facebook', 'website', 'contact_us')
-'''
+"""
+
 
 class ProfileForm(forms.ModelForm):
-
     class Meta:
         model = Org
         fields = ("name", "website", "bio")
@@ -81,8 +95,3 @@ class ProfileForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
-
-
-
-

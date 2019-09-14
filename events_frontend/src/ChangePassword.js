@@ -1,46 +1,58 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { withStyles } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField/TextField";
 import Typography from "@material-ui/core/Typography/Typography";
-import Button from '@material-ui/core/Button';
+import Button from "@material-ui/core/Button";
 import FormError from "./components/FormError";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-axios.defaults.headers.post['X-CSRFToken'] = Cookies.get("csrftoken");
+axios.defaults.headers.post["X-CSRFToken"] = Cookies.get("csrftoken");
 
 class ChangePassword extends Component {
-  state = { oldPassword: "", newPassword: "", confirmPassword: "", passwordUpdated: false, errors: [] };
+  state = {
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    passwordUpdated: false,
+    errors: []
+  };
 
   confirmPasswordError() {
     return this.state.newPassword !== this.state.confirmPassword;
   }
   canContinue() {
-    return this.state.oldPassword !== undefined && this.state.oldPassword !== "" &&
-      this.state.newPassword !== undefined && this.state.newPassword !== "" &&
-      this.state.confirmPassword !== undefined && this.state.confirmPassword !== "" &&
-      !this.confirmPasswordError();
+    return (
+      this.state.oldPassword !== undefined &&
+      this.state.oldPassword !== "" &&
+      this.state.newPassword !== undefined &&
+      this.state.newPassword !== "" &&
+      this.state.confirmPassword !== undefined &&
+      this.state.confirmPassword !== "" &&
+      !this.confirmPasswordError()
+    );
   }
   onClick() {
-    this.setState({ passwordUpdated: false })
+    this.setState({ passwordUpdated: false });
     const passwords = {
       old_password: this.state.oldPassword,
       new_password: this.state.newPassword
     };
-    axios.post("/api/change_password/", passwords)
+    axios
+      .post("/api/change_password/", passwords)
       .then(response => {
-          this.setState({
-            oldPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-            passwordUpdated: true,
-            errors: []
-          })
+        this.setState({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+          passwordUpdated: true,
+          errors: []
+        });
       })
-      .catch(error => this.setState({errors: error.response.data.messages}))
+      .catch(error => this.setState({ errors: error.response.data.messages }));
   }
   onEnter(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       document.getElementById("op-button").click();
     }
   }
@@ -64,14 +76,15 @@ class ChangePassword extends Component {
         <FormError errors={this.state.errors} />
         <Typography className={classes.title} variant={"h5"} color={"inherit"}>
           Change Your Password
-				</Typography>
+        </Typography>
         <TextField
           label="Old Password"
           className={classes.textField}
           value={this.state.oldPassword}
           onChange={e => this.setState({ oldPassword: e.target.value })}
           margin={"normal"}
-          type={"password"} />
+          type={"password"}
+        />
         <TextField
           label="New Password"
           className={classes.textField}
@@ -88,29 +101,41 @@ class ChangePassword extends Component {
           margin={"normal"}
           type={"password"}
           error={this.confirmPasswordError()}
-          helperText={this.confirmPasswordError() ? "Passwords do not match" : ""}
+          helperText={
+            this.confirmPasswordError() ? "Passwords do not match" : ""
+          }
           onKeyPress={this.onEnter.bind(this)}
         />
-        {this.state.passwordUpdated ?
-          <Typography className={classes.verify} variant={"title"} color={"primary"} align={"center"}>
+        {this.state.passwordUpdated ? (
+          <Typography
+            className={classes.verify}
+            variant={"title"}
+            color={"primary"}
+            align={"center"}
+          >
             Password updated successfully!
-          </Typography> : null 
-        }
-        <Button disabled={!this.canContinue()} color={"primary"} variant={"contained"} 
-          className={classes.spaced} onClick={this.onClick.bind(this)} id={"op-button"}>
+          </Typography>
+        ) : null}
+        <Button
+          disabled={!this.canContinue()}
+          color={"primary"}
+          variant={"contained"}
+          className={classes.spaced}
+          onClick={this.onClick.bind(this)}
+          id={"op-button"}
+        >
           Update Password
         </Button>
       </div>
     );
   }
-
 }
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
   },
   title: {
     marginTop: theme.spacing.unit * 5,
@@ -119,7 +144,7 @@ const styles = (theme) => ({
   textField: {
     marginLeft: theme.spacing.unit * 25,
     marginRight: theme.spacing.unit * 25,
-    width: '100%'
+    width: "100%"
   },
   spaced: {
     marginTop: theme.spacing.unit * 3
@@ -127,4 +152,4 @@ const styles = (theme) => ({
   verify: {}
 });
 
-export default withStyles(styles)(ChangePassword)
+export default withStyles(styles)(ChangePassword);
