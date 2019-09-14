@@ -12,6 +12,7 @@ import TagField from "./TagField";
 import Autocomplete from "./Autocomplete";
 import axios from "axios";
 import Cookies from "js-cookie";
+import _ from "lodash";
 
 let google = null;
 let mapCenter = null;
@@ -131,7 +132,7 @@ class CreateEvent extends Component {
   stringFromDate(date) {
     return date.toISOString().slice(0, 16);
   }
-  autocompleteLocation(input) {
+  autocompleteLocation = _.debounce(input => {
     if (input.length < 3) return;
     const request = { name: input, location: mapCenter, radius: radius };
     placesService.nearbySearch(request, (res, status) => {
@@ -147,7 +148,8 @@ class CreateEvent extends Component {
         }))
       });
     });
-  }
+  }, 1000);
+
   autocompleteRoom(input) {
     if (input.length < 2) return;
 
