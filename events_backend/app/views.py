@@ -88,7 +88,7 @@ class SignUp(APIView):
                 )
             else:
                 user = form.save()
-                Org.objects.create(name=org_name, owner=user)
+                Org.objects.create(name=org_name, owner=user, email=username)
                 raw_password = form.cleaned_data.get("password1")
                 user = authenticate(username=username, password=raw_password)
                 login(request, user)
@@ -558,7 +558,11 @@ class GetSignedRequest(APIView):
         )
         file_type = request.GET.get("file_type")
 
-        s3 = boto3.client("s3")
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+       )
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,

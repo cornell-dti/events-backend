@@ -73,8 +73,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 class Mobile_User(models.Model):
-
-class App_User(models.Model):
     class Meta:
         app_label = 'app'
 
@@ -210,7 +208,7 @@ class Event_Tags(models.Model):
 
 class Event_Media(models.Model):
     class Meta:
-        app_label = "backend_main"
+        app_label = "app"
 
     event = models.ForeignKey("Event", on_delete=models.CASCADE)
     media = models.ForeignKey("Media", on_delete=models.CASCADE)

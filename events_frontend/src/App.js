@@ -7,30 +7,30 @@ import Main from "./Main";
 import { BrowserRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core";
 import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
-import ReactGA from 'react-ga';
+import ReactGA from "react-ga";
 
 const store = createStore(reducers, {});
 
 export default class App extends Component {
-	constructor() {
+  constructor() {
     super();
     const trackingId = "UA-146557345-1";
     ReactGA.initialize(trackingId);
-		ReactGA.pageview(window.location.pathname + window.location.search);
-	}
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }
 
-	render() {
-		return (
-			<Provider store={store}>
-				<BrowserRouter>
-					<MuiThemeProvider theme={theme}>
-						<CssBaseline />
-						<Main />
-					</MuiThemeProvider>
-				</BrowserRouter>
-			</Provider>
-		);
-	}
+  render() {
+    return (
+      <Provider store={store}>
+        <BrowserRouter>
+          <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            <Main />
+          </MuiThemeProvider>
+        </BrowserRouter>
+      </Provider>
+    );
+  }
 }
 
 const theme = createMuiTheme({
