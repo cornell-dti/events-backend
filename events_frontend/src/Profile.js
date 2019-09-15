@@ -29,7 +29,6 @@ class Profile extends Component {
   };
 
   componentDidMount() {
-    const self = this;
     axios
       .get("/api/profile/")
       .then(response => {
@@ -49,7 +48,7 @@ class Profile extends Component {
         });
       })
       .catch(error => {
-        if (error.response.status == 404)
+        if (error.response.status === 404)
           this.setState({
             errors: [
               "An error has occurred while retrieving your profile. Please try again later."
@@ -60,7 +59,6 @@ class Profile extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    const self = this;
     let xhr = new XMLHttpRequest();
     xhr.open(
       "GET",
@@ -132,7 +130,7 @@ class Profile extends Component {
         });
       })
       .catch(error => {
-        if (error.response.status == 404)
+        if (error.response.status === 404)
           this.setState({
             errors: [
               "An error has occurred while updating your profile. Please try again later."

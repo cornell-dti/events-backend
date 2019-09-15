@@ -170,7 +170,6 @@ class CreateEvent extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    const self = this;
     let xhr = new XMLHttpRequest();
     xhr.open(
       "GET",
