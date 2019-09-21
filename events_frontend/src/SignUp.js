@@ -4,8 +4,14 @@ import { withStyles } from "@material-ui/core";
 import Onboarding from "./components/Onboarding";
 import FormError from "./components/FormError";
 import axios from "axios";
+import ReactGA from "react-GA";
 
 class SignUp extends Component {
+  constructor(props) {
+    super(props);
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }
+  
   state = {
     name: "",
     email: "",

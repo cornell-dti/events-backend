@@ -13,6 +13,7 @@ import Autocomplete from "./Autocomplete";
 import axios from "axios";
 import Cookies from "js-cookie";
 import _ from "lodash";
+import ReactGA from "react-ga";
 
 let google = null;
 let mapCenter = null;
@@ -241,11 +242,20 @@ class CreateEvent extends Component {
       imageUrl: imageUrl
     };
 
+    ReactGA.event({
+      category: 'User',
+      action: 'Added an Event'
+    });
+
     this.setState({ imageChanged: false });
     this.props.onUpdate(eventData);
   }
 
   onDeleteEvent() {
+    ReactGA.event({
+      category: 'User',
+      action: 'Deleted an Event'
+    });
     const event = this.props.event;
     this.props.onDelete(event);
   }
