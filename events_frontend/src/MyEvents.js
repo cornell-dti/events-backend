@@ -8,6 +8,7 @@ import GridList from "@material-ui/core/GridList/GridList";
 import axios from "axios";
 import PageNavigator from "./components/PageNavigator";
 import routes from "./routes";
+import ReactGA from "react-ga";
 
 class MyEvents extends Component {
   state = {
@@ -20,6 +21,7 @@ class MyEvents extends Component {
   };
 
   componentDidMount() {
+    ReactGA.pageview(window.location.pathname + window.location.search);
     this.retrievePageEvents();
   }
 
