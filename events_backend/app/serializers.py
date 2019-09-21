@@ -47,12 +47,14 @@ class EventSerializer(serializers.ModelSerializer):
         """Convert `username` to lowercase."""
         ret = super().to_representation(instance)
         for media in ret["media"]:
-            media["link"] = (
-                "https://"
-                + settings.AWS_STORAGE_BUCKET_NAME
-                + ".s3.amazonaws.com/"
-                + media["link"]
-            )
+            # if the link is from fcbk, then it will have fbcdn.net in it so don't do the manual appending stuff
+            if "fbcdn.net" not in media['link']:
+                media["link"] = (
+                    "https://"
+                    + settings.AWS_STORAGE_BUCKET_NAME
+                    + ".s3.amazonaws.com/"
+                    + media["link"]
+                )
         return ret
 
 
