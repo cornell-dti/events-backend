@@ -297,7 +297,8 @@ class AddOrEditEvent(APIView):
                 description=eventData["description"],
                 organizer=org,
             )
-
+            Event_Org.objects.create(event=event, org=org)
+            
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
                 event_tag = Event_Tags(event_id=event, tags_id=tag)

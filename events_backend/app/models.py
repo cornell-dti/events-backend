@@ -188,8 +188,8 @@ class Event_Org(models.Model):
     class Meta:
         app_label = 'app'
 
-    event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
-    org_id = models.ForeignKey("Org", on_delete=models.CASCADE)
+    event = models.ForeignKey("Event", on_delete=models.CASCADE)
+    org = models.ForeignKey("Org", on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.org_id, self.event_id)
