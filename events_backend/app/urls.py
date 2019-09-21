@@ -25,7 +25,7 @@ dateRegex = "[0-9]{4}[0-1][0-9][0-3][0-9]T[0-9]{6}"
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # TODO Should this be events_backend.app.api_urls?
-    url(r'^api/', include('events_backend.app.api_urls')),
+    url(r'^api/', include('app.api_urls')),
 
     #path('post/org/', views.OrgFormView.as_view(), name='post_org'),
     #path('post/org/<int:pk>/', views.post_detail_org, name='post_detail_org'),
