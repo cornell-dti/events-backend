@@ -167,7 +167,7 @@ class OrgDetail(APIView):
 class OrgEvents(APIView):
     #TODO: alter classes to token and admin?
     authentication_classes = ()#(TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = ()#(permissions.IsAuthenticated, )
 
     def get(self, request, organizer_id, format=None):
         org = Org.objects.get(pk = int(organizer_id))
