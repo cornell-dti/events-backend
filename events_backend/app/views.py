@@ -222,7 +222,7 @@ class ChangePassword(APIView):
 class OrgDetail(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = () #(permissions.IsAuthenticated,)
 
     def get(self, request, org_id, format=None):
         org_set = Org.objects.get(pk=org_id)
