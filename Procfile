@@ -1,3 +1,1 @@
-web: gunicorn events_backend.wsgi --log-file -
-release: webpack --config webpack.prod.js
-
+web: gunicorn events_backend.project.wsgi:application --log-file - --pythonpath 'events_backend'
