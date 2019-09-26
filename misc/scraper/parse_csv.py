@@ -41,9 +41,10 @@ if __name__ == '__main__':
             img_src = row[10]
             description = row[11]
             host = row[12]
+            location_specfic = row[13]
             tags = ''
             # Tags may be empty cells
-            if len(row) >= 14:
+            if len(row) >= 15:
                 tags = row[13]
             if line_count == 0:
                 print(f'Column names are {", ".join(row)}')
