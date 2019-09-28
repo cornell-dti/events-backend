@@ -399,21 +399,37 @@ class IncrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def post(self, request, format=None):
-        event = Event.objects.filter(pk=request.data["event"])[0]
-        user = Token.objects.filter(
-            pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-        )[0].user
-        attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+    def get(self, request, event_id, format=None):
+        event = Event.objects.get(pk=event_id)
+        event.num_attendees = event.num_attendees + 1
+        event.save()
+        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
-        if not attendingSet.exists():
-            attendance = Attendance(user_id=user, event_id=event)
-            attendance.save()
-            event.num_attendees += 1
-            event.save()
+class UnincrementAttendance(APIView):
+    authentication_classes = ()  # (TokenAuthentication,)
+    permission_classes = ()  # (permissions.IsAuthenticated,)
 
-        return HttpResponse(status=status.HTTP_200_OK)
-        # TODO: if exists then response
+    def get(self, request, event_id, format=None):
+        event = Event.objects.get(pk=event_id)
+        event.num_attendees = event.num_attendees - 1
+        event.save()
+        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
+
+    # def post(self, request, format=None):
+    #     event = Event.objects.filter(pk=request.data["event"])[0]
+    #     user = Token.objects.filter(
+    #         pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
+    #     )[0].user
+    #     attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+
+    #     if not attendingSet.exists():
+    #         attendance = Attendance(user_id=user, event_id=event)
+    #         attendance.save()
+    #         event.num_attendees += 1
+    #         event.save()
+
+    #     return HttpResponse(status=status.HTTP_200_OK)
+    #     # TODO: if exists then response
 
 
 # =============================================================
