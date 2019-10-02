@@ -276,10 +276,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-            event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
+            event.start_date = dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
+            event.end_date = dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+            event.start_time = dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
+            event.end_time = dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
             event.description = eventData["description"]
             event.organizer = org
 
@@ -297,10 +297,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
-                end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
-                end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
+                start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
+                end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
+                start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+                end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
                 description=eventData["description"],
                 organizer=org,
             )

@@ -15,7 +15,7 @@ class FormError extends Component {
     return (
       <Typography
         className={classes.error}
-        variant={"title"}
+        variant={"h6"}
         color={"secondary"}
         align={"center"}
       >

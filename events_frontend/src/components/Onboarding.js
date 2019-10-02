@@ -14,7 +14,7 @@ class Onboarding extends Component {
         </Typography>
         {this.props.body !== undefined ? (
           <Typography
-            variant={"title"}
+            variant={"h6"}
             className={classes.spaced}
             align={"center"}
           >
