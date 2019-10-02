@@ -26,6 +26,7 @@ from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
+import math
 
 from .models import (
     Org,
@@ -527,20 +528,31 @@ class EventFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     # get event feed, parse timestamp and return events
+    # events are reported as blocks of 20
     def get(self, request, format=None):
         in_timestamp = request.GET.get("timestamp")
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
+        page = request.GET.get("page")
+
         old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
         outdated_events, all_deleted = outdatedEvents(
             old_timestamp, start_time, end_time
         )
+        # pagination. Report back the chunk of events represented by page="page"
         json_events = EventSerializer(outdated_events, many=True).data
-        serializer = UpdatedEventsSerializer(
-            {"events": json_events, "timestamp": timezone.now()}
-        )
+        total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
+        page = min(total_pages, page)
+
+        this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE, page * EVENTS_PER_PAGE]
+
+        serializer = UpdatedEventsSerializer({
+            "events": this_page_events,
+            "timestamp": timezone.now(),
+            "pages": total_pages
+        })
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
