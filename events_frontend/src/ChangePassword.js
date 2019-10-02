@@ -109,7 +109,7 @@ class ChangePassword extends Component {
         {this.state.passwordUpdated ? (
           <Typography
             className={classes.verify}
-            variant={"title"}
+            variant={"h6"}
             color={"primary"}
             align={"center"}
           >
@@ -138,16 +138,16 @@ const styles = theme => ({
     alignItems: "center"
   },
   title: {
-    marginTop: theme.spacing.unit * 5,
+    marginTop: theme.spacing(5),
     fontWeight: 500
   },
   textField: {
-    marginLeft: theme.spacing.unit * 25,
-    marginRight: theme.spacing.unit * 25,
+    marginLeft: theme.spacing(25),
+    marginRight: theme.spacing(25),
     width: "100%"
   },
   spaced: {
-    marginTop: theme.spacing.unit * 3
+    marginTop: theme.spacing(3)
   },
   verify: {}
 });

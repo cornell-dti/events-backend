@@ -26,7 +26,7 @@ class Main extends Component {
     if (!this.state.loggedIn)
       return (
         <React.Fragment>
-          <Typography variant={"title"} color={"inherit"}>
+          <Typography variant={"h6"} color={"inherit"}>
             Are you an organization?
           </Typography>
           <LinkColorless to={routes.noAuth.login.route}>
@@ -180,13 +180,13 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   },
   appButton: {
     height: "40%",
     width: "10vw",
-    marginRight: theme.spacing.unit * 2
+    marginRight: theme.spacing(2)
   },
   logo: {
     width: "15vw"
@@ -199,7 +199,7 @@ const styles = theme => ({
   },
   appBarSpace: theme.mixins.toolbar,
   button: {
-    marginLeft: theme.spacing.unit * 2
+    marginLeft: theme.spacing(2)
   }
 });
 
