@@ -543,8 +543,8 @@ class EventFeed(APIView):
         )
         # pagination. Report back the chunk of events represented by page="page"
         json_events = EventSerializer(outdated_events, many=True).data
-        total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
-        page = min(total_pages, page)
+        total_pages = int(math.round(len(json_events) / EVENTS_PER_PAGE))
+        page = math.min(total_pages, page)
 
         this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE, page * EVENTS_PER_PAGE]
 
