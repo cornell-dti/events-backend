@@ -38,6 +38,7 @@ from .models import (
     Attendance,
     Event_Media,
     Event_Tags,
+    Org_Media,
     Verified_Emails,
 )
 from .serializers import (
@@ -157,6 +158,11 @@ class UserProfile(APIView):
         org_set.name = orgData["name"]
         org_set.website = orgData["website"]
         org_set.bio = orgData["bio"]
+
+        if orgData["imageUrl"] != "":
+            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
+            org_media = Org_Media(org=org_set, media=media)
+            org_media.save()
 
         org_set.save()
 
