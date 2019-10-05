@@ -29,7 +29,7 @@ FormError.defaultProps = { errors: [] };
 
 const styles = theme => ({
   error: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   }
 });
 

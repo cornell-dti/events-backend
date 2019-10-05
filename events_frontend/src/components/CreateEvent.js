@@ -284,7 +284,6 @@ class CreateEvent extends Component {
             label="Event name *"
             value={this.state.name}
             onChange={e => this.setState({ name: e.target.value })}
-            margin={"normal"}
           />
           {/* <Autocomplete
 						label={"Room"}
@@ -319,6 +318,7 @@ class CreateEvent extends Component {
             }
             multiSelect={false}
             canCreate={false}
+            margin={"normal"}
           />
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DateTimePicker
@@ -382,7 +382,8 @@ const styles = theme => ({
   content: {
     display: "flex",
     flexDirection: "column",
-    width: '100%'
+    justifyContent: "space-around",
+    width: '36vw'
   }
 });
 

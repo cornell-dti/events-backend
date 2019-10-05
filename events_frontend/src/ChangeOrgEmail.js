@@ -110,7 +110,7 @@ const styles = theme => ({
     fontWeight: 500
   },
   disclaimer: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     fontWeight: 500
   },
   textField: {
