@@ -113,7 +113,7 @@ class CreateEvent extends Component {
       this.state.from !== "" &&
       this.state.to !== undefined &&
       this.state.to !== "" &&
-      this.state.from < this.state.to
+      new Date(this.state.from) <= new Date(this.state.to)
     );
   }
 
@@ -135,7 +135,7 @@ class CreateEvent extends Component {
   }
 
   autocompleteLocation = _.debounce(input => {
-    if (input.length < 3) return;
+    if (input.length < 2) return;
     const request = { name: input, location: mapCenter, radius: radius };
     placesService.nearbySearch(request, (res, status) => {
       if (status !== google.maps.places.PlacesServiceStatus.OK) {
