@@ -77,33 +77,27 @@ class Main extends Component {
             alt="Logo"
           />
         </a>
-
         <a
           target="_blank"
           style={{ textDecoration: "none" }}
           href={"https://forms.gle/UUCa8mzi6b9fnfxq9"}
         >
           <Typography variant="h6" color="primary">
-            {" "}
-            Contact Us{" "}
+            Contact Us
           </Typography>
         </a>
         <div className={classes.buttonContainer}>
           <a href={"/"} className={classes.appButton}>
             <img
-              src={
-                "https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"
-              }
+              src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"}
               alt="Download on the App Store"
             />
           </a>
           <a href={"/"} className={classes.appButton}>
             <img
-              src={
-                "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-              }
-              alt="Download on the Google Play Store"
-            />
+              src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"}
+              alt="Download on the Google Play Store" 
+              />
           </a>
         </div>
       </React.Fragment>

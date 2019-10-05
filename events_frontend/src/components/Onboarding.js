@@ -58,14 +58,14 @@ const styles = theme => ({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-evenly",
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   },
   title: {
     fontWeight: 700,
     extend: "spaced"
   },
   spaced: {
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   }
 });
 export default withStyles(styles)(Onboarding);

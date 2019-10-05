@@ -235,7 +235,8 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     alignSelf: "stretch",
-    padding: theme.spacing(4)
+    padding: theme.spacing(4),
+    marginBottom: theme.spacing(8)
   },
   button: {
     marginTop: theme.spacing(2)

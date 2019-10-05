@@ -176,7 +176,7 @@ const components = {
 const styles = theme => ({
   input: {
     display: "flex",
-    padding: 0
+    padding: 4
   },
   valueContainer: {
     display: "flex",
@@ -185,7 +185,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   chip: {
-    margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`
+    margin: `${theme.spacing(1) / 2}px ${theme.spacing(1) / 4}px`
   },
   placeholder: {
     position: "absolute",
@@ -193,7 +193,7 @@ const styles = theme => ({
     fontSize: 16
   },
   noOptionsMessage: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
+    padding: `${theme.spacing(1)}px ${theme.spacing(1)}px`
   },
   singleValue: {
     fontSize: 16
@@ -201,7 +201,7 @@ const styles = theme => ({
   paper: {
     position: "absolute",
     zIndex: 1,
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     left: 0,
     right: 0
   }
