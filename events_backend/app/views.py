@@ -58,7 +58,7 @@ import re
 from math import ceil;
 
 User = get_user_model()
-EVENTS_PER_PAGE = 2
+EVENTS_PER_PAGE = 15
 
 # =============================================================
 #                    LOGIN/SIGNUP
