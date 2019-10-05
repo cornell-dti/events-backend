@@ -58,7 +58,7 @@ import re
 from math import ceil;
 
 User = get_user_model()
-EVENTS_PER_PAGE = 15
+EVENTS_PER_PAGE = 2
 
 # =============================================================
 #                    LOGIN/SIGNUP
@@ -338,8 +338,9 @@ class GetEvents(APIView):
 
     def get(self, request, page, format=None):
         org = request.user.org
-        event_count = Event.objects.count()
-        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+        events_by_org = Event.objects.filter(organizer=org)
+        event_count = events_by_org.count()
+        event_set = events_by_org[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
         serializer = EventSerializer(event_set, many=True)
         last_page= ceil(event_count / EVENTS_PER_PAGE)
         return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
@@ -528,12 +529,12 @@ class EventFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     # get event feed, parse timestamp and return events
-    # events are reported as blocks of 20
+    # events are reported as blocks of 15
     def get(self, request, format=None):
         in_timestamp = request.GET.get("timestamp")
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
-        page = request.GET.get("page")
+        page = int(request.GET.get("page"))
 
         old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
@@ -543,10 +544,10 @@ class EventFeed(APIView):
         )
         # pagination. Report back the chunk of events represented by page="page"
         json_events = EventSerializer(outdated_events, many=True).data
-        total_pages = int(math.round(len(json_events) / EVENTS_PER_PAGE))
-        page = math.min(total_pages, page)
+        total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
+        page = min(total_pages, page)
 
-        this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE, page * EVENTS_PER_PAGE]
+        this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE: page * EVENTS_PER_PAGE]
 
         serializer = UpdatedEventsSerializer({
             "events": this_page_events,
