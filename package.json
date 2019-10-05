@@ -61,7 +61,7 @@
   },
   "scripts": {
     "start": "npm run frontend & npm run copy-settings && npm run backend",
-    "start-windows": "&& start /B npm run frontend-windows && npm run copy-settings-windows && npm run backend-windows",
+    "start-windows": "start /B npm run frontend-windows && npm run copy-settings-windows && npm run backend-windows",
     "frontend": "webpack --config events_frontend/webpack.dev.js --watch",
     "frontend-windows": "webpack --config \"events_frontend\\webpack.dev.js\" --watch",
     "lint": "eslint .",
