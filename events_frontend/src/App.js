@@ -1,3 +1,5 @@
+// @ts-check
+
 import React, { Component } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { Provider } from "react-redux";
