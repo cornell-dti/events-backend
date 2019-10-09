@@ -68,11 +68,11 @@ class CreateEvent extends Component {
         from:
           event.start_date === "" || event.start_time === ""
             ? this.defaultStartTime()
-            : event.start_date + " " + event.start_time,
+            : new Date((event.start_date + " " + event.start_time).replace(/-/g, "/")),
         to:
           event.end_date === "" || event.end_time === ""
             ? this.defaultEndTime()
-            : event.end_date + " " + event.end_time,
+            : new Date((event.end_date + " " + event.end_time).replace(/-/g, "/")),
         description: event.description,
         tags: event.tags,
         imageUrl:
@@ -233,17 +233,17 @@ class CreateEvent extends Component {
     const isFromDate = this.state.from instanceof Date;
     const isToDate = this.state.to instanceof Date;
 
-    if (!isFromDate) { this.state.from = new Date(this.state.from) }
-    if (!isToDate) { this.state.to = new Date(this.state.to) };
-
+    const formattedFromDate = new Date(this.state.from);
+    const formattedToDate = new Date(this.state.to);
+    
     const eventData = {
       pk: this.state.pk,
       name: this.state.name,
       location: location,
-      start_date: this.state.from.toLocaleDateString(), 
-      end_date: this.state.to.toLocaleDateString(),
-      start_time: this.state.from.toLocaleTimeString(), 
-      end_time: this.state.to.toLocaleTimeString(),
+      start_date: isFromDate ? this.state.from.toLocaleDateString() : formattedFromDate.toLocaleDateString(), 
+      end_date: isFromDate ? this.state.to.toLocaleDateString() : formattedToDate.toLocaleTimeString(),
+      start_time: isToDate ? this.state.from.toLocaleTimeString() : formattedFromDate.toLocalTimeString(), 
+      end_time: isToDate ? this.state.to.toLocaleTimeString() : formattedToDate.toLocaleTimeString(),
       description: this.state.description,
       tags: this.state.tags,
       imageUrl: imageUrl
@@ -326,7 +326,9 @@ class CreateEvent extends Component {
                 margin={"normal"}
                 minDate={new Date()}
                 value={this.state.from}
-                onChange={e => this.setState({from : e})}
+                onChange={e => {
+                  this.setState({from : e})
+              }}
             />
             <DateTimePicker
                 label="To *"
