@@ -20,26 +20,6 @@ class Landing extends Component {
           <Typography className={classes.tagline}>
             Discover all the events at Cornell
           </Typography>
-          {/* <div className={classes.buttonContainer}>
-            <a href={"/"} className={classes.button}>
-              <img
-                // src={
-                //   "https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"
-                // }
-                src={"/static/apple-store.svg"}
-                alt="Download on the App Store"
-              />
-            </a>
-            <a href={"/"} className={classes.button}>
-              <img
-                // src={
-                //   "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                // }
-                src={"/static/google-play-badge.png"}
-                alt="Download on the Google Play Store"
-              />
-            </a>
-          </div> */}
         </div>
         <img src={"/static/device.png"} className={classes.image} alt="Phone" />
       </div>
