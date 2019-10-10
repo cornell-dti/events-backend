@@ -53,6 +53,8 @@ urlpatterns = [
         name='All Location Details'),
     url(r'^tag/(?P<tag_id>[0-9]+)/$',
         views.SingleTagDetail.as_view(), name='Single Tag Details'),
+    url(r'^tag/all/$',
+        views.GetAllTags.as_view(), name='All Tag Details'),
 
     url(r'^media/(?P<img_id>[0-9]+)/$',
         views.ImageDetail.as_view(), name='Media Detail'),

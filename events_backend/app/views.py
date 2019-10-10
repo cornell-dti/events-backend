@@ -339,7 +339,7 @@ class DeleteEvents(APIView):
 # edit tags doesnt workd
 class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request, page, format=None):
         org = request.user.org
@@ -353,7 +353,7 @@ class GetEvents(APIView):
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
