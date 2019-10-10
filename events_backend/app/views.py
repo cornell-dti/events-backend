@@ -358,7 +358,7 @@ class GetAllTags(APIView):
     def get(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse({"tags":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 
 # =============================================================
