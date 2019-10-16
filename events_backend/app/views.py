@@ -337,20 +337,6 @@ class DeleteEvents(APIView):
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# edit tags doesnt workd
-class GetEvents(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def get(self, request, page, format=None):
-        org = request.user.org
-        event_count = Event.objects.count()
-        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
-        serializer = EventSerializer(event_set, many=True)
-        last_page= ceil(event_count / EVENTS_PER_PAGE)
-        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
-
-
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication,)
