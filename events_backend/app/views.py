@@ -142,8 +142,8 @@ class UserProfile(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
-        org_id = request.user.id
-        org_set = get_object_or_404(Org, pk=org_id)
+        org_owner_id = request.user.id
+        org_set = get_object_or_404(Org, owner=org_owner_id)
         serializer = OrgSerializer(
             org_set, many=False, context={"email": request.user.username}
         )
@@ -151,8 +151,8 @@ class UserProfile(APIView):
 
     def post(self, request, format=None):
         orgData = request.data
-        org_id = request.user.id
-        org_set = get_object_or_404(Org, pk=org_id)
+        org_owner_id = request.user.id
+        org_set = get_object_or_404(Org, owner=org_owner_id)
 
         org_set.name = orgData["name"]
         org_set.website = orgData["website"]
