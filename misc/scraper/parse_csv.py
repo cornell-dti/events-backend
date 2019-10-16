@@ -1,11 +1,5 @@
-import csv
-import os
-import re
-from datetime import datetime, timedelta
-from dateutil.parser import parse
-
 DEFAULT_PASSWORD = 'pbkdf2_sha256$120000$qFamKdatf0if$+aI5iQne/Z+zGJU9EfWcoaaBRUCie/8Rltkz7XRH3fQ='
-EVENTS_FILE_NAME = 'fb_events (4).csv'
+EVENTS_FILE_NAME = './misc/scraper/fb_events (4).csv'
 
 ### COLUMNS, in order ###
 """
@@ -127,3 +121,5 @@ if __name__ == '__main__':
                 success_data_count += 1
         print(
             f'Processed {data_count} lines of data. {success_data_count} success. {fail_data_count} failure.')
+
+        org_set = get_object_or_404(Org, pk=org_id)
