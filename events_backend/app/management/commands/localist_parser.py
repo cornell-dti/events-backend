@@ -2,7 +2,7 @@ import csv
 import os
 import re
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import sleep
 
 import requests
@@ -14,9 +14,9 @@ from django.core.management.base import BaseCommand, CommandError
 class Command(BaseCommand):
     help = 'Parses events from csv and add them to the database'
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            'path', help='Indicates the path of csv to be parsed')
+    # def add_arguments(self, parser):
+    #     parser.add_argument(
+    #         'path', help='Indicates the path of csv to be parsed')
 
     """
     Right now doesn't take any args
@@ -117,14 +117,14 @@ class Command(BaseCommand):
                             fail_data_count += 1
                             continue
 
-                        # if location == "" or location is None:
-                        #     print("Missing location")
-                        #     data_count += 1
-                        #     fail_data_count += 1
-                        #     continue
+                        if (location == "" or location is None) and (location == "" or location is None):
+                            print("Missing location and room")
+                            data_count += 1
+                            fail_data_count += 1
+                            continue
 
-                        if start == "" or start is None:
-                            print("Missing start datetime")
+                        if start == "" or start is None or end == "" or end is None:
+                            print("Missing datetime")
                             data_count += 1
                             fail_data_count += 1
                             continue
@@ -174,8 +174,8 @@ class Command(BaseCommand):
                         #     continue
 
                         iso_pattern = "%Y-%m-%dT%H:%M:%S%z"
-                        start_obj = datetime.datetime.strptime(start, iso_pattern)
-                        end_obj = datetime.datetime.strptime(end, iso_pattern)
+                        start_obj = datetime.strptime(start, iso_pattern)
+                        end_obj = datetime.strptime(end, iso_pattern)
 
                         latlng = {latitude, longitude}
 
@@ -208,9 +208,9 @@ class Command(BaseCommand):
                             name=org_name, bio="This is an organization manually created by DTI.",
                             email=contact_email)
                         location_set = Location.objects.create(
-                            building=location if location != "" else room, room=room,
+                            building=location,
+                            room=room,
                             place_id="-1")
-
                         event = Event(
                             name=event_name, description=description, start_date=start_date,
                             end_date=end_date, start_time=start_time, end_time=end_time, location=location_set,
@@ -220,9 +220,9 @@ class Command(BaseCommand):
                         print("KeyError " + str(e))
                         data_count += 1
                         fail_data_count += 1
-                    except:
-                        e = sys.exc_info()[1]
-                        print("random error lol " + str(e))
-                        data_count += 1
-                        fail_data_count += 1
+                    # except:
+                    #     e = sys.exc_info()[1]
+                    #     print("random error lol " + str(e))
+                    #     data_count += 1
+                    #     fail_data_count += 1
         print(f'Processed {data_count} lines of data. {success_data_count} success. {fail_data_count} failure.')
