@@ -15,24 +15,6 @@ class Landing extends Component {
           <Typography className={classes.tagline}>
             Discover all the events at Cornell
           </Typography>
-          <div className={classes.buttonContainer}>
-            <a href={"/"} className={classes.button}>
-              <img
-                src={
-                  "https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"
-                }
-                alt="Download on the App Store"
-              />
-            </a>
-            <a href={"/"} className={classes.button}>
-              <img
-                src={
-                  "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                }
-                alt="Download on the Google Play Store"
-              />
-            </a>
-          </div>
         </div>
         <img src={"/static/device.png"} className={classes.image} alt="Phone" />
       </div>
@@ -47,27 +29,28 @@ const styles = theme => ({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "stretch",
-    marginRight: theme.spacing.unit * 24,
-    marginLeft: theme.spacing.unit * 16
+    marginRight: theme.spacing(24),
+    marginLeft: theme.spacing(16)
   },
   textContainer: {
     flexGrow: 1,
     flexDirection: "column",
-    marginRight: theme.spacing.unit * 8
+    marginRight: theme.spacing(8)
   },
   buttonContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   },
   button: {
-    width: "12vw",
-    marginRight: theme.spacing.unit * 2
+    width: "13vw",
+    height: "auto",
+    marginRight: theme.spacing(2)
   },
   image: {
-    marginleft: theme.spacing.unit * 16,
-    marginTop: theme.spacing.unit * 6,
+    marginleft: theme.spacing(16),
+    marginTop: theme.spacing(6),
     height: "70vh"
   },
   tagline: {
