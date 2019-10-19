@@ -30,9 +30,14 @@ class MyEvents extends Component {
   }
 
   retrievePageEvents() {
+    // Change Hardcoded Values D;
+    const startDate = "2000-1-1";
+    const endDate = "3000-1-1";
+    const page = 1; //parseInt(this.props.match.params.id)
     axios
-      .get(`/api/get_events/${parseInt(this.props.match.params.id) || 1}/`)
+      .get(`/feed/events/?start=${startDate}&end=${endDate}&page=${page}`)
       .then(response => {
+        // Response will tell you the page that was returned
         this.setState({
           events: response.data.events,
           lastPage: response.data.last_page
