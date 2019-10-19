@@ -47,6 +47,7 @@ class Command(BaseCommand):
                     room = event['room_number']
                     latitude = event['geo']['latitude']
                     longitude = event['geo']['longitude']
+                    tags = event['tags']
 
                     # street = event['geo']['street']
                     # city = event['geo']['city']
@@ -191,6 +192,7 @@ class Command(BaseCommand):
                     # contact_name = contact_name
                     contact_email = contact_email
                     # contact_phone = contact_phone
+                    tags = tags
 
                     data_count += 1
                     success_data_count += 1
