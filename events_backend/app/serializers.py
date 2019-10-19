@@ -84,7 +84,11 @@ class TagSerializer(serializers.ModelSerializer):
 class UpdatedEventsSerializer(serializers.Serializer):
     events = serializers.JSONField()  # pass in serialized events
     timestamp = serializers.DateTimeField()
+    page = serializers.IntegerField()
     pages = serializers.IntegerField()
+    pageSize = serializers.IntegerField()
+    totalEventCount = serializers.IntegerField()
+
 
 class UpdatedOrgSerializer(serializers.Serializer):
     orgs = serializers.JSONField()  # pass in serialized events
