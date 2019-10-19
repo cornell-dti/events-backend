@@ -547,7 +547,6 @@ class EventFeed(APIView):
 
 
 def outdatedEvents(start_time, end_time):
-
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
