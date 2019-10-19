@@ -86,8 +86,12 @@ class UpdatedEventsSerializer(serializers.Serializer):
     timestamp = serializers.DateTimeField()
     page = serializers.IntegerField()
     pages = serializers.IntegerField()
+<<<<<<< HEAD
     pageSize = serializers.IntegerField()
     totalEventCount = serializers.IntegerField()
+=======
+    page = serializers.IntegerField()
+>>>>>>> Fix spelling error
 
 class UpdatedOrgSerializer(serializers.Serializer):
     orgs = serializers.JSONField()  # pass in serialized events
