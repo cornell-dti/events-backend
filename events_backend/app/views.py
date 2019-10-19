@@ -642,9 +642,7 @@ def tagDetail(tag_id=0, all=False):
         serializer = TagSerializer(tags, many=True)
     else:
         serializer = TagSerializer(tags.filter(pk=tag_id), many=False)
-
     return serializer
-
 
 class ImageDetail(APIView):
     # TODO: alter classes to token and admin?
