@@ -39,7 +39,7 @@ class MyEvents extends Component {
     axios
       .get(`/feed/events/?start=${startDate}&end=${endDate}&page=${page}`)
       .then(response => {
-        console.log(response);
+        // Response will tell you the page that was returned
         this.setState({
           events: response.data.events,
           lastPage: response.data.pages
