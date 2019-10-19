@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import re
 import os
 import csv
-from app.models import Org, Event, Location
+from app.models import Org, Event, Location, Media, Event_Media, Event_Org
 from time import sleep
 
 
@@ -107,52 +107,68 @@ class Command(BaseCommand):
                         "\d+[\:\d{2}]*\s[A|P]M", time)
 
                     try:
-                        if ((parse(start_datetime) - parse(date + " " + start_time)).total_seconds() != 0):
-                            start_datetime = date + " " + start_time
-                    except:
-                        start_datetime = date + " " + start_time
+                        try:
+                            if ((parse(start_datetime) - parse(date + " " + start_time)).total_seconds() != 0):
+                                start_datetime = parse(date + " " + start_time)
+                            else:
+                                start_datetime = parse(start_datetime)
+                        except:
+                            try:
+                                start_datetime = parse(date + " " + start_time)
+                            except:
+                                start_datetime = parse(start_datetime)
 
-                    if end_datetime == end_time:
-                        end_datetime = date + " " + end_time
-                    else:
-                        end_datetime = end_datetime
+                        if end_datetime == end_time:
+                            end_datetime = parse(date + " " + end_time)
+                        else:
+                            end_datetime = parse(end_datetime)
 
-                    try:
-                        if (parse(end_datetime) - parse(start_datetime)).total_seconds() < 0:
-                            end_datetime = end_date
+                        while (end_datetime - start_datetime).total_seconds() < 0:
+                            end_datetime = end_datetime + timedelta(days=1)
                     except:
+                        data_count += 1
+                        fail_data_count += 1
                         continue
 
                     event_name = event_name
                     location = location
                     location_specific = location_specific
                     start_date = datetime.strftime(
-                        parse(start_datetime), "%Y-%m-%d")
+                        start_datetime, "%Y-%m-%d")
                     start_time = datetime.strftime(
-                        parse(start_datetime), "%H:%M:%S")
+                        start_datetime, "%H:%M:%S")
                     end_date = datetime.strftime(
-                        parse(end_datetime), "%Y-%m-%d")
+                        end_datetime, "%Y-%m-%d")
                     end_time = datetime.strftime(
-                        parse(end_datetime), "%H:%M:%S")
+                        end_datetime, "%H:%M:%S")
                     description = description
 
                     host = re.search(
-                        "(?![Hosted by]).*", host).group()
-                    attendance = attendance
+                        "(?<=Hosted by ).*", host).group()
+                    attendance = re.search(
+                        ".*(?= Going)", attendance
+                    ).group()
                     img_src = img_src
 
                     data_count += 1
                     success_data_count += 1
 
-                    org_set = Org.objects.create(
+                    org_set = Org.objects.get_or_create(
                         name=host, bio="This is an organization manually created by DTI.", email="dti-dummy@cornell.edu")
-                    location_set = Location.objects.create(
+                    location_set = Location.objects.get_or_create(
                         building=location if location != "" else location_specific, room=location_specific, place_id="-1")
 
-                    event = Event(
+                    event = Event.objects.get_or_create(
                         name=event_name, description=description, start_date=start_date,
-                        end_date=end_date, start_time=start_time, end_time=end_time, location=location_set, organizer=org_set)
-                    event.save()
+                        end_date=end_date, start_time=start_time, end_time=end_time,
+                        num_attendees=attendance, location=location_set[0], organizer=org_set[0])
 
+                    media = Media.objects.get_or_create(
+                        link=img_src, uploaded_by=org_set[0])
+
+                    Event_Media.objects.get_or_create(
+                        event=event[0], media=media[0])
+                    Event_Org.objects.get_or_create(
+                        event=event[0], org=org_set[0])
             print(
                 f'Processed {data_count} lines of data. {success_data_count} success. {fail_data_count} failure.')
