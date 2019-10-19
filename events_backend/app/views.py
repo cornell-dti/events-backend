@@ -522,21 +522,19 @@ class EventFeed(APIView):
     # get event feed, parse timestamp and return events
     # events are reported as blocks of 15
     def get(self, request, format=None):
-        in_timestamp = request.GET.get("timestamp")
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
         page = int(request.GET.get("page"))
 
-        old_timestamp = dateutil.parser.parse(in_timestamp)
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
-        outdated_events, all_deleted = outdatedEvents(
-            old_timestamp, start_time, end_time
-        )
-        # pagination. Report back the chunk of events represented by page="page"
-        json_events = EventSerializer(outdated_events, many=True).data
+        filtered_events, all_deleted = outdatedEvents(start_time, end_time)
+        # pagination; Report back the chunk of events represented by page=_
+        json_events = EventSerializer(filtered_events, many=True).data
         total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
-        page = min(total_pages, page)
+
+        # "page" is constrained to 1 and the last page (total_pages)
+        page = max(min(total_pages, page), 1)
 
         this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE: page * EVENTS_PER_PAGE]
 
@@ -548,11 +546,8 @@ class EventFeed(APIView):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
-def outdatedEvents(in_timestamp, start_time, end_time):
-    # history_set = Event.history.filter(history_date__gte = in_timestamp)
-    # unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    # pks = unique_set.values_list('id', flat=True).order_by('id')
-    # #TODO: What if not in list
+def outdatedEvents(start_time, end_time):
+
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
