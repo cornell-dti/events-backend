@@ -541,7 +541,8 @@ class EventFeed(APIView):
         serializer = UpdatedEventsSerializer({
             "events": this_page_events,
             "timestamp": timezone.now(),
-            "pages": total_pages
+            "pages": total_pages,
+            "page": page
         })
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
