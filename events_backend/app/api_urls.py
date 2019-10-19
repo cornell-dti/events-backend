@@ -28,7 +28,6 @@ urlpatterns = [
         views.DeleteEvents.as_view(),
         name="Delete-Event",
     ),
-    url(r"^get_events/(?P<page>[0-9]+)/$", views.GetEvents.as_view(), name="Get-Events"),
     url(r"^sign_s3/$", views.GetSignedRequest.as_view(), name="Get-Signed-Request"),
     url(r"^get_all_tags/$", views.GetAllTags.as_view(), name="Get-Tags"),
 ]

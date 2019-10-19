@@ -26,6 +26,7 @@ from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
+import math
 
 from .models import (
     Org,
@@ -336,20 +337,6 @@ class DeleteEvents(APIView):
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# edit tags doesnt workd
-class GetEvents(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def get(self, request, page, format=None):
-        org = request.user.org
-        event_count = Event.objects.count()
-        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
-        serializer = EventSerializer(event_set, many=True)
-        last_page= ceil(event_count / EVENTS_PER_PAGE)
-        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
-
-
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication,)
@@ -533,28 +520,33 @@ class EventFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     # get event feed, parse timestamp and return events
+    # events are reported as blocks of 15
     def get(self, request, format=None):
-        in_timestamp = request.GET.get("timestamp")
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
-        old_timestamp = dateutil.parser.parse(in_timestamp)
+        page = int(request.GET.get("page"))
+
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
-        outdated_events, all_deleted = outdatedEvents(
-            old_timestamp, start_time, end_time
-        )
-        json_events = EventSerializer(outdated_events, many=True).data
-        serializer = UpdatedEventsSerializer(
-            {"events": json_events, "timestamp": timezone.now()}
-        )
+        filtered_events, all_deleted = outdatedEvents(start_time, end_time)
+        # pagination; Report back the chunk of events represented by page=_
+        json_events = EventSerializer(filtered_events, many=True).data
+        total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
+
+        # "page" is constrained to 1 and the last page (total_pages)
+        page = max(min(total_pages, page), 1)
+
+        this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE: page * EVENTS_PER_PAGE]
+
+        serializer = UpdatedEventsSerializer({
+            "events": this_page_events,
+            "timestamp": timezone.now(),
+            "pages": total_pages
+        })
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
-def outdatedEvents(in_timestamp, start_time, end_time):
-    # history_set = Event.history.filter(history_date__gte = in_timestamp)
-    # unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    # pks = unique_set.values_list('id', flat=True).order_by('id')
-    # #TODO: What if not in list
+def outdatedEvents(start_time, end_time):
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
