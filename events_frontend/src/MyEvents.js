@@ -31,11 +31,12 @@ class MyEvents extends Component {
 
   retrievePageEvents() {
     axios
-      .get(`/api/get_events/${parseInt(this.props.match.params.id) || 1}/`)
+      .post(`/api/get_events/`)
       .then(response => {
+        console.log(response);
         this.setState({
           events: response.data.events,
-          lastPage: response.data.last_page
+          lastPage: response.data.pages
         });
       })
       .catch(error => {
@@ -178,9 +179,9 @@ class MyEvents extends Component {
               let imageUrl =
                 event.media.length > 0
                   ? event.media.sort(
-                      (a, b) =>
-                        Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
-                    )[0].link
+                    (a, b) =>
+                      Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
+                  )[0].link
                   : "";
               return (
                 <div key={`${event.pk}`}>
