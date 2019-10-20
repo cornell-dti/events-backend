@@ -336,6 +336,15 @@ class DeleteEvents(APIView):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = ()
+
+    def post(self, request, format=None):
+        org = request.user.org
+        event_set = Event.objects.filter(organizer=org)
+        serializer = EventSerializer(event_set, many=True)
+        return JsonResponse({"events":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?

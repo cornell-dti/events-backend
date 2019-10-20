@@ -9,6 +9,8 @@ from . import views
 urlpatterns = [
     # login/signup
     url(r"^signup/$", ensure_csrf_cookie(views.SignUp.as_view()), name="Sign-Up"),
+    url(r"^get_events/$",
+        views.GetEvents.as_view(), name="Get-Events"),
     url(r"^login/$", ensure_csrf_cookie(views.Login.as_view()), name="Login"),
     url(r"^loggedin/$", views.check_login_status, name="Check-Login"),
     # profile
