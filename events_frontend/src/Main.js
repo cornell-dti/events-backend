@@ -92,7 +92,7 @@ class Main extends Component {
           <a href={"/"} className={classes.appButton}>
             <img
               src={
-                "https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"
+                "../../assets/download-on-itunes.svg"
               }
               alt="Download on the App Store"
             />
@@ -100,7 +100,7 @@ class Main extends Component {
           <a href={"/"} className={classes.appButton}>
             <img
               src={
-                "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                "../../assets/google-play-store-badge.svg"
               }
               alt="Download on the Google Play Store"
             />
