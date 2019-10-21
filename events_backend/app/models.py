@@ -119,23 +119,6 @@ class Verified_Emails(models.Model):
     email = models.EmailField(unique=True)
 
 
-# class Org(models.Model):
-#     name = models.CharField(max_length=MAX_NAME_LENGTH)
-#     description = models.CharField(max_length=MAX_DESC_LENGTH)
-#     website = models.CharField(max_length=MAX_WEBSITE_LENGTH)
-#     photo = models.ForeignKey(
-#         'Media', on_delete=models.CASCADE, blank=True, null=True)
-#     contact = models.CharField(max_length=MAX_CONTACT_LENGTH)
-
-#     verified = models.BooleanField(default=False)
-#     history = HistoricalRecords()
-#     owner = models.ForeignKey(
-#         'auth.User', related_name='org', on_delete=models.CASCADE)  # user
-
-#     def __str__(self):
-#         return self.name
-
-
 class Event(models.Model):
     class Meta:
         app_label = 'app'
@@ -242,22 +225,6 @@ class Media(models.Model):
 
     def __str__(self):
         return self.link
-# class Org_Media(models.Model):
-#
-#    class Meta:
-#        app_label = 'app'
-#
-#    #org_id = models.ForeignKey('Org', on_delete=models.CASCADE, related_name = "org_media")
-#    media_id = models.ForeignKey('Media',on_delete=models.CASCADE)
-
-# class Profile(models.Model):
-#    org_name = models.CharField(max_length=30, blank=True)
-#    name = models.CharField(max_length=30, blank=True)
-#    netid = models.CharField(max_length=30, blank=True)
-#    facebook = models.CharField(max_length=30, blank=True)
-#    website = models.CharField(max_length=30, blank=True)
-#    contact_us = models.BooleanField(default = False)
-#    verified = models.BooleanField(default = False)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

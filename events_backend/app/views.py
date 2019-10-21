@@ -417,20 +417,6 @@ class UnincrementAttendance(APIView):
         event.save()
         return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
-    # def post(self, request, format=None):
-    #     event = Event.objects.filter(pk=request.data["event"])[0]
-    #     user = Token.objects.filter(
-    #         pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-    #     )[0].user
-    #     attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
-
-    #     if not attendingSet.exists():
-    #         attendance = Attendance(user_id=user, event_id=event)
-    #         attendance.save()
-    #         event.num_attendees += 1
-    #         event.save()
-
-    #     return HttpResponse(status=status.HTTP_200_OK)
     #     # TODO: if exists then response
 
 
@@ -502,7 +488,6 @@ class OrgFeed(APIView):
     def get(self, request, in_timestamp, format=None):
         old_timestamp = dateutil.parser.parse(in_timestamp)
         outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
-        # json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
 
         json_orgs = OrgSerializer(outdated_orgs, many=True).data
         serializer = UpdatedOrgSerializer(
@@ -512,13 +497,8 @@ class OrgFeed(APIView):
 
 
 def outdatedOrgs(in_timestamp):
-    # org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    # org_updates = org_updates.distinct('id').order_by('id')
-
-    # org_list = org_updates.values_list('id', flat = True).order_by('id')
     # TODO: What if not in list
     changed_orgs = Org.objects  # .filter(pk__in=org_list)
-    # present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
     all_deleted_pks = list()  # set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
@@ -586,7 +566,6 @@ def outdatedEvents(start_time, end_time):
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
-    # present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
     all_deleted_pks = list()  # set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
 
