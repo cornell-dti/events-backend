@@ -9,8 +9,6 @@ from django.conf import settings
 
 
 class OrgSerializer(serializers.ModelSerializer):
-    # email = serializers.SerializerMethodField()
-
     class Meta:
         model = Org
         fields = ("pk", "name", "email", "bio", "photo", "website", "tags")
