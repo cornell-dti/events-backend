@@ -12,8 +12,8 @@ import ReactGA from "react-ga";
 const store = createStore(reducers, {});
 
 export default class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     const trackingId = "UA-146557345-1";
     ReactGA.initialize(trackingId);
     ReactGA.pageview(window.location.pathname + window.location.search);

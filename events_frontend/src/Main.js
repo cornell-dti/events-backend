@@ -82,6 +82,7 @@ class Main extends Component {
           target="_blank"
           style={{ textDecoration: "none" }}
           href={"https://forms.gle/UUCa8mzi6b9fnfxq9"}
+          rel="noopener noreferrer"
         >
           <Typography variant="h6" color="primary">
             {" "}
