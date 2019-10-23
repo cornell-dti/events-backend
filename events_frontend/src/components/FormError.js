@@ -5,7 +5,7 @@ import { withStyles } from "@material-ui/core";
 class FormError extends Component {
   state = { errors: [] };
 
-  componentWillReceiveProps(nextProps) {
+  componentDidReceiveProps(nextProps) {
     this.setState({ errors: nextProps.errors });
   }
 
