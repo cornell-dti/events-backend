@@ -675,6 +675,15 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
+class UploadImage(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self, request):
+        return JsonResponse({
+            "potato": "123"
+        }, status=status.HTTP_200_OK)
+
+
 # =============================================================
 #                        FORMS
 # =============================================================
