@@ -15,7 +15,7 @@ class FormError extends Component {
     return (
       <Typography
         className={classes.error}
-        variant={"title"}
+        variant={"h6"}
         color={"secondary"}
         align={"center"}
       >
@@ -29,7 +29,7 @@ FormError.defaultProps = { errors: [] };
 
 const styles = theme => ({
   error: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   }
 });
 

@@ -85,7 +85,7 @@ class UpdatedEventsSerializer(serializers.Serializer):
     events = serializers.JSONField()  # pass in serialized events
     timestamp = serializers.DateTimeField()
     pages = serializers.IntegerField()
-    page = seriializeres.IntegerField()
+    page = serializers.IntegerField()
 
 class UpdatedOrgSerializer(serializers.Serializer):
     orgs = serializers.JSONField()  # pass in serialized events
