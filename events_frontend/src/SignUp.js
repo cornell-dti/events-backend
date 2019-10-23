@@ -4,7 +4,7 @@ import { withStyles } from "@material-ui/core";
 import Onboarding from "./components/Onboarding";
 import FormError from "./components/FormError";
 import axios from "axios";
-import ReactGA from "react-GA";
+import ReactGA from "react-ga";
 
 class SignUp extends Component {
   constructor(props) {
