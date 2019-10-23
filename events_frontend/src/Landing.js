@@ -2,9 +2,14 @@ import React, { Component } from "react";
 import { withStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography/Typography";
 import Logo from "./components/Logo";
+import ReactGA from "react-ga";
 // import ScaleIn from 'material-ui/internal/ScaleIn';
 
 class Landing extends Component {
+  constructor(props) {
+    super(props);
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }
   //TODO update download links
   render() {
     const { classes } = this.props;
