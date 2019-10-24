@@ -8,6 +8,7 @@ import GridList from "@material-ui/core/GridList/GridList";
 import axios from "axios";
 import PageNavigator from "./components/PageNavigator";
 import routes from "./routes";
+import ReactGA from "react-ga";
 
 class MyEvents extends Component {
   state = {
@@ -20,6 +21,7 @@ class MyEvents extends Component {
   };
 
   componentDidMount() {
+    ReactGA.pageview(window.location.pathname + window.location.search);
     this.retrievePageEvents();
   }
 
@@ -40,7 +42,7 @@ class MyEvents extends Component {
         // Response will tell you the page that was returned
         this.setState({
           events: response.data.events,
-          lastPage: response.data.last_page
+          lastPage: response.data.pages
         });
       })
       .catch(error => {
@@ -183,9 +185,9 @@ class MyEvents extends Component {
               let imageUrl =
                 event.media.length > 0
                   ? event.media.sort(
-                      (a, b) =>
-                        Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
-                    )[0].link
+                    (a, b) =>
+                      Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
+                  )[0].link
                   : "";
               return (
                 <div key={`${event.pk}`}>

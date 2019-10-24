@@ -9,12 +9,14 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core";
 import ReactGA from "react-ga";
 
 const store = createStore(reducers, {});
+const trackingId = "UA-146557345-1";
 
 export default class App extends Component {
-  constructor() {
-    super();
-    const trackingId = "UA-146557345-1";
-    ReactGA.initialize(trackingId);
+  constructor(props) {
+    super(props);
+    ReactGA.initialize(trackingId, {
+      gaOptions: {cookieDomain: 'none'}
+    });
     ReactGA.pageview(window.location.pathname + window.location.search);
   }
 

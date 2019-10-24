@@ -10,7 +10,7 @@ import LinkColorless from "./components/LinkColorless";
 import routes from "./routes";
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import ReactGA from 'react-ga'
 axios.defaults.headers.post["X-CSRFToken"] = Cookies.get("csrftoken"); //get CSRF-token for POST requests
 
 class Profile extends Component {
@@ -29,6 +29,7 @@ class Profile extends Component {
   };
 
   componentDidMount() {
+    ReactGA.pageview(window.location.pathname + window.location.search);
     axios
       .get("/api/profile/")
       .then(response => {

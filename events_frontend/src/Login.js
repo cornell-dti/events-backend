@@ -8,8 +8,14 @@ import FormError from "./components/FormError";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
 import axios from "axios";
+import ReactGA from "react-ga"
 
 class Login extends Component {
+  constructor(props) {
+    super(props);
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }
+
   state = {
     name: "",
     email: "",

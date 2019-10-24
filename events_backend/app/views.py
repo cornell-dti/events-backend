@@ -336,6 +336,15 @@ class DeleteEvents(APIView):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = ()
+
+    def post(self, request, format=None):
+        org = request.user.org
+        event_set = Event.objects.filter(organizer=org)
+        serializer = EventSerializer(event_set, many=True)
+        return JsonResponse({"events":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
@@ -524,25 +533,51 @@ class EventFeed(APIView):
     def get(self, request, format=None):
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
-        page = int(request.GET.get("page"))
+
+        pageSize = -1
+        pageSizeFound = False
+        try:
+            pageSize = int(request.GET.get("pageSize"))
+            pageSizeFound = True
+        except:
+            pageSize = EVENTS_PER_PAGE
+
+        try:
+            page = int(request.GET.get("page"))
+        except:
+            if(pageSizeFound):
+                page = 1
+            else:
+                allSerializer = EventSerializer(Event.objects.all(), many=True)
+                serializer = UpdatedEventsSerializer({
+                    "events": allSerializer.data,
+                    "timestamp": timezone.now(),
+                    "page": 1,
+                    "pages": 1,
+                    "pageSize": Event.objects.count(),
+                    "totalEventCount": Event.objects.count()
+                })
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
         filtered_events, all_deleted = outdatedEvents(start_time, end_time)
         # pagination; Report back the chunk of events represented by page=_
         json_events = EventSerializer(filtered_events, many=True).data
-        total_pages = int(round(len(json_events) / EVENTS_PER_PAGE))
+        total_pages = int(math.ceil((len(json_events) / pageSize)))
 
         # "page" is constrained to 1 and the last page (total_pages)
         page = max(min(total_pages, page), 1)
 
-        this_page_events = json_events[(page - 1) * EVENTS_PER_PAGE: page * EVENTS_PER_PAGE]
+        this_page_events = json_events[(page - 1) * pageSize: page * pageSize]
 
         serializer = UpdatedEventsSerializer({
             "events": this_page_events,
             "timestamp": timezone.now(),
+            "page": page,
             "pages": total_pages,
-            "page": page
+            "pageSize": pageSize,
+            "totalEventCount": Event.objects.count()
         })
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
@@ -607,9 +642,7 @@ def tagDetail(tag_id=0, all=False):
         serializer = TagSerializer(tags, many=True)
     else:
         serializer = TagSerializer(tags.filter(pk=tag_id), many=False)
-
     return serializer
-
 
 class ImageDetail(APIView):
     # TODO: alter classes to token and admin?
