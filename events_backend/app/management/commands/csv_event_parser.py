@@ -10,6 +10,10 @@ from app.models import Org, Event, Location, Media, Event_Media, Event_Org, Tag,
 from time import sleep
 
 
+def titlecase(s):
+    return re.sub(r"[A-Za-z]+('[A-Za-z]+)?", lambda mo: mo.group(0).capitalize(), s)
+
+
 class Command(BaseCommand):
     help = 'Parses events from csv and add them to the database'
 
@@ -166,12 +170,12 @@ class Command(BaseCommand):
                         if t == "":
                             continue
                         try:
-                            tag = Tag.objects.get(name=t)
+                            tag = Tag.objects.get(name=titlecase(t))
                             Event_Tags.objects.get_or_create(
                                 event=event[0], tags=tag)
                         except ObjectDoesNotExist:
                             print(
-                                "Tag {} does not exist in database. Unable to associate event with specified tag.".format(t))
+                                "Tag {} does not exist in database. Unable to associate event with specified tag.".format(titlecase(t)))
 
                     data_count += 1
                     success_data_count += 1
