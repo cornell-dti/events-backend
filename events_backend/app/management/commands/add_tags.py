@@ -28,12 +28,12 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Max pp is 100
         tags = [
-            # 'Free-Food',
-            # 'Career',
-            # 'Social',
-            # 'Athletic',
-            # 'Other',
-            # 'Outdoors',
+            'Free-Food',
+            'Career',
+            'Social',
+            'Athletic',
+            'Other',
+            'Outdoors',
             'Academic',
             'Professional',
             'Entrepreneurship',
@@ -42,7 +42,7 @@ class Command(BaseCommand):
             'ILR',
             'Hum-Ec',
             'Aap',
-            'Cals',
+            'CALS',
             'A&S',
             'Design',
             'Business',

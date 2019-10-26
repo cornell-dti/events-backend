@@ -1,15 +1,14 @@
-import csv
 import json
-import os
 import re
-import sys
 from datetime import datetime
-from time import sleep
 
-import requests
-from app.models import Org, Event, Location
-from dateutil.parser import parse
-from django.core.management.base import BaseCommand, CommandError
+from app.models import Org, Event, Location, Media, Event_Media, Event_Org, Tag, Event_Tags
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand
+
+
+def titlecase(s):
+    return re.sub(r"[A-Za-z]+('[A-Za-z]+)?", lambda mo: mo.group(0).capitalize(), s)
 
 
 class Command(BaseCommand):
@@ -198,21 +197,51 @@ class Command(BaseCommand):
                     # contact_phone = contact_phone
                     tags = tags
 
-                    data_count += 1
-                    success_data_count += 1
-
-                    org_set = Org.objects.create(
+                    # other stuff
+                    org_set = Org.objects.get_or_create(
                         name=org_name, bio="This is an organization manually created by DTI.",
                         email=contact_email)
-                    location_set = Location.objects.create(
+                    location_set = Location.objects.get_or_create(
                         building=location,
                         room=room,
                         place_id=place_id)
-                    event = Event(
+
+                    # event = Event.objects.get_or_create(
+                    #     name=event_name, description=description, start_date=start_date,
+                    #     end_date=end_date, start_time=start_time, end_time=end_time,
+                    #     num_attendees=attendance, location=location_set[0], organizer=org_set[0])
+
+                    event = Event.objects.get_or_create(
                         name=event_name, description=description, start_date=start_date,
-                        end_date=end_date, start_time=start_time, end_time=end_time, location=location_set,
-                        organizer=org_set)
-                    event.save()
+                        end_date=end_date, start_time=start_time, end_time=end_time, num_attendees=0,
+                        location=location_set[0], organizer=org_set[0])
+
+                    media = Media.objects.get_or_create(
+                        link=img_src, uploaded_by=org_set[0])
+
+                    Event_Media.objects.get_or_create(
+                        event=event[0], media=media[0])
+                    Event_Org.objects.get_or_create(
+                        event=event[0], org=org_set[0])
+
+                    for t in tags:
+                        if t == "":
+                            print(t)
+                            continue
+                        try:
+                            tag = Tag.objects.get(name=titlecase(t))
+                            print(tag)
+                            Event_Tags.objects.get_or_create(
+                                event=event[0], tags=tag)
+                        except ObjectDoesNotExist:
+                            print(
+                                "Tag {} does not exist in database. Unable to associate event with specified tag.".format(
+                                    titlecase(t)
+                                )
+                            )
+
+                    data_count += 1
+                    success_data_count += 1
                 except KeyError as e:
                     print("KeyError " + str(e))
                     data_count += 1

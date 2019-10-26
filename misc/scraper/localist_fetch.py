@@ -4,8 +4,8 @@ import requests
 
 if __name__ == '__main__':
     MAX_EVENT_PER_PAGE = 100
-    SCRAPER_START_DATE = "2019-10-19"
-    SCRAPER_END_DATE = "2019-10-20"
+    SCRAPER_START_DATE = "2019-10-30"
+    SCRAPER_END_DATE = "2019-10-31"
 
     URL = "https://events.cornell.edu/api/2/events?start={0}&end={1}&pp={2}".format(SCRAPER_START_DATE,
                                                                                     SCRAPER_END_DATE,
