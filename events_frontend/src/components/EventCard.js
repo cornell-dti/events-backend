@@ -15,7 +15,7 @@ class EventCard extends Component {
         <CardActionArea className={classes.actionArea}>
           <CardMedia className={classes.image} image={this.props.imageUrl} />
           <CardContent>
-            <Typography variant="headline" className={classes.title}>
+            <Typography variant="h5" className={classes.title}>
               {this.props.name}
             </Typography>
             <Typography variant={"body1"} className={classes.location}>
@@ -79,7 +79,7 @@ const styles = theme => ({
     flexDirection: "row",
     alignItems: "stretch",
     justifyContent: "space-around",
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   },
   vertLayout: {
     display: "flex",

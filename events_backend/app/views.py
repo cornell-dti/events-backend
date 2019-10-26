@@ -276,10 +276,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-            event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
+            event.start_date = dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
+            event.end_date = dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+            event.start_time = dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
+            event.end_time = dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
             event.description = eventData["description"]
             event.organizer = org
 
@@ -297,10 +297,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
-                end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
-                end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
+                start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
+                end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
+                start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+                end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
                 description=eventData["description"],
                 organizer=org,
             )
@@ -335,16 +335,6 @@ class DeleteEvents(APIView):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
-
-class GetEvents(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def post(self, request, format=None):
-        org = request.user.org
-        event_set = Event.objects.filter(organizer=org)
-        serializer = EventSerializer(event_set, many=True)
-        return JsonResponse({"events":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
@@ -642,9 +632,7 @@ def tagDetail(tag_id=0, all=False):
         serializer = TagSerializer(tags, many=True)
     else:
         serializer = TagSerializer(tags.filter(pk=tag_id), many=False)
-
     return serializer
-
 
 class ImageDetail(APIView):
     # TODO: alter classes to token and admin?
@@ -708,6 +696,15 @@ class ResetToken(APIView):
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")
+
+
+class UploadImage(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        return JsonResponse({
+            "potato": "123"
+        }, status=status.HTTP_200_OK)
 
 
 # =============================================================

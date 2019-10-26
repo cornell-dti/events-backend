@@ -14,7 +14,7 @@ class Onboarding extends Component {
         </Typography>
         {this.props.body !== undefined ? (
           <Typography
-            variant={"title"}
+            variant={"h6"}
             className={classes.spaced}
             align={"center"}
           >
@@ -58,14 +58,14 @@ const styles = theme => ({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-evenly",
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   },
   title: {
     fontWeight: 700,
     extend: "spaced"
   },
   spaced: {
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   }
 });
 export default withStyles(styles)(Onboarding);

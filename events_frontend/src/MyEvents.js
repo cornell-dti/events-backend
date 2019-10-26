@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core";
-import Button from "@material-ui/core/Button/Button";
+import Fab from '@material-ui/core/Fab';
 import Icon from "@material-ui/core/Icon/Icon";
 import CreateEvent from "./components/CreateEvent";
 import EventCard from "./components/EventCard";
@@ -32,10 +32,14 @@ class MyEvents extends Component {
   }
 
   retrievePageEvents() {
+    // Change Hardcoded Values D;
+    const startDate = "2000-1-1";
+    const endDate = "3000-1-1";
+    const page = 1; //parseInt(this.props.match.params.id)
     axios
-      .post(`/api/get_events/`)
+      .get(`/feed/events/?start=${startDate}&end=${endDate}&page=${page}`)
       .then(response => {
-        console.log(response);
+        // Response will tell you the page that was returned
         this.setState({
           events: response.data.events,
           lastPage: response.data.pages
@@ -156,8 +160,8 @@ class MyEvents extends Component {
 
     return (
       <div className={classes.root}>
-        <Button
-          variant={"fab"}
+        <Fab
+          variant={"round"}
           color={"primary"}
           className={classes.fab}
           onClick={() =>
@@ -169,7 +173,7 @@ class MyEvents extends Component {
           }
         >
           <Icon>add</Icon>
-        </Button>
+        </Fab>
         {this.state.events.length > 0 && (
           <GridList
             className={classes.cardsContainer}
@@ -225,7 +229,7 @@ class MyEvents extends Component {
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 4,
+    padding: theme.spacing(4),
     marginBottom: "10vh",
     alignSelf: "stretch"
   },
@@ -234,7 +238,7 @@ const styles = theme => ({
   },
   fab: {
     position: "absolute",
-    right: theme.spacing.unit * 4
+    right: theme.spacing(4)
   }
 });
 

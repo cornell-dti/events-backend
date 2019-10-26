@@ -200,7 +200,7 @@ class Profile extends Component {
         {this.state.profileUpdated ? (
           <Typography
             className={classes.verify}
-            variant={"title"}
+            variant={"h6"}
             color={"primary"}
             align={"center"}
           >
@@ -235,10 +235,11 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     alignSelf: "stretch",
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4),
+    marginBottom: theme.spacing(8)
   },
   button: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   },
   verify: {}
 });
