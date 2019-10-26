@@ -39,23 +39,12 @@ if __name__ == '__main__':
 
                 event_name = event['title']
                 description = event['description_text']
-                # start_date = event['first_date']
-                # end_date = event['last_date']
                 location = event['location_name']
                 room = event['room_number']
                 latitude = event['geo']['latitude']
                 longitude = event['geo']['longitude']
 
-                # street = event['geo']['street']
-                # city = event['geo']['city']
-                # state = event['geo']['state']
-                # country = event['geo']['country']
-                # zipCode = event['geo']['zip']
-                # address = '{}, {}, {}, {}, {}'.format(street, city, state, country, zipCode)
-
                 img_src = event['photo_url']
-                # private = event_data['private']
-                # url = event_data['url']
                 all_day = event['event_instances'][0]['event_instance']['all_day']
 
                 start = event['event_instances'][0]['event_instance']['start']
@@ -66,8 +55,6 @@ if __name__ == '__main__':
                     end = start
 
                 org_name = event['filters']['departments'][0]['name']
-
-                # contact_name = event['custom_fields']['contact_name']
 
                 contact_email = "donotdisplay@cornell.edu"
                 try:
@@ -99,11 +86,6 @@ if __name__ == '__main__':
                     fail_data_count += 1
                     continue
 
-                # if (room == "" or room is None):
-                #     data_count += 1
-                #     fail_data_count += 1
-                #     continue
-
                 if (latitude == "" or latitude is None or longitude == "" or longitude is None) and (
                         location == "" or location is None):
                     print("Missing location AND coordinates")
@@ -111,37 +93,22 @@ if __name__ == '__main__':
                     fail_data_count += 1
                     continue
 
-                # if (address == "" or address is None):
-                #     data_count += 1
-                #     fail_data_count += 1
-                #     continue
-
-                if (img_src == "" or img_src is None):
+                if img_src == "" or img_src is None:
                     print("Missing image link")
                     data_count += 1
                     fail_data_count += 1
                     continue
 
-                if (org_name == "" or org_name is None):
+                if org_name == "" or org_name is None:
                     print("Missing organizer name")
                     data_count += 1
                     fail_data_count += 1
                     continue
 
-                # if (contact_name == "" or contact_name is None):
-                #     data_count += 1
-                #     fail_data_count += 1
-                #     continue
-
                 if (contact_email == "" or contact_email is None):
                     # print("Missing organizer email")
                     contact_email = "donotdisplay@cornell.edu"
                     continue
-
-                # if (contact_phone == "" or contact_phone is None):
-                #     data_count += 1
-                #     fail_data_count += 1
-                #     continue
 
                 if room is None:
                     room = ''

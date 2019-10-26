@@ -5,6 +5,7 @@ import googlemaps
 if __name__ == '__main__':
 
     ignore_present = True
+    remove_invalid = False
 
     data_count = 0
     success_data_count = 0
@@ -51,7 +52,8 @@ if __name__ == '__main__':
                 data_count += 1
                 success_data_count += 1
             except:
-                # data["events"].remove(event_id)
+                if remove_invalid:
+                    data["events"].remove(event_id)
                 data_count += 1
                 fail_data_count += 1
             event['place_id'] = api_result

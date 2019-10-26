@@ -1,23 +1,9 @@
-import csv
-import json
-import os
-import re
-import sys
-from datetime import datetime
-from time import sleep
-
-import requests
 from app.models import Tag
-from dateutil.parser import parse
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Parses events from csv and add them to the database'
-
-    # def add_arguments(self, parser):
-    #     parser.add_argument(
-    #         'path', help='Indicates the path of json to be parsed')
+    help = 'Adds tags to the database'
 
     """
     Right now doesn't take any args
@@ -26,7 +12,6 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **kwargs):
-        # Max pp is 100
         tags = [
             'Free-Food',
             'Career',
