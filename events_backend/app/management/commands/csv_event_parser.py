@@ -59,8 +59,8 @@ class Command(BaseCommand):
                 description = row[11]
                 host = row[12]
                 location_specific = row[13]  # good but not always reliable
-                tags = row[14
-                           ]
+                tags = row[14]
+
                 if not first_row_processed:
                     first_row_processed = True
                     continue
