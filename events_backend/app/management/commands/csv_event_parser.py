@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import ObjectDoesNotExist
 import sys
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 import re
 import os
 import csv
-from app.models import Org, Event, Location, Media, Event_Media, Event_Org
+from app.models import Org, Event, Location, Media, Event_Media, Event_Org, Tag, Event_Tags
 from time import sleep
 
 
@@ -17,7 +18,6 @@ class Command(BaseCommand):
             'path', help='Indicates the path of csv to be parsed')
 
     def handle(self, *args, **kwargs):
-        DEFAULT_PASSWORD = 'pbkdf2_sha256$120000$qFamKdatf0if$+aI5iQne/Z+zGJU9EfWcoaaBRUCie/8Rltkz7XRH3fQ='
         EVENTS_FILE_NAME = kwargs['path']
 
         ### COLUMNS, in order ###
@@ -46,24 +46,17 @@ class Command(BaseCommand):
             success_data_count = 0
             fail_data_count = 0
             for row in csv_reader:
-                # web_scraper_order = row[0]
-                # web_scraper_start_url = row[1]
                 date = row[2]
                 event_name = row[3]
-                # location_and_time = row[4]
-                # url = row[5]
-                # url_href = row[6] not sure how i can this
                 location = row[7]
-                time = row[8]  # retrieve time
+                time = row[8]
                 attendance = row[9]
                 img_src = row[10]
                 description = row[11]
                 host = row[12]
                 location_specific = row[13]  # good but not always reliable
-                # tags = ''
-                # Tags may be empty cells
-                # if len(row) >= 15:
-                # tags = row[13]
+                tags = row[14
+                           ]
                 if not first_row_processed:
                     first_row_processed = True
                     continue
@@ -149,9 +142,7 @@ class Command(BaseCommand):
                         ".*(?= Going)", attendance
                     ).group()
                     img_src = img_src
-
-                    data_count += 1
-                    success_data_count += 1
+                    tags = tags.split(", ")
 
                     org_set = Org.objects.get_or_create(
                         name=host, bio="This is an organization manually created by DTI.", email="dti-dummy@cornell.edu")
@@ -170,5 +161,20 @@ class Command(BaseCommand):
                         event=event[0], media=media[0])
                     Event_Org.objects.get_or_create(
                         event=event[0], org=org_set[0])
+
+                    for t in tags:
+                        if t == "":
+                            continue
+                        try:
+                            tag = Tag.objects.get(name=t)
+                            Event_Tags.objects.get_or_create(
+                                event=event[0], tags=tag)
+                        except ObjectDoesNotExist:
+                            print(
+                                "Tag {} does not exist in database. Unable to associate event with specified tag.".format(t))
+
+                    data_count += 1
+                    success_data_count += 1
+
             print(
                 f'Processed {data_count} lines of data. {success_data_count} success. {fail_data_count} failure.')
