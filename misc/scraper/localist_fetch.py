@@ -7,27 +7,23 @@ if __name__ == '__main__':
     SCRAPER_START_DATE = "2019-10-30"
     SCRAPER_END_DATE = "2019-10-31"
 
-    URL = "https://events.cornell.edu/api/2/events?start={0}&end={1}&pp={2}".format(SCRAPER_START_DATE,
-                                                                                    SCRAPER_END_DATE,
-                                                                                    MAX_EVENT_PER_PAGE)
+    URL = f"https://events.cornell.edu/api/2/events?start={SCRAPER_END_DATE}&end={SCRAPER_START_DATE}&pp={MAX_EVENT_PER_PAGE}"
+
     URL_ADDON = "&page="
 
     data_count = 0
     success_data_count = 0
     fail_data_count = 0
 
-    page = 1
-    maxPage = 0
-
-    FILE_NAME = "events_{0}_{1}.json".format(SCRAPER_START_DATE,
-                                             SCRAPER_END_DATE)
+    FILE_NAME = f"events_{SCRAPER_START_DATE}_{SCRAPER_END_DATE}.json"
 
     with open(FILE_NAME, 'w') as f:
         data = requests.get(URL).json()
-        maxPage = data['page']['total']
+        page = 1
+        max_page = data['page']['total']
         for event in data["events"]:
             event['event']['tags'] = []
-        while page < maxPage:
+        while page < max_page:
             extra = requests.get(URL + URL_ADDON + str(page)).json()
             for event in extra["events"]:
                 event['event']['tags'] = []
@@ -106,7 +102,7 @@ if __name__ == '__main__':
                     continue
 
                 if (contact_email == "" or contact_email is None):
-                    # print("Missing organizer email")
+                    print("Missing organizer email")
                     contact_email = "donotdisplay@cornell.edu"
                     continue
 
