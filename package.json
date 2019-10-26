@@ -95,11 +95,6 @@
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack-merge": "^4.2.2"
   },
-  "babel": {
-    "presets": [
-      "react-app"
-    ]
-  },
   "eslintConfig": {
     "extends": "react-app"
   }

@@ -304,7 +304,7 @@ class AddOrEditEvent(APIView):
                 organizer=org,
             )
             Event_Org.objects.create(event=event, org=org)
-            
+
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
                 event_tag = Event_Tags(event_id=event, tags_id=tag)
@@ -680,6 +680,15 @@ class ResetToken(APIView):
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")
+
+
+class UploadImage(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        return JsonResponse({
+            "potato": "123"
+        }, status=status.HTTP_200_OK)
 
 
 # =============================================================
