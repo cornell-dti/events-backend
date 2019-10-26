@@ -50,7 +50,7 @@ class Command(BaseCommand):
                     try:
                         place_id = event['place_id']
                     except KeyError:
-                        place_id = -1;
+                        place_id = -1
 
                     # street = event['geo']['street']
                     # city = event['geo']['city']
@@ -226,11 +226,9 @@ class Command(BaseCommand):
 
                     for t in tags:
                         if t == "":
-                            print(t)
                             continue
                         try:
                             tag = Tag.objects.get(name=titlecase(t))
-                            print(tag)
                             Event_Tags.objects.get_or_create(
                                 event=event[0], tags=tag)
                         except ObjectDoesNotExist:
