@@ -38,6 +38,7 @@ from .models import (
     Attendance,
     Event_Media,
     Event_Tags,
+    Org_Media,
     Verified_Emails,
 )
 from .serializers import (
@@ -158,6 +159,11 @@ class UserProfile(APIView):
         org_set.website = orgData["website"]
         org_set.bio = orgData["bio"]
 
+        if orgData["imageUrl"] != "":
+            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
+            org_media = Org_Media(org=org_set, media=media)
+            org_media.save()
+
         org_set.save()
 
         serializer = OrgSerializer(
@@ -222,7 +228,7 @@ class ChangePassword(APIView):
 class OrgDetail(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = () #(permissions.IsAuthenticated,)
 
     def get(self, request, org_id, format=None):
         org_set = Org.objects.get(pk=org_id)
@@ -297,7 +303,8 @@ class AddOrEditEvent(APIView):
                 description=eventData["description"],
                 organizer=org,
             )
-
+            Event_Org.objects.create(event=event, org=org)
+            
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
                 event_tag = Event_Tags(event_id=event, tags_id=tag)
@@ -332,7 +339,7 @@ class DeleteEvents(APIView):
 # edit tags doesnt workd
 class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request, page, format=None):
         org = request.user.org
@@ -346,12 +353,12 @@ class GetEvents(APIView):
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse({"tags":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
 
 # =============================================================
@@ -398,21 +405,37 @@ class IncrementAttendance(APIView):
     authentication_classes = ()  # (TokenAuthentication,)
     permission_classes = ()  # (permissions.IsAuthenticated,)
 
-    def post(self, request, format=None):
-        event = Event.objects.filter(pk=request.data["event"])[0]
-        user = Token.objects.filter(
-            pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-        )[0].user
-        attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+    def get(self, request, event_id, format=None):
+        event = Event.objects.get(pk=event_id)
+        event.num_attendees = event.num_attendees + 1
+        event.save()
+        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
-        if not attendingSet.exists():
-            attendance = Attendance(user_id=user, event_id=event)
-            attendance.save()
-            event.num_attendees += 1
-            event.save()
+class UnincrementAttendance(APIView):
+    authentication_classes = ()  # (TokenAuthentication,)
+    permission_classes = ()  # (permissions.IsAuthenticated,)
 
-        return HttpResponse(status=status.HTTP_200_OK)
-        # TODO: if exists then response
+    def get(self, request, event_id, format=None):
+        event = Event.objects.get(pk=event_id)
+        event.num_attendees = event.num_attendees - 1
+        event.save()
+        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
+
+    # def post(self, request, format=None):
+    #     event = Event.objects.filter(pk=request.data["event"])[0]
+    #     user = Token.objects.filter(
+    #         pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
+    #     )[0].user
+    #     attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
+
+    #     if not attendingSet.exists():
+    #         attendance = Attendance(user_id=user, event_id=event)
+    #         attendance.save()
+    #         event.num_attendees += 1
+    #         event.save()
+
+    #     return HttpResponse(status=status.HTTP_200_OK)
+    #     # TODO: if exists then response
 
 
 # =============================================================
@@ -852,5 +875,4 @@ class Authentication(APIView):
         serializer.save(owner=self.request.user)
 
 
-# =============================================
-
+# ============================================

@@ -8,8 +8,14 @@ import FormError from "./components/FormError";
 import Typography from "@material-ui/core/Typography/Typography";
 import Button from "@material-ui/core/Button/Button";
 import axios from "axios";
+import ReactGA from "react-ga"
 
 class Login extends Component {
+  constructor(props) {
+    super(props);
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }
+
   state = {
     name: "",
     email: "",
@@ -52,7 +58,7 @@ class Login extends Component {
     const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <Typography variant={"headline"} className={classes.title}>
+        <Typography variant={"h5"} className={classes.title}>
           Organization Login
         </Typography>
         <FormError errors={this.state.errors} />
@@ -92,7 +98,7 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    margin: theme.spacing.unit * 4
+    margin: theme.spacing(4)
   },
   title: {
     fontWeight: 700,
@@ -100,10 +106,10 @@ const styles = theme => ({
   },
   textField: {
     width: "100%",
-    margin: theme.spacing.unit * 3
+    margin: theme.spacing(3)
   },
   button: {
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   }
 });
 

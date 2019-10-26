@@ -26,7 +26,7 @@ class Main extends Component {
     if (!this.state.loggedIn)
       return (
         <React.Fragment>
-          <Typography variant={"title"} color={"inherit"}>
+          <Typography variant={"h6"} color={"inherit"}>
             Are you an organization?
           </Typography>
           <LinkColorless to={routes.noAuth.login.route}>
@@ -77,33 +77,27 @@ class Main extends Component {
             alt="Logo"
           />
         </a>
-
         <a
           target="_blank"
           style={{ textDecoration: "none" }}
           href={"https://forms.gle/UUCa8mzi6b9fnfxq9"}
         >
           <Typography variant="h6" color="primary">
-            {" "}
-            Contact Us{" "}
+            Contact Us
           </Typography>
         </a>
         <div className={classes.buttonContainer}>
           <a href={"/"} className={classes.appButton}>
             <img
-              src={
-                "https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"
-              }
+              src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"}
               alt="Download on the App Store"
             />
           </a>
           <a href={"/"} className={classes.appButton}>
             <img
-              src={
-                "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-              }
-              alt="Download on the Google Play Store"
-            />
+              src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"}
+              alt="Download on the Google Play Store" 
+              />
           </a>
         </div>
       </React.Fragment>
@@ -180,13 +174,13 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   },
   appButton: {
     height: "40%",
     width: "10vw",
-    marginRight: theme.spacing.unit * 2
+    marginRight: theme.spacing(2)
   },
   logo: {
     width: "15vw"
@@ -199,7 +193,7 @@ const styles = theme => ({
   },
   appBarSpace: theme.mixins.toolbar,
   button: {
-    marginLeft: theme.spacing.unit * 2
+    marginLeft: theme.spacing(2)
   }
 });
 

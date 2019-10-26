@@ -22,6 +22,18 @@ class OrgSerializer(serializers.ModelSerializer):
         except KeyError:
             return ""
 
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        for photo in ret["photo"]:
+            photo["link"] = (
+                "https://"
+                + settings.AWS_STORAGE_BUCKET_NAME
+                + ".s3.amazonaws.com/"
+                + photo["link"]
+            )
+        return ret
+
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,7 +86,10 @@ class TagSerializer(serializers.ModelSerializer):
 class UpdatedEventsSerializer(serializers.Serializer):
     events = serializers.JSONField()  # pass in serialized events
     timestamp = serializers.DateTimeField()
-
+    page = serializers.IntegerField()
+    pages = serializers.IntegerField()
+    pageSize = serializers.IntegerField()
+    totalEventCount = serializers.IntegerField()
 
 class UpdatedOrgSerializer(serializers.Serializer):
     orgs = serializers.JSONField()  # pass in serialized events
@@ -82,7 +97,8 @@ class UpdatedOrgSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    org = serializers.PrimaryKeyRelatedField(many=True, queryset=Org.objects.all())
+    org = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Org.objects.all())
     owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
