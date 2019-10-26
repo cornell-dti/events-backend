@@ -699,13 +699,58 @@ class ResetToken(APIView):
 
 
 class UploadImage(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = ()
 
     def post(self, request):
-        return JsonResponse({
-            "potato": "123"
-        }, status=status.HTTP_200_OK)
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        url = body["url"]
 
+        fileObj = body["file"]
+
+        #     S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        #     timeString = dt.now().strftime("%Y%m%d_%H%M%S")
+        #     file_name = (
+        #         "user_media/"
+        #         + str(request.user.id)
+        #         + "/"
+        #         + timeString
+        #         + "_"
+        #         + request.GET.get("file_name")
+        #     )
+        #     file_type = request.GET.get("file_type")
+
+        #     s3 = boto3.client(
+        #         "s3",
+        #         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        #         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+        #    )
+
+        #     presigned_post = s3.generate_presigned_post(
+        #         Bucket=S3_BUCKET,
+        #         Key=file_name,
+        #         Fields={"acl": "public-read", "Content-Type": file_type},
+        #         Conditions=[{"acl": "public-read"}, {"Content-Type": file_type}],
+        #         ExpiresIn=3600,
+        #     )
+
+        #     return JsonResponse(
+        #         {
+        #             "data": presigned_post,
+        #             "url": "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name),
+        #         },
+        #         status=status.HTTP_200_OK,
+        #     )
+
+def uploadToS3(file_name, bucket, object_name):
+    s3_client = boto3.client('s3')
+    try:
+        response = s3_client.upload_file(file_name, bucket, object_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
 
 # =============================================================
 #                        FORMS
