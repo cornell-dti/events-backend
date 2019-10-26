@@ -10,7 +10,7 @@ import LinkColorless from "./components/LinkColorless";
 import routes from "./routes";
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import ReactGA from 'react-ga'
 axios.defaults.headers.post["X-CSRFToken"] = Cookies.get("csrftoken"); //get CSRF-token for POST requests
 
 class Profile extends Component {
@@ -29,6 +29,7 @@ class Profile extends Component {
   };
 
   componentDidMount() {
+    ReactGA.pageview(window.location.pathname + window.location.search);
     axios
       .get("/api/profile/")
       .then(response => {
@@ -199,7 +200,7 @@ class Profile extends Component {
         {this.state.profileUpdated ? (
           <Typography
             className={classes.verify}
-            variant={"title"}
+            variant={"h6"}
             color={"primary"}
             align={"center"}
           >
@@ -234,10 +235,11 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     alignSelf: "stretch",
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4),
+    marginBottom: theme.spacing(8)
   },
   button: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   },
   verify: {}
 });

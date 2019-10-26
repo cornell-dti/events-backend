@@ -6,6 +6,10 @@ import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Button from "@material-ui/core/Button/Button";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import TextField from "@material-ui/core/TextField/TextField";
+
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
+
 import { withStyles } from "@material-ui/core";
 import ImageUploader from "./ImageUploader";
 import TagField from "./TagField";
@@ -13,6 +17,7 @@ import Autocomplete from "./Autocomplete";
 import axios from "axios";
 import Cookies from "js-cookie";
 import _ from "lodash";
+import ReactGA from "react-ga";
 
 let google = null;
 let mapCenter = null;
@@ -29,8 +34,8 @@ class CreateEvent extends Component {
     room: "",
     location: "",
     place_id: "",
-    from: this.stringFromDate(this.defaultStartTime()),
-    to: this.stringFromDate(this.defaultEndTime()),
+    from: this.defaultStartTime(),
+    to: this.defaultEndTime(),
     description: "",
     tags: [],
     imageUrl: "",
@@ -63,12 +68,12 @@ class CreateEvent extends Component {
         place_id: event.location.place_id,
         from:
           event.start_date === "" || event.start_time === ""
-            ? this.stringFromDate(this.defaultStartTime())
-            : event.start_date + "T" + event.start_time.slice(0, 5),
+            ? this.defaultStartTime()
+            : new Date((event.start_date + " " + event.start_time).replace(/-/g, "/")),
         to:
           event.end_date === "" || event.end_time === ""
-            ? this.stringFromDate(this.defaultEndTime())
-            : event.end_date + "T" + event.end_time.slice(0, 5),
+            ? this.defaultEndTime()
+            : new Date((event.end_date + " " + event.end_time).replace(/-/g, "/")),
         description: event.description,
         tags: event.tags,
         imageUrl:
@@ -107,13 +112,9 @@ class CreateEvent extends Component {
       this.state.from !== undefined &&
       this.state.from !== "" &&
       this.state.to !== undefined &&
-      this.state.to !== ""
+      this.state.to !== "" &&
+      new Date(this.state.from) <= new Date(this.state.to)
     );
-  }
-
-  //returns whether end Date() object of event is after start Date()
-  checkDate(start, end) {
-    return start <= end;
   }
 
   //tomorrow, same hour, 0 minutes
@@ -132,8 +133,9 @@ class CreateEvent extends Component {
   stringFromDate(date) {
     return date.toISOString().slice(0, 16);
   }
+
   autocompleteLocation = _.debounce(input => {
-    if (input.length < 3) return;
+    if (input.length < 2) return;
     const request = { name: input, location: mapCenter, radius: radius };
     placesService.nearbySearch(request, (res, status) => {
       if (status !== google.maps.places.PlacesServiceStatus.OK) {
@@ -228,24 +230,40 @@ class CreateEvent extends Component {
       imageUrl = await promise;
     }
 
+    // Changing the Type
+    const isFromDate = this.state.from instanceof Date;
+    const isToDate = this.state.to instanceof Date;
+
+    const formattedFromDate = new Date(this.state.from);
+    const formattedToDate = new Date(this.state.to);
+    
     const eventData = {
       pk: this.state.pk,
       name: this.state.name,
       location: location,
-      start_date: this.state.from.split("T")[0],
-      end_date: this.state.to.split("T")[0],
-      start_time: this.state.from.split("T")[1],
-      end_time: this.state.to.split("T")[1],
+      start_date: isFromDate ? this.state.from.toLocaleDateString() : formattedFromDate.toLocaleDateString(), 
+      end_date: isFromDate ? this.state.to.toLocaleDateString() : formattedToDate.toLocaleTimeString(),
+      start_time: isToDate ? this.state.from.toLocaleTimeString() : formattedFromDate.toLocalTimeString(), 
+      end_time: isToDate ? this.state.to.toLocaleTimeString() : formattedToDate.toLocaleTimeString(),
       description: this.state.description,
       tags: this.state.tags,
       imageUrl: imageUrl
     };
+
+    ReactGA.event({
+      category: 'User',
+      action: 'Added an Event'
+    });
 
     this.setState({ imageChanged: false });
     this.props.onUpdate(eventData);
   }
 
   onDeleteEvent() {
+    ReactGA.event({
+      category: 'User',
+      action: 'Deleted an Event'
+    });
     const event = this.props.event;
     this.props.onDelete(event);
   }
@@ -276,7 +294,6 @@ class CreateEvent extends Component {
             label="Event name *"
             value={this.state.name}
             onChange={e => this.setState({ name: e.target.value })}
-            margin={"normal"}
           />
           {/* <Autocomplete
 						label={"Room"}
@@ -311,23 +328,26 @@ class CreateEvent extends Component {
             }
             multiSelect={false}
             canCreate={false}
-          />
-          <TextField
-            label="From *"
-            value={this.state.from}
-            onChange={e => this.setState({ from: e.target.value })}
-            type={"datetime-local"}
             margin={"normal"}
-            InputLabelProps={{ shrink: true }}
           />
-          <TextField
-            label="To *"
-            value={this.state.to}
-            onChange={e => this.setState({ to: e.target.value })}
-            type={"datetime-local"}
-            margin={"normal"}
-            InputLabelProps={{ shrink: true }}
-          />
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+                label="From *"
+                margin={"normal"}
+                minDate={new Date()}
+                value={this.state.from}
+                onChange={e => {
+                  this.setState({from : e})
+              }}
+            />
+            <DateTimePicker
+                label="To *"
+                margin={"normal"}
+                minDate={this.state.from}
+                value={this.state.to}
+                onChange={e => this.setState({to : e})}
+            />
+          </MuiPickersUtilsProvider>
           <TextField
             label="Description"
             value={this.state.description}
@@ -373,7 +393,9 @@ CreateEvent.propTypes = {
 const styles = theme => ({
   content: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    justifyContent: "space-around",
+    width: '36vw'
   }
 });
 

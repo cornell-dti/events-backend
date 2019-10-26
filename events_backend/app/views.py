@@ -875,5 +875,4 @@ class Authentication(APIView):
         serializer.save(owner=self.request.user)
 
 
-# =============================================
-
+# ============================================
