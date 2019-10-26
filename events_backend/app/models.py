@@ -72,6 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+
 class Mobile_User(models.Model):
     class Meta:
         app_label = 'app'
@@ -86,8 +87,7 @@ class Org(models.Model):
         app_label = 'app'
 
     owner = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-
+        User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=30)
     bio = models.CharField(max_length=MAX_DESC_LENGTH, default="", blank=True)
     website = models.CharField(
@@ -105,16 +105,17 @@ class Org_Tags(models.Model):
     class Meta:
         app_label = 'app'
 
-    org_id = models.ForeignKey(
+    org = models.ForeignKey(
         "Org", on_delete=models.CASCADE, related_name="org_tags")
-    tags_id = models.ForeignKey("Tag", on_delete=models.CASCADE)
+    tags = models.ForeignKey("Tag", on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.org_id, self.tags_id)
+        return "{0} - {1}".format(self.org, self.tags)
+
 
 class Verified_Emails(models.Model):
     class Meta:
-            app_label = 'app'
+        app_label = 'app'
 
     email = models.EmailField(unique=True)
 
@@ -164,9 +165,9 @@ class Location(models.Model):
     class Meta:
         app_label = 'app'
 
-    room = models.CharField(max_length = MAX_NAME_LENGTH)
-    building = models.CharField(max_length = MAX_NAME_LENGTH)
-    place_id = models.CharField(max_length = MAX_NAME_LENGTH)
+    room = models.CharField(max_length=MAX_NAME_LENGTH)
+    building = models.CharField(max_length=MAX_NAME_LENGTH)
+    place_id = models.CharField(max_length=MAX_NAME_LENGTH)
 
     def __str__(self):
         return self.building
@@ -176,12 +177,12 @@ class Attendance(models.Model):
     class Meta:
         app_label = 'app'
 
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
+    event = models.ForeignKey("Event", on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.user_id, self.event_id)
+        return "{0} - {1}".format(self.user, self.event)
 
 
 class Event_Org(models.Model):
@@ -192,18 +193,18 @@ class Event_Org(models.Model):
     org = models.ForeignKey("Org", on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.org_id, self.event_id)
+        return "{0} - {1}".format(self.org, self.event)
 
 
 class Event_Tags(models.Model):
     class Meta:
         app_label = 'app'
 
-    event_id = models.ForeignKey("Event", on_delete=models.CASCADE)
-    tags_id = models.ForeignKey("Tag", on_delete=models.CASCADE)
+    event = models.ForeignKey("Event", on_delete=models.CASCADE)
+    tags = models.ForeignKey("Tag", on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.event_id, self.tags_id)
+        return "{0} - {1}".format(self.event, self.tags)
 
 
 class Event_Media(models.Model):
@@ -213,6 +214,9 @@ class Event_Media(models.Model):
     event = models.ForeignKey("Event", on_delete=models.CASCADE)
     media = models.ForeignKey("Media", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "{0} - {1}".format(self.event, self.media)
+
 
 class Org_Media(models.Model):
     class Meta:
@@ -220,6 +224,9 @@ class Org_Media(models.Model):
 
     org = models.ForeignKey("Org", on_delete=models.CASCADE)
     media = models.ForeignKey("Media", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{0} - {1}".format(self.org, self.media)
 
 
 class Tag(models.Model):
