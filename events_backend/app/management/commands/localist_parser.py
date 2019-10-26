@@ -48,6 +48,10 @@ class Command(BaseCommand):
                     latitude = event['geo']['latitude']
                     longitude = event['geo']['longitude']
                     tags = event['tags']
+                    try:
+                        place_id = event['place_id']
+                    except KeyError:
+                        place_id = -1;
 
                     # street = event['geo']['street']
                     # city = event['geo']['city']
@@ -203,7 +207,7 @@ class Command(BaseCommand):
                     location_set = Location.objects.create(
                         building=location,
                         room=room,
-                        place_id="-1")
+                        place_id=place_id)
                     event = Event(
                         name=event_name, description=description, start_date=start_date,
                         end_date=end_date, start_time=start_time, end_time=end_time, location=location_set,
