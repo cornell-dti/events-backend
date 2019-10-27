@@ -7,7 +7,7 @@ if __name__ == '__main__':
     SCRAPER_START_DATE = "2019-10-30"
     SCRAPER_END_DATE = "2019-10-31"
 
-    URL = f"https://events.cornell.edu/api/2/events?start={SCRAPER_END_DATE}&end={SCRAPER_START_DATE}&pp={MAX_EVENT_PER_PAGE}"
+    URL = f"https://events.cornell.edu/api/2/events?start={SCRAPER_START_DATE}&end={SCRAPER_END_DATE}&pp={MAX_EVENT_PER_PAGE}"
 
     URL_ADDON = "&page="
 
