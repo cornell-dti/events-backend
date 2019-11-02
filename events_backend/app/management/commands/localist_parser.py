@@ -56,6 +56,11 @@ class Command(BaseCommand):
                     start = event['event_instances'][0]['event_instance']['start']
                     end = event['event_instances'][0]['event_instance']['end']
 
+                    if start[-3:] == ':00':
+                        start = start[:-3] + '00'
+                    if end[-3:] == ':00':
+                        end = end[:-3] + '00'
+
                     # How do we handle?
                     if all_day and end is None:
                         end = start
@@ -172,9 +177,7 @@ class Command(BaseCommand):
                                 event=event[0], tags=tag)
                         except ObjectDoesNotExist:
                             print(
-                                "Tag {} does not exist in database. Unable to associate event with specified tag.".format(
-                                    titlecase(t)
-                                )
+                                f'Tag {titlecase(t)} does not exist in database. Unable to associate event with specified tag.'
                             )
                     data_count += 1
                     success_data_count += 1
