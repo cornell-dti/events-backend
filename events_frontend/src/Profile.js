@@ -31,7 +31,7 @@ class Profile extends Component {
   componentDidMount() {
     ReactGA.pageview(window.location.pathname + window.location.search);
     axios
-      .get("/api/profile/")
+      .get("/api/get_profile/")
       .then(response => {
         this.setState({
           name: response.data.name,
@@ -42,9 +42,9 @@ class Profile extends Component {
           imageUrl:
             response.data.photo.length > 0
               ? response.data.photo.sort(
-                  (a, b) =>
-                    Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
-                )[0].link
+                (a, b) =>
+                  Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
+              )[0].link
               : ""
         });
       })
@@ -65,7 +65,7 @@ class Profile extends Component {
       "GET",
       "/api/sign_s3/?file_name=" + file.name + "&file_type=" + file.type
     );
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -78,7 +78,7 @@ class Profile extends Component {
           }
           postData.append("file", file);
 
-          xhr.onreadystatechange = function() {
+          xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
               if (xhr.status === 200 || xhr.status === 204) {
                 console.log("File uploaded!");
@@ -117,7 +117,7 @@ class Profile extends Component {
     delete orgData.errors;
 
     axios
-      .post("/api/profile/", orgData)
+      .post("/api/edit_profile/", orgData)
       .then(response => {
         this.setState({
           name: response.data.name,

@@ -27,6 +27,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
 from .models import (
     Org,
@@ -101,7 +102,7 @@ class SignUp(APIView):
         else:
             errorList = []
             errors = dict(form.errors.items())
-            for key, value in errors.items():
+            for _, value in errors.items():
                 errorList += value
             return JsonResponse(
                 {"messages": errorList}, status=status.HTTP_400_BAD_REQUEST
@@ -138,20 +139,21 @@ class Login(APIView):
 #                ORGANIZATION INFORMATION
 # =============================================================
 
-
-class UserProfile(APIView):
+class UserProfile(ViewSet):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get(self, request, format=None):
-        org_owner_id = request.user.id
-        org_set = get_object_or_404(Org, owner=org_owner_id)
-        serializer = OrgSerializer(
-            org_set, many=False, context={"email": request.user.username}
-        )
+    def get_profile(self, request, org_id=None, format=None):
+        if org_id is None:
+            print("ahahahahaha")
+            org_owner_id = request.user.id
+            org_set = get_object_or_404(Org, owner=org_owner_id)
+        else: 
+            org_set = get_object_or_404(Org, pk=org_id)
+        serializer = OrgSerializer(org_set, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):
+    def edit_profile(self, request, format=None):
         orgData = request.data
         org_owner_id = request.user.id
         org_set = get_object_or_404(Org, owner=org_owner_id)
@@ -171,13 +173,8 @@ class UserProfile(APIView):
             org_set, many=False, context={"email": request.user.username}
         )
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class ChangeOrgEmail(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
+    
+    def change_org_email(self, request):
         org_email = request.data
 
         if not validate_email(org_email["new_email"]):
@@ -205,12 +202,7 @@ class ChangeOrgEmail(APIView):
 
             return JsonResponse({"messages": []}, status=status.HTTP_200_OK)
 
-
-class ChangePassword(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
+    def change_password(self, request):
         old_password = request.data["old_password"]
         new_password = request.data["new_password"]
         user = request.user
@@ -225,41 +217,18 @@ class ChangePassword(APIView):
         user.save()
         return JsonResponse({"messages": []}, status=status.HTTP_200_OK)
 
-
-class OrgDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = () #(IsAuthenticated,)
-
-    def get(self, request, org_id, format=None):
-        org_set = Org.objects.get(pk=org_id)
-        serializer = OrgSerializer(org_set, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
 class OrgEvents(APIView):
     # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = (SessionAuthentication)  # (TokenAuthentication, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get(self, request, organizer_id, format=None):
-        org = Org.objects.get(pk=int(organizer_id))
-        org_events_pks = Event_Org.objects.filter(org_id=org).values_list(
-            "event_id", flat=True
-        )
-        event_set = Event.objects.filter(pk__in=org_events_pks)
+    def get(self, request, page, format=None):
+        org = request.user.org
+        event_count = Event.objects.count()
+        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
         serializer = EventSerializer(event_set, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-
-# =============================================================
-#                   EVENT INFORMATION
-# =============================================================
-
-
-class AddOrEditEvent(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
+        last_page= ceil(event_count / EVENTS_PER_PAGE)
+        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
 
     def post(self, request):
         eventData = request.data
@@ -320,13 +289,7 @@ class AddOrEditEvent(APIView):
 
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-
-class DeleteEvents(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    # TODO: DELETE TAGS
-    def post(self, request, event_id, format=None):
+    def delete(self, request, event_id, format=None):
         org = request.user.org
         event_set = get_object_or_404(Event, pk=event_id)
 
@@ -335,20 +298,22 @@ class DeleteEvents(APIView):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+# =============================================================
+#                   EVENT INFORMATION
+# =============================================================
 
-
-# edit tags doesnt workd
 class GetEvents(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = ()
 
-    def get(self, request, page, format=None):
-        org = request.user.org
-        event_count = Event.objects.count()
-        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+    def get(self, request, organizer_id, format=None):
+        org = Org.objects.get(pk=int(organizer_id))
+        org_events_pks = Event_Org.objects.filter(org_id=org).values_list(
+            "event_id", flat=True
+        )
+        event_set = Event.objects.filter(pk__in=org_events_pks)
         serializer = EventSerializer(event_set, many=True)
-        last_page= ceil(event_count / EVENTS_PER_PAGE)
-        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
 
 class GetAllTags(APIView):
@@ -365,31 +330,6 @@ class GetAllTags(APIView):
 # =============================================================
 #                   EVENT INFORMATION
 # =============================================================
-
-
-class EmailDetail(APIView):
-    def get(self, request, org_email, org_name, name, net_id, link, format=None):
-        send_mail(
-            "New Application",
-            "Organization Email: "
-            + org_email
-            + "\n"
-            + "Organization Name: "
-            + org_name
-            + "\n"
-            + "Creator Name: "
-            + name
-            + "\n"
-            + "NetID: "
-            + net_id
-            + "\n"
-            + "Organization Link: "
-            + link,
-            "noreply@cornell.dti.org",
-            ["sz329@cornell.edu"],
-        )
-        return HttpResponse(status=204)
-
 
 class EventDetail(APIView):
     # TODO: alter classes to token and admin?

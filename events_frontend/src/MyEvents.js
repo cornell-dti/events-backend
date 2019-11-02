@@ -93,7 +93,7 @@ class MyEvents extends Component {
   //have to dynamically update event since we are paginating
   onUpdate(event) {
     axios
-      .post("/api/add_or_edit_event/", event)
+      .post("/api/org_events/", event)
       .then(response => {
         const updatedEvent = response.data;
         let events = this.state.events.slice();
@@ -120,7 +120,7 @@ class MyEvents extends Component {
 
   onDeleteEvent(event) {
     axios
-      .post("/api/delete_event/" + event.pk + "/")
+      .delete("/api/org_events/" + event.pk + "/")
       .then(() => {
         this.retrievePageEvents();
         this.setState({ createEvent: false });
