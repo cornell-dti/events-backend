@@ -177,6 +177,8 @@ class CreateEvent extends Component {
         file: file
     }).then((res) => {
 
+    }).catch(err => {
+        alert(`Could not upload image! Reason: ${err}`);
     });
 
     /*let xhr = new XMLHttpRequest();
