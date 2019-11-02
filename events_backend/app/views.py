@@ -68,6 +68,8 @@ EVENTS_PER_PAGE = 15
 #                    AASA
 # =============================================================
 class AppleAppSite(APIView):
+    permission_classes = (permissions.AllowAny,)
+    
     def get(self, request, format=None):
         response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
         return response
