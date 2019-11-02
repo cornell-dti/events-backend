@@ -18,6 +18,7 @@ urlpatterns = [
         r"^change_org_email/$", views.ChangeOrgEmail.as_view(), name="Change-Org-Email"
     ),
     # events
+    url(r'upload_image_s3/', views.UploadImage.as_view(), name='Upload Image to Amazon S3'),
     url(
         r"^add_or_edit_event/$",
         views.AddOrEditEvent.as_view(),

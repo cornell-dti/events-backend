@@ -26,6 +26,7 @@ from rest_framework import permissions, status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
+import requests as requests
 import math
 
 from .models import (
@@ -704,37 +705,53 @@ class UploadImage(APIView):
 
     def post(self, request):
         body_unicode = request.body.decode('utf-8')
-        body = json.loads(body_unicode)
-        url = body["url"]
+        # body = json.loads(body_unicode)
+        # url = body["url"]
 
-        fileObj = body["file"]
+        # fileObj = body["file"]
 
-        #     S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
-        #     timeString = dt.now().strftime("%Y%m%d_%H%M%S")
-        #     file_name = (
-        #         "user_media/"
-        #         + str(request.user.id)
-        #         + "/"
-        #         + timeString
-        #         + "_"
-        #         + request.GET.get("file_name")
-        #     )
-        #     file_type = request.GET.get("file_type")
+        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        timeString = dt.now().strftime("%Y%m%d_%H%M%S")
+        file_name = (
+            "user_media/"
+            + str(request.user.id)
+            + "/"
+            + timeString
+            + "_"
+            + request.GET.get("file_name")
+        )
+        file_type = request.GET.get("file_type")
 
-        #     s3 = boto3.client(
-        #         "s3",
-        #         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        #         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        #    )
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+        )
 
-        #     presigned_post = s3.generate_presigned_post(
-        #         Bucket=S3_BUCKET,
-        #         Key=file_name,
-        #         Fields={"acl": "public-read", "Content-Type": file_type},
-        #         Conditions=[{"acl": "public-read"}, {"Content-Type": file_type}],
-        #         ExpiresIn=3600,
-        #     )
+        presigned_post = s3.generate_presigned_post(
+            Bucket=S3_BUCKET,
+            Key=file_name,
+            Fields={"acl": "public-read", "Content-Type": file_type},
+            Conditions=[{"acl": "public-read"}, {"Content-Type": file_type}],
+            ExpiresIn=3600,
+        )
 
+        file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
+
+        # make POST request to amazon at file_url
+        res = requests.post(file_url, data={
+            "file": request.body.file
+        })
+
+        return JsonResponse(
+            {
+                "potato": 123,
+                "url": file_url,
+                "bucket": S3_BUCKET,
+                "filename": file_name
+            },
+            status=status.HTTP_200_OK
+        )
         #     return JsonResponse(
         #         {
         #             "data": presigned_post,

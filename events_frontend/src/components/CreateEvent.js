@@ -172,7 +172,14 @@ class CreateEvent extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    let xhr = new XMLHttpRequest();
+
+    axios.post(`/api/upload_image_s3/?file_name=${file.name}$file_type=${file.type}`, {
+        file: file
+    }).then((res) => {
+
+    });
+
+    /*let xhr = new XMLHttpRequest();
     xhr.open(
       "GET",
       "/api/sign_s3/?file_name=" + file.name + "&file_type=" + file.type
@@ -212,7 +219,7 @@ class CreateEvent extends Component {
         }
       }
     };
-    xhr.send();
+    xhr.send();*/
   }
 
   async onPublishEvent() {
