@@ -6,6 +6,7 @@ from boto.s3.connection import S3Connection
 
 import dateutil.parser
 import boto3
+import math
 
 from datetime import datetime as dt
 
@@ -290,10 +291,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-            event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
+            event.start_date = dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
+            event.end_date = dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+            event.start_time = dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
+            event.end_time = dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
             event.description = eventData["description"]
             event.organizer = org
 
@@ -311,10 +312,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
-                end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
-                end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
+                start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
+                end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
+                start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+                end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
                 description=eventData["description"],
                 organizer=org,
             )
@@ -548,28 +549,60 @@ class EventFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     # get event feed, parse timestamp and return events
+    # events are reported as blocks of 15
     def get(self, request, format=None):
-        in_timestamp = request.GET.get("timestamp")
         start_time = request.GET.get("start")
         end_time = request.GET.get("end")
-        old_timestamp = dateutil.parser.parse(in_timestamp)
+
+        pageSize = -1
+        pageSizeFound = False
+        try:
+            pageSize = int(request.GET.get("pageSize"))
+            pageSizeFound = True
+        except:
+            pageSize = EVENTS_PER_PAGE
+
+        try:
+            page = int(request.GET.get("page"))
+        except:
+            if(pageSizeFound):
+                page = 1
+            else:
+                allSerializer = EventSerializer(Event.objects.all(), many=True)
+                serializer = UpdatedEventsSerializer({
+                    "events": allSerializer.data,
+                    "timestamp": timezone.now(),
+                    "page": 1,
+                    "pages": 1,
+                    "pageSize": Event.objects.count(),
+                    "totalEventCount": Event.objects.count()
+                })
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
         start_time = dateutil.parser.parse(start_time)
         end_time = dateutil.parser.parse(end_time)
-        outdated_events, all_deleted = outdatedEvents(
-            old_timestamp, start_time, end_time
-        )
-        json_events = EventSerializer(outdated_events, many=True).data
-        serializer = UpdatedEventsSerializer(
-            {"events": json_events, "timestamp": timezone.now()}
-        )
+        filtered_events, all_deleted = outdatedEvents(start_time, end_time)
+        # pagination; Report back the chunk of events represented by page=_
+        json_events = EventSerializer(filtered_events, many=True).data
+        total_pages = int(math.ceil((len(json_events) / pageSize)))
+
+        # "page" is constrained to 1 and the last page (total_pages)
+        page = max(min(total_pages, page), 1)
+
+        this_page_events = json_events[(page - 1) * pageSize: page * pageSize]
+
+        serializer = UpdatedEventsSerializer({
+            "events": this_page_events,
+            "timestamp": timezone.now(),
+            "page": page,
+            "pages": total_pages,
+            "pageSize": pageSize,
+            "totalEventCount": Event.objects.count()
+        })
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
-def outdatedEvents(in_timestamp, start_time, end_time):
-    # history_set = Event.history.filter(history_date__gte = in_timestamp)
-    # unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    # pks = unique_set.values_list('id', flat=True).order_by('id')
-    # #TODO: What if not in list
+def outdatedEvents(start_time, end_time):
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
