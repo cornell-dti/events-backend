@@ -11,6 +11,9 @@ from datetime import datetime as dt
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http.response import StreamingHttpResponse
+
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
@@ -59,6 +62,16 @@ from math import ceil;
 
 User = get_user_model()
 EVENTS_PER_PAGE = 15
+
+
+# =============================================================
+#                    AASA
+# =============================================================
+class AppleAppSite(APIView):
+    def get(self, request, format=None):
+        response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
+        return response
+
 
 # =============================================================
 #                    LOGIN/SIGNUP
