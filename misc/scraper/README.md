@@ -23,6 +23,13 @@ To do this, run "py .\events_backend\manage.py localist_parser [path-to-json]".
 If you have a csv (from facebook instead of localist), run "py .\events_backend\manage.py csv_event_parser [path-to-csv]" instead.
 
 ## Removing duplicate events
+
+### Django Command
+
 Scraping will result in many separate event entries sharing the same names but occuring at different times.
 We want to remove most of these duplicate events, given that they are not whitelisted for this kind of duplication (like movie events)
 Run "py .\events_backend\manage.py remove_duplicate_events" to do this.
+
+### Standalone Script
+
+To remove duplicates from a json, use filter_duplicates.py.
