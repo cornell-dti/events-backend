@@ -14,6 +14,24 @@ def is_valid_event(event_id):
         latitude = event['geo']['latitude']
         longitude = event['geo']['longitude']
 
+        keywords = []
+        try:
+            keywords = event['keywords']
+        except KeyError:
+            pass
+
+        groups = []
+        try:
+            groups = event['groups']
+        except KeyError:
+            pass
+
+        departments = []
+        try:
+            departments = event['filters']['departments']
+        except KeyError:
+            pass
+
         img_src = event['photo_url']
         all_day = event['event_instances'][0]['event_instance']['all_day']
 
@@ -47,6 +65,10 @@ def is_valid_event(event_id):
 
         if img_src == "" or img_src is None:
             print("Missing image link")
+            return False
+
+        if "CCE" in keywords or "CCE" in groups or any(x.startsWith("CCE") for x in departments):
+            print("Ignoring CCE events")
             return False
     except:
         return False
