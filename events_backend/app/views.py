@@ -27,7 +27,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.views import APIView
 import requests as requests
+
+from django.core.files.storage import FileSystemStorage
+from django.core.files.temp import NamedTemporaryFile
+from django.core import files
 import math
+import json as json
 
 from .models import (
     Org,
@@ -699,16 +704,28 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
-class UploadImage(APIView):
+def uploadImage(userId, eventId, name, file):
+    fs = FileSystemStorage()
+
+    filename = userId + evenId + name
+
+
+
+
+class UploadImageS3(APIView):
     authentication_classes = ()
     permission_classes = ()
 
     def post(self, request):
         body_unicode = request.body.decode('utf-8')
         # body = json.loads(body_unicode)
-        # url = body["url"]
+        # url = body_unicode["url"]
 
-        # fileObj = body["file"]
+        fileObj = body_unicode["file"]
+
+        
+        print("file?")
+        print(fileObj)
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
@@ -737,6 +754,10 @@ class UploadImage(APIView):
         )
 
         file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
+
+        print("body?")
+        print(request.body)
+
 
         # make POST request to amazon at file_url
         res = requests.post(file_url, data={
