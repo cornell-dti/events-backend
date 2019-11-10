@@ -61,4 +61,3 @@ webpack-stats.json
 __pycache__/
 events_backend/config/settings_secrets.py
 events_backend/config/.env
-events_backend/staticfiles

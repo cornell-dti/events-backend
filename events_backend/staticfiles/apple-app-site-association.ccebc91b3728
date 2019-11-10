@@ -1,0 +1,11 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "WLCD63PZUT.com.dti.cornell.events",
+                "paths": [ "/event/*", "/org/*" ]
+            }
+        ]
+    }
+}
