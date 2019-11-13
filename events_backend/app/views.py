@@ -718,8 +718,21 @@ class UploadImageS3(APIView):
     permission_classes = ()
 
     def post(self, request):
+        user_id = str(request.user.id)
+        file_type = request.GET.get("file_type")
+        uploaded_file_name = request.GET.get("file_name")
+        
+
         fileObj = request.POST["file"]
         print(fileObj)
+
+
+        temp_file_name = user_id + "_" + str(uploaded_file_name) + "." + str(file_type)
+
+        print("about to save", temp_file_name)
+        
+
+        
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
@@ -729,9 +742,8 @@ class UploadImageS3(APIView):
             + "/"
             + timeString
             + "_"
-            + request.GET.get("file_name")
+            + uploaded_file_name
         )
-        file_type = request.GET.get("file_type")
 
         s3 = boto3.client(
             "s3",
