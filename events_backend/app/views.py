@@ -718,14 +718,6 @@ class UploadImageS3(APIView):
     permission_classes = ()
 
     def post(self, request):
-        # body = request.body.decode('utf-8')
-        print("before json.loads")
-        # json_data = json.loads(request.body)
-        print("after json.loads")
-
-
-        print("file?")
-        # fileObj = json_data["file"]
         fileObj = request.POST["file"]
         print(fileObj)
 
@@ -760,7 +752,7 @@ class UploadImageS3(APIView):
 
 
         # make POST request to amazon at file_url
-        res = requests.post(file_url, data={
+        s3_res = requests.post(file_url, data={
             "file": fileObj
         })
 
@@ -769,10 +761,12 @@ class UploadImageS3(APIView):
                 "potato": 123,
                 "url": file_url,
                 "bucket": S3_BUCKET,
-                "filename": file_name
+                "filename": file_name,
+                "s3-response": s3_res.text
             },
             status=status.HTTP_200_OK
         )
+
         #     return JsonResponse(
         #         {
         #             "data": presigned_post,
