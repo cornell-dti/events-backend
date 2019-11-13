@@ -31,6 +31,7 @@ import requests as requests
 from django.core.files.storage import FileSystemStorage
 from django.core.files.temp import NamedTemporaryFile
 from django.core import files
+import tempfile
 import math
 import json as json
 
@@ -717,14 +718,15 @@ class UploadImageS3(APIView):
     permission_classes = ()
 
     def post(self, request):
-        body_unicode = request.body.decode('utf-8')
-        # body = json.loads(body_unicode)
-        # url = body_unicode["url"]
+        # body = request.body.decode('utf-8')
+        print("before json.loads")
+        # json_data = json.loads(request.body)
+        print("after json.loads")
 
-        fileObj = body_unicode["file"]
 
-        
         print("file?")
+        # fileObj = json_data["file"]
+        fileObj = request.POST["file"]
         print(fileObj)
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
@@ -755,13 +757,11 @@ class UploadImageS3(APIView):
 
         file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
 
-        print("body?")
-        print(request.body)
 
 
         # make POST request to amazon at file_url
         res = requests.post(file_url, data={
-            "file": request.body.file
+            "file": fileObj
         })
 
         return JsonResponse(
