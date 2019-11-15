@@ -723,14 +723,18 @@ class UploadImageS3(APIView):
         uploaded_file_name = request.GET.get("file_name")
         
 
-        fileObj = request.POST["file"]
-        print(fileObj)
+        fileData = request.POST["file"]
+        print(fileData)
 
 
         temp_file_name = user_id + "_" + str(uploaded_file_name) + "." + str(file_type)
 
+
         print("about to save", temp_file_name)
-        
+        fileObj = tempfile.TemporaryFile()
+        fileObj.write(fileData)
+        print("file data:")
+        fileObj.seek()
 
         
 
@@ -750,6 +754,15 @@ class UploadImageS3(APIView):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
+        s3_resource = boto3.resource(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=s
+            ettings.AWS_SECRET_ACCESS_KEY
+        )
+
+        simple_filename = str(uploaded_file_name) + "." + str(file_type)
+        s3_resource.Bucket(S3_BUCKET).put_object(Key=simple_filename, Body=fileData)
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,
@@ -761,12 +774,15 @@ class UploadImageS3(APIView):
 
         file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
 
-
+    
 
         # make POST request to amazon at file_url
-        s3_res = requests.post(file_url, data={
-            "file": fileObj
-        })
+        # s3_res = requests.post(file_url, data={
+        #     "file": fileObj
+        # })
+
+        
+        fileObj.close()
 
         return JsonResponse(
             {
