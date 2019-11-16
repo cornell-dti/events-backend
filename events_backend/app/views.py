@@ -719,22 +719,20 @@ class UploadImageS3(APIView):
 
     def post(self, request):
         user_id = str(request.user.id)
-        file_type = request.GET.get("file_type")
-        uploaded_file_name = request.GET.get("file_name")
+        file_type = request.GET.get("file_type").replace('"', '')
+        uploaded_file_name = request.GET.get("file_name").replace('"', '')
         
-
         fileData = request.POST["file"]
-        print(fileData)
 
-
-        temp_file_name = user_id + "_" + str(uploaded_file_name) + "." + str(file_type)
+        temp_file_name = user_id + '_' + str(uploaded_file_name) + '.' + str(file_type)
 
 
         print("about to save", temp_file_name)
         fileObj = tempfile.TemporaryFile()
+        # byteData = b""
+        # fileData = byteData
         fileObj.write(fileData)
-        print("file data:")
-        fileObj.seek()
+        fileObj.seek(0)
 
         
 
@@ -789,7 +787,7 @@ class UploadImageS3(APIView):
                 "url": file_url,
                 "bucket": S3_BUCKET,
                 "filename": file_name,
-                "s3-response": s3_res.text
+                # "s3-response": s3_resource.text
             },
             status=status.HTTP_200_OK
         )
