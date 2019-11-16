@@ -105,14 +105,14 @@ class Profile extends Component {
   async saveProfile() {
     this.setState({ profileUpdated: false });
     let { bio, email, name, tags, website } = this.state,
-      orgData = {
-        bio,
-        email,
-        name,
-        tags,
-        website
-      },
-      imageUrl = "";
+        orgData = {
+          bio,
+          email,
+          name,
+          tags,
+          website
+        },
+        imageUrl = "";
 
     if (this.state.imageChanged) {
       let promise = new Promise((res, req) =>
