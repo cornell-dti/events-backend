@@ -19,7 +19,7 @@ class TagField extends Component {
       .get("/api/get_all_tags/")
       .then(response => {
         this.setState({
-          tags: response.data.map(tag => ({ value: tag.pk, label: tag.name }))
+          tags: response.data.tags.map(tag => ({ value: tag.pk, label: tag.name }))
         });
       })
       .catch(error => {
