@@ -247,7 +247,7 @@ class Media(models.Model):
     class Meta:
         app_label = 'app'
 
-    link = models.TextField()
+    link = models.TextField(default='https://dti-events-public.s3.amazonaws.com/default.jpg')
     uploaded_by = models.ForeignKey("Org", on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now=True)
 

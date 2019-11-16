@@ -32,7 +32,13 @@ def is_valid_event(event_id):
         except KeyError:
             pass
 
-        img_src = event['photo_url']
+        try:
+            open_to = event["custom_fields"]["open_to"].lower()
+            if any(word.lower() in open_to for word in IGNORE_WORDS):
+                return False
+        except KeyError:
+            pass
+
         all_day = event['event_instances'][0]['event_instance']['all_day']
 
         start = event['event_instances'][0]['event_instance']['start']
@@ -61,10 +67,6 @@ def is_valid_event(event_id):
         if (latitude == "" or latitude is None or longitude == "" or longitude is None) and (
                 location == "" or location is None):
             print("Missing location AND coordinates")
-            return False
-
-        if img_src == "" or img_src is None:
-            print("Missing image link")
             return False
 
         if "CCE" in keywords or "CCE" in groups or any(x.startsWith("CCE") for x in departments):

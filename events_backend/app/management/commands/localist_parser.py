@@ -108,12 +108,6 @@ class Command(BaseCommand):
                         fail_data_count += 1
                         continue
 
-                    if img_src == "" or img_src is None:
-                        print("Missing image link")
-                        data_count += 1
-                        fail_data_count += 1
-                        continue
-
                     if org_name == "" or org_name is None:
                         print("Missing organizer name")
                         data_count += 1
@@ -160,11 +154,14 @@ class Command(BaseCommand):
                         end_date=end_date, start_time=start_time, end_time=end_time, num_attendees=0,
                         location=location_set[0], organizer=org_set[0])
 
-                    media = Media.objects.get_or_create(
-                        link=img_src, uploaded_by=org_set[0])
+                    if img_src == "":
+                        media = Media.objects.create(uploaded_by=org_set[0])
+                    else:
+                        media = Media.objects.get_or_create(
+                            link=img_src, uploaded_by=org_set[0])[0]
 
                     Event_Media.objects.get_or_create(
-                        event=event[0], media=media[0])
+                        event=event[0], media=media)
                     Event_Org.objects.get_or_create(
                         event=event[0], org=org_set[0])
 
