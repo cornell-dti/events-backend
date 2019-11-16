@@ -71,7 +71,7 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def obtain_token(self, request, mobile_id, format=None):
+    def get_token(self, request, mobile_id, format=None):
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
             return HttpResponseBadRequest("Token Already Assigned to User")
@@ -286,7 +286,7 @@ class OrgEvents(ViewSet):
             last_page = ceil(event_set.count()/EVENTS_PER_PAGE)
             serializer = EventSerializer(event_set, many=True)
             return JsonResponse({"last_page": last_page, "events":\
-                serializer.data}, safe=False, status=status.HTTP_200_OK)
+                serializer.data}, status=status.HTTP_200_OK)
 
         else:
             serializer = EventSerializer(event_set, many=True)
@@ -394,7 +394,7 @@ class Tags(ViewSet):
     def get_all_tags(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+        return JsonResponse({"tags":serializer.data}, status=status.HTTP_200_OK)
 
     def get_tag(self, request, tag_id, format=None):
         tag = get_object_or_404(Tag, id=tag_id)
@@ -411,7 +411,7 @@ class Locations(ViewSet):
     def get_all_locations(self, request, format=None):
         location_set = Location.objects.all()
         serializer = LocationSerializer(location_set, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+        return JsonResponse({"locations":serializer.data}, status=status.HTTP_200_OK)
 
     def get_location(self, request, location_id, format=None):
         location_set = get_object_or_404(Location, pk=location_id)

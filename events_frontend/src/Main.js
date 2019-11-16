@@ -18,7 +18,7 @@ class Main extends Component {
   componentDidMount() {
     let self = this;
     axios
-      .get("/api/loggedin/")
+      .get("/api/logged_in/")
       .then(response => self.setState({ loggedIn: response.data.status }));
   }
 
@@ -96,8 +96,8 @@ class Main extends Component {
           <a href={"/"} className={classes.appButton}>
             <img
               src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"}
-              alt="Download on the Google Play Store" 
-              />
+              alt="Download on the Google Play Store"
+            />
           </a>
         </div>
       </React.Fragment>
@@ -132,21 +132,21 @@ class Main extends Component {
             <Redirect to={"/"} />
           </Switch>
         ) : (
-          <Switch>
-            {Object.values(routes.noAuth).map(obj => (
-              <Route
-                exact
-                key={obj.route}
-                path={obj.route}
-                component={obj.component}
-              />
-            ))}
-            {Object.values(routes.auth).map(obj => (
-              <Redirect key={obj.route} from={obj.route} to={"/login/"} />
-            ))}
-            <Redirect to={"/"} />
-          </Switch>
-        )}
+            <Switch>
+              {Object.values(routes.noAuth).map(obj => (
+                <Route
+                  exact
+                  key={obj.route}
+                  path={obj.route}
+                  component={obj.component}
+                />
+              ))}
+              {Object.values(routes.auth).map(obj => (
+                <Redirect key={obj.route} from={obj.route} to={"/login/"} />
+              ))}
+              <Redirect to={"/"} />
+            </Switch>
+          )}
         <AppBar color={"default"} className={classes.footer}>
           {this.getFooter(classes)}
         </AppBar>
