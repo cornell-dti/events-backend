@@ -63,3 +63,4 @@ events_backend/config/settings_secrets.py
 events_backend/config/.env
 sqlite3-journal
 sqlite3
+events_backend/static/

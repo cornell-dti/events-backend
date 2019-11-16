@@ -6,11 +6,15 @@ from boto.s3.connection import S3Connection
 
 import dateutil.parser
 import boto3
+import math
 
 from datetime import datetime as dt
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http.response import StreamingHttpResponse
+
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
@@ -34,7 +38,6 @@ from django.core import files
 import tempfile
 import math
 import json as json
-
 from .models import (
     Org,
     Mobile_User,
@@ -67,6 +70,18 @@ from math import ceil;
 
 User = get_user_model()
 EVENTS_PER_PAGE = 15
+
+
+# =============================================================
+#                    AASA
+# =============================================================
+class AppleAppSite(APIView):
+    permission_classes = (permissions.AllowAny,)
+    
+    def get(self, request, format=None):
+        response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
+        return response
+
 
 # =============================================================
 #                    LOGIN/SIGNUP
@@ -151,8 +166,8 @@ class UserProfile(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
-        org_id = request.user.id
-        org_set = get_object_or_404(Org, pk=org_id)
+        org_owner_id = request.user.id
+        org_set = get_object_or_404(Org, owner=org_owner_id)
         serializer = OrgSerializer(
             org_set, many=False, context={"email": request.user.username}
         )
@@ -160,8 +175,8 @@ class UserProfile(APIView):
 
     def post(self, request, format=None):
         orgData = request.data
-        org_id = request.user.id
-        org_set = get_object_or_404(Org, pk=org_id)
+        org_owner_id = request.user.id
+        org_set = get_object_or_404(Org, owner=org_owner_id)
 
         org_set.name = orgData["name"]
         org_set.website = orgData["website"]
@@ -312,7 +327,7 @@ class AddOrEditEvent(APIView):
                 organizer=org,
             )
             Event_Org.objects.create(event=event, org=org)
-            
+
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
                 event_tag = Event_Tags(event_id=event, tags_id=tag)
@@ -342,6 +357,21 @@ class DeleteEvents(APIView):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
+
+# edit tags doesnt workd
+class GetEvents(APIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = ()
+
+    def get(self, request, page, format=None):
+        org = request.user.org
+        event_count = Event.objects.count()
+        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+        serializer = EventSerializer(event_set, many=True)
+        last_page= ceil(event_count / EVENTS_PER_PAGE)
+        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
+
 
 class GetAllTags(APIView):
     # TODO: alter classes to token and admin?
@@ -639,7 +669,9 @@ def tagDetail(tag_id=0, all=False):
         serializer = TagSerializer(tags, many=True)
     else:
         serializer = TagSerializer(tags.filter(pk=tag_id), many=False)
+
     return serializer
+
 
 class ImageDetail(APIView):
     # TODO: alter classes to token and admin?
@@ -1002,5 +1034,4 @@ class Authentication(APIView):
         serializer.save(owner=self.request.user)
 
 
-# =============================================
-
+# ============================================
