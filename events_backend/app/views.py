@@ -550,9 +550,12 @@ class EventFeed(APIView):
     authentication_classes = ()  # (TokenAuthentication, )
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
-    upcoming_events = Event.objects.filter(start_date__gte=date.today())
-    serializer = EventSerializer(upcoming_events, many=True)
-    return JsonResponse({"events": serializer.data}, status=status.HTTP_200_OK)
+    # get event feed, parse timestamp and return events
+    # events are reported as blocks of 15
+    def get(self, request, format=None):
+        upcoming_events = Event.objects.filter(start_date__gte=date.today())
+        serializer = EventSerializer(upcoming_events, many=True)
+        return JsonResponse({"events": serializer.data}, status=status.HTTP_200_OK)
 
 def outdatedEvents(start_time, end_time):
     changed_events = Event.objects.filter(
