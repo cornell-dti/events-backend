@@ -26,7 +26,7 @@ class Autocomplete extends Component {
     const { classes } = this.props;
     const Field = this.props.canCreate ? CreatableSelect : Select;
     return (
-      <Field
+      <Field //styles={customStyles}
         classes={classes}
         value={this.state.selected}
         onChange={this.onSelect.bind(this)}
@@ -57,6 +57,7 @@ Autocomplete.propTypes = {
   onUpdate: PropTypes.func.isRequired
 };
 
+// Changes the styling of the no options message
 function NoOptionsMessage(props) {
   return (
     <Typography
@@ -73,6 +74,7 @@ function inputComponent({ inputRef, ...props }) {
   return <div ref={inputRef} {...props} />;
 }
 
+// Changes input into a text box
 function Control(props) {
   return (
     <TextField
@@ -91,13 +93,14 @@ function Control(props) {
   );
 }
 
+// Changes the styling of the options
 function Option(props) {
   return (
     <MenuItem
       buttonRef={props.innerRef}
       selected={props.isFocused}
       component="div"
-      style={{ fontWeight: props.isSelected ? 500 : 400 }}
+      style={{ fontWeight: props.isSelected ? 400 : 300 }}
       {...props.innerProps}
     >
       {props.children}
@@ -105,6 +108,7 @@ function Option(props) {
   );
 }
 
+// Changes the size and color of placeholder
 function Placeholder(props) {
   return (
     <Typography
@@ -117,6 +121,7 @@ function Placeholder(props) {
   );
 }
 
+// Changes the font size of single value selects
 function SingleValue(props) {
   return (
     <Typography
@@ -136,6 +141,7 @@ function ValueContainer(props) {
   );
 }
 
+// Changes the selects to a elliptical chip,
 function MultiValue(props) {
   return (
     <Chip
@@ -163,29 +169,32 @@ function Menu(props) {
 }
 
 const components = {
-  NoOptionsMessage,
-  Option,
-  Control,
-  Placeholder,
-  SingleValue,
-  MultiValue,
   ValueContainer,
-  Menu
+  // NoOptionsMessage,
+  // Option,
+  Control,
+  // Placeholder,
+  // SingleValue,
+  // MultiValue,
+  // Menu
 };
 
 const styles = theme => ({
+
   input: {
-    display: "flex",
-    padding: 4
+    display: "flex", // causes the thing to go down
+    height: "80%",
+    padding: 0
   },
   valueContainer: {
     display: "flex",
     flexWrap: "wrap",
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    paddingLeft: 0
   },
   chip: {
-    margin: `${theme.spacing(1) / 2}px ${theme.spacing(1) / 4}px`
+      margin: `${theme.spacing(1) / 2}px ${theme.spacing(1) / 4}px`
   },
   placeholder: {
     position: "absolute",
@@ -198,7 +207,7 @@ const styles = theme => ({
   singleValue: {
     fontSize: 16
   },
-  paper: {
+  paper: { // options
     position: "absolute",
     zIndex: 1,
     marginTop: theme.spacing(1),
