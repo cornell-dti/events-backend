@@ -8,7 +8,7 @@ import dateutil.parser
 import boto3
 import math
 
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
