@@ -7,6 +7,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from . import views
 
 urlpatterns = [
+    # tokens
+    url(r'^get_token/(?P<mobile_id>.*)/?$',
+        views.Tokens.as_view({'get': 'get_token'}), name='Get-Token'),
+    url(r'^reset_token/(?P<mobile_id>.*)/?$',
+        views.Tokens.as_view({'get': 'reset_token'}), name='Reset-Token'),
+
     # login/signup/change login credentials
     url(r"^signup/?$", ensure_csrf_cookie(views.SignUp.as_view()), name="Sign-Up"),
     url(r"^login/?$", ensure_csrf_cookie(views.Login.as_view()), name="Login"),
@@ -37,11 +43,22 @@ urlpatterns = [
         views.OrgEvents.as_view({'post': 'edit_event'}), name="Edit-Event"),
     url(r"^delete_event/(?P<event_id>[0-9]+)/?$",
         views.OrgEvents.as_view({'post': 'delete_event'}), name="Delete-Event"),
-    url(r'^increment_attendance/(?P<event_id>[0-9]+)/$',
+    url(r'^increment_attendance/(?P<event_id>[0-9]+)/?$',
         views.OrgEvents.as_view({'post': 'increment_attendance'}), name="Increment-Attendance"),
-    url(r'^decrement_attendance/(?P<event_id>[0-9]+)/$',
+    url(r'^decrement_attendance/(?P<event_id>[0-9]+)/?$',
         views.OrgEvents.as_view({'post': 'decrement_attendance'}), name="Decrement-Attendance"),
 
+    # tags
+    url(r'^get_tag/(?P<tag_id>[0-9]+)/?$',
+        views.Tags.as_view({'get': 'get_tag'}), name='Get-Tag'),
+    url(r'^get_all_tags/?$',
+        views.Tags.as_view({'get': 'get_all_tags'}), name='Get-All-Tags'),
+
+    # locations
+    url(r'^get_location/(?P<location_id>[0-9]+)/?$',
+        views.Locations.as_view({'get': 'get_location'}), name='Get-Location'),
+    url(r'^get_all_locations/?$', 
+        views.Locations.as_view({'get': 'get_all_locations'}), name='Get-All-Locations'),
+
     url(r"^sign_s3/?$", views.GetSignedRequest.as_view(), name="Get-Signed-Request"),
-    url(r"^get_all_tags/?$", views.GetAllTags.as_view(), name="Get-Tags"),
 ]

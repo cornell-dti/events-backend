@@ -13,16 +13,16 @@ from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 
 from .permissions import IsOwnerOrReadOnly
-from .forms import TagForm, EventForm, LocationForm, OrgForm, CustomUserCreationForm
+from .forms import CustomUserCreationForm
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from rest_framework import permissions, status, generics
+from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -63,6 +63,47 @@ User = get_user_model()
 EVENTS_PER_PAGE = 15
 
 # =============================================================
+#                        TOKENS
+# =============================================================
+
+# TODO: Different table for firebaseIDs, better practices?
+class Tokens(ViewSet):
+    # TODO: alter classes to token and admin?
+    permission_classes = (AllowAny,)
+
+    def obtain_token(self, request, mobile_id, format=None):
+        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
+        if mobile_user_set.exists():
+            return HttpResponseBadRequest("Token Already Assigned to User")
+        else:
+            validated, valid_info = validate_firebase(mobile_id)
+            if not validated:
+                return HttpResponseBadRequest("Invalid Firebase ID")
+
+            # generate username
+            username = generateUserName()
+            user = User.objects.create_user(username=username, password="")
+            user.set_unusable_password()
+            user.save()
+
+            new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
+            new_mobile_user.save()
+
+            # generate token
+            token = Token.objects.create(user=user)
+            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
+
+    def reset_token(self, request, mobile_id, format=None):
+        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
+        if mobile_user_set.exists():
+            user = mobile_user_set[0]
+            token = Token.objects.get(user=user)
+            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
+        else:
+            return HttpResponse("Reset Token Error")
+
+
+# =============================================================
 #            LOGIN/SIGNUP/CHANGE LOGIN EMAIL/PASSWORD
 # =============================================================
  
@@ -86,7 +127,8 @@ class SignUp(APIView):
                 return JsonResponse(
                     {
                         "messages": [
-                            "Your organization email has not been verified. Please contact cue@cornelldti.org to sign up."
+                            "Your organization email has not been verified. \
+                            Please contact cue@cornelldti.org to sign up."
                         ]
                     },
                     status=status.HTTP_400_BAD_REQUEST,
@@ -183,7 +225,7 @@ class ChangeLoginCredentials(ViewSet):
 
 
 # =============================================================
-#                  ORGANIZATION PARTICULARS
+#                  ORGANIZATION PROFILE
 # =============================================================
 
 class UserProfile(ViewSet):
@@ -219,35 +261,6 @@ class UserProfile(ViewSet):
             org_set, many=False, context={"email": request.user.username}
         )
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-#TODO: FIGURE OUT HOW THIS IS BEING USED. MERGE INTO USERPROFILE IF POSSIBLE.
-class OrgFeed(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, in_timestamp, format=None):
-        old_timestamp = dateutil.parser.parse(in_timestamp)
-        outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
-        # json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
-
-        json_orgs = OrgSerializer(outdated_orgs, many=True).data
-        serializer = UpdatedOrgSerializer(
-            {"orgs": json_orgs, "timestamp": timezone.now()}
-        )
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-def outdatedOrgs(in_timestamp):
-    # org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    # org_updates = org_updates.distinct('id').order_by('id')
-
-    # org_list = org_updates.values_list('id', flat = True).order_by('id')
-    # TODO: What if not in list
-    changed_orgs = Org.objects  # .filter(pk__in=org_list)
-    # present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
-    all_deleted_pks = list()  # set(org_list).difference(set(present_pks)))
-    return changed_orgs, all_deleted_pks
 
 # =============================================================
 #                     ORGANIZATION EVENTS
@@ -360,16 +373,83 @@ class OrgEvents(ViewSet):
 
     #TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
     def increment_attendence(self, request, event_id, format=None):
-        event = Event.objects.get_object_or_404(pk=event_id)
+        event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees + 1
         event.save()
         return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
     def decrement_attendance(self, request, event_id, format=None):
-        event = Event.objects.get_object_or_404(pk=event_id)
+        event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees - 1
         event.save()
         return HttpResponse("Attendance decremented for event with ID: " + event_id, status=status.HTTP_200_OK)
+
+# =============================================================
+#                          TAGS
+# =============================================================
+
+class Tags(ViewSet):
+    permission_classes = (AllowAny,)
+
+    def get_all_tags(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+
+    def get_tag(self, request, tag_id, format=None):
+        tag = get_object_or_404(Tag, id=tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+# =============================================================
+#                        LOCATIONS
+# =============================================================
+
+class Locations(ViewSet):
+    permission_classes = (AllowAny,)
+
+    def get_all_locations(self, request, format=None):
+        location_set = Location.objects.all()
+        serializer = LocationSerializer(location_set, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+
+    def get_location(self, request, location_id, format=None):
+        location_set = get_object_or_404(Location, pk=location_id)
+        serializer = LocationSerializer(location_set, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+# =============================================================
+#                           FEEDS
+# =============================================================
+
+#TODO: FIGURE OUT HOW THIS IS BEING USED. 
+class OrgFeed(APIView):
+    # TODO: alter classes to token and admin?
+    authentication_classes = ()  # (TokenAuthentication, )
+    permission_classes = ()  # (IsAuthenticated, )
+
+    def get(self, request, in_timestamp, format=None):
+        old_timestamp = dateutil.parser.parse(in_timestamp)
+        outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
+        # json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
+
+        json_orgs = OrgSerializer(outdated_orgs, many=True).data
+        serializer = UpdatedOrgSerializer(
+            {"orgs": json_orgs, "timestamp": timezone.now()}
+        )
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+
+def outdatedOrgs(in_timestamp):
+    # org_updates = Org.history.filter(history_date__gte = in_timestamp)
+    # org_updates = org_updates.distinct('id').order_by('id')
+
+    # org_list = org_updates.values_list('id', flat = True).order_by('id')
+    # TODO: What if not in list
+    changed_orgs = Org.objects  # .filter(pk__in=org_list)
+    # present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
+    all_deleted_pks = list()  # set(org_list).difference(set(present_pks)))
+    return changed_orgs, all_deleted_pks
 
 #TODO: FIGURE OUT HOW THIS IS BEING USED. COMBINE WITH GET_EVENTS IF POSSIBLE.
 class EventFeed(APIView):
@@ -408,74 +488,8 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     return changed_events, all_deleted_pks
 
 # =============================================================
-#                        TAGS
-# =============================================================
-
-class GetAllTags(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def get(self, request, format=None):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse({"tags":serializer.data}, safe=False, status=status.HTTP_200_OK)
-
-
-class SingleTagDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, tag_id, format=None):
-        tag = Tag.objects.get(id=tag_id)
-        serializer = TagSerializer(tag, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class AllTagDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-# =============================================================
-#                   LOCATION INFORMATION
-# =============================================================
-
-
-class SingleLocationDetail(APIView):
-
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, location_id, format=None):
-        location_set = Location.objects.get(pk=location_id)
-        serializer = LocationSerializer(location_set, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class AllLocationDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        location_set = Location.objects.all()
-        serializer = LocationSerializer(location_set, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-
-# =============================================================
 #                          MEDIA
 # =============================================================
-
 
 class GetSignedRequest(APIView):
     authentication_classes = (SessionAuthentication,)
@@ -533,52 +547,6 @@ class ImageDetail(APIView):
         )  # what if its not jpg
         response["Content-Disposition"] = "inline; filename=" + media
         return response
-
-
-# =============================================================
-#                        TOKENS
-# =============================================================
-
-# TODO: Different table for firebaseIDs, better practices?
-class ObtainToken(APIView):
-    # TODO: alter classes to token and admin?
-    permission_classes = (AllowAny,)
-
-    def get(self, request, mobile_id, format=None):
-        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
-        if mobile_user_set.exists():
-            return HttpResponseBadRequest("Token Already Assigned to User")
-        else:
-            validated, valid_info = validate_firebase(mobile_id)
-            if not validated:
-                return HttpResponseBadRequest("Invalid Firebase ID")
-
-            # generate username
-            username = generateUserName()
-            user = User.objects.create_user(username=username, password="")
-            user.set_unusable_password()
-            user.save()
-
-            new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
-            new_mobile_user.save()
-
-            # generate token
-            token = Token.objects.create(user=user)
-            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-
-
-class ResetToken(APIView):
-    # TODO: alter classes to token and admin?
-    permission_classes = (AllowAny,)
-
-    def get(self, request, mobile_id, format=None):
-        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
-        if mobile_user_set.exists():
-            user = mobile_user_set[0]
-            token = Token.objects.get(user=user)
-            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-        else:
-            return HttpResponse("Reset Token Error")
 
 
 class UploadImage(APIView):
