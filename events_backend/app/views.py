@@ -63,10 +63,9 @@ User = get_user_model()
 EVENTS_PER_PAGE = 15
 
 # =============================================================
-#                    LOGIN/SIGNUP
+#            LOGIN/SIGNUP/CHANGE LOGIN EMAIL/PASSWORD
 # =============================================================
-
-
+ 
 class SignUp(APIView):
     permission_classes = (AllowAny,)
 
@@ -135,46 +134,11 @@ class Login(APIView):
         return JsonResponse({"messages": []}, status=status.HTTP_200_OK)
 
 
-# =============================================================
-#                ORGANIZATION INFORMATION
-# =============================================================
-
-class UserProfile(ViewSet):
+class ChangeLoginCredentials(ViewSet):
     authentication_classes = (SessionAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
-    def get_profile(self, request, org_id=None, format=None):
-        if org_id is None:
-            print("ahahahahaha")
-            org_owner_id = request.user.id
-            org_set = get_object_or_404(Org, owner=org_owner_id)
-        else: 
-            org_set = get_object_or_404(Org, pk=org_id)
-        serializer = OrgSerializer(org_set, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-    def edit_profile(self, request, format=None):
-        orgData = request.data
-        org_owner_id = request.user.id
-        org_set = get_object_or_404(Org, owner=org_owner_id)
-
-        org_set.name = orgData["name"]
-        org_set.website = orgData["website"]
-        org_set.bio = orgData["bio"]
-
-        if orgData["imageUrl"] != "":
-            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
-            org_media = Org_Media(org=org_set, media=media)
-            org_media.save()
-
-        org_set.save()
-
-        serializer = OrgSerializer(
-            org_set, many=False, context={"email": request.user.username}
-        )
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-    
-    def change_org_email(self, request):
+    def change_login_email(self, request):
         org_email = request.data
 
         if not validate_email(org_email["new_email"]):
@@ -217,52 +181,100 @@ class UserProfile(ViewSet):
         user.save()
         return JsonResponse({"messages": []}, status=status.HTTP_200_OK)
 
-class OrgEvents(APIView):
+
+# =============================================================
+#                  ORGANIZATION PARTICULARS
+# =============================================================
+
+class UserProfile(ViewSet):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_profile(self, request, org_id=None, format=None):
+        if org_id is None:
+            print("ahahahahaha")
+            org_owner_id = request.user.id
+            org_set = get_object_or_404(Org, owner=org_owner_id)
+        else: 
+            org_set = get_object_or_404(Org, pk=org_id)
+        serializer = OrgSerializer(org_set, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def edit_profile(self, request, format=None):
+        orgData = request.data
+        org_owner_id = request.user.id
+        org_set = get_object_or_404(Org, owner=org_owner_id)
+
+        org_set.name = orgData["name"]
+        org_set.website = orgData["website"]
+        org_set.bio = orgData["bio"]
+
+        if orgData["imageUrl"] != "":
+            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
+            org_media = Org_Media(org=org_set, media=media)
+            org_media.save()
+
+        org_set.save()
+
+        serializer = OrgSerializer(
+            org_set, many=False, context={"email": request.user.username}
+        )
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+# =============================================================
+#                     ORGANIZATION EVENTS
+# =============================================================
+
+class OrgEvents(ViewSet):
     # TODO: alter classes to token and admin?
     authentication_classes = (SessionAuthentication)  # (TokenAuthentication, )
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get(self, request, page, format=None):
-        org = request.user.org
-        event_count = Event.objects.count()
-        event_set = Event.objects.filter(organizer=org)[(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
-        serializer = EventSerializer(event_set, many=True)
-        last_page= ceil(event_count / EVENTS_PER_PAGE)
-        return JsonResponse({"last_page": last_page, "events":serializer.data}, safe=False, status=status.HTTP_200_OK)
+    def get_events(self, request, org_id=None, page=None, format=None):
+        if org_id is None:
+            org = request.user.org
+            event_count = Event.objects.count()
+            event_set = Event.objects.filter(organizer=org)\
+                [(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+            serializer = EventSerializer(event_set, many=True)
+            last_page= ceil(event_count / EVENTS_PER_PAGE)
+            return JsonResponse({"last_page": last_page, "events":\
+                serializer.data}, safe=False, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def add_event(self, request):
+        org = request.user.org
         eventData = request.data
-
-        org = request.user.org
         loc = Location.objects.get_or_create(
             room=eventData["location"]["room"],
             building=eventData["location"]["building"],
             place_id=eventData["location"]["place_id"],
         )
 
-        # edit
-        try:
-            event = Event.objects.get(pk=eventData["pk"])
-            event.name = eventData["name"]
-            event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-            event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
-            event.description = eventData["description"]
-            event.organizer = org
+        event.name = eventData["name"]
+        event.location = loc[0]
+        event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
+        event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
+        event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
+        event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
+        event.description = eventData["description"]
+        event.organizer = org
 
-            # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
-            Event_Tags.objects.filter(event_id=event).delete()
+        # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
+        Event_Tags.objects.filter(event_id=event).delete()
 
-            for t in eventData["tags"]:
-                tag = Tag.objects.get(name=t["label"])
-                event_tag = Event_Tags.objects.create(event_id=event, tags_id=tag)
-            event.save()
-            serializer = EventSerializer(event, many=False)
+        for t in eventData["tags"]:
+            tag = Tag.objects.get(name=t["label"])
+            event_tag = Event_Tags.objects.create(event_id=event, tags_id=tag)
+        event.save()
+        serializer = EventSerializer(event, many=False)
 
+        if eventData["imageUrl"] != "":
+            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
         # add
-        except KeyError:
+
+    def edit_event(self, event_id, request):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],

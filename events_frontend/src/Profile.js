@@ -104,7 +104,14 @@ class Profile extends Component {
 
   async saveProfile() {
     this.setState({ profileUpdated: false });
-    let orgData = this.state,
+    let { bio, email, name, tags, website } = this.state,
+      orgData = {
+        bio,
+        email,
+        name,
+        tags,
+        website
+      },
       imageUrl = "";
 
     if (this.state.imageChanged) {
@@ -114,7 +121,6 @@ class Profile extends Component {
       imageUrl = await promise;
     }
     orgData.imageUrl = imageUrl;
-    delete orgData.errors;
 
     axios
       .post("/api/edit_profile/", orgData)
