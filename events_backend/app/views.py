@@ -33,6 +33,7 @@ from rest_framework.views import APIView
 
 from .models import (
     Org,
+    MinimumVersion,
     Mobile_User,
     Event,
     Event_Org,
@@ -53,6 +54,7 @@ from .serializers import (
     UpdatedEventsSerializer,
     UpdatedOrgSerializer,
     UserSerializer,
+    MinimumVersionSerializer,
 )
 
 from django.core.mail import send_mail
@@ -835,8 +837,40 @@ class OrgFormView(APIView):
 
 
 # =============================================================
+#                       VERSIONING
+# =============================================================
+
+class SetMinVersionView(APIView):
+
+    permission_classes = ()
+
+    def get(self, request, version):
+        MinimumVersion.objects.all().delete()
+        versionStringWithoutPeriods = version.replace(".", "")
+        versionNumRequest = int(versionStringWithoutPeriods)
+        MinimumVersion.objects.create(version=versionNumRequest).save()
+        return JsonResponse({ 'version': versionNumRequest })
+
+class GetMinVersionView(APIView):
+
+    permission_classes = ()
+
+    def get(self, request, version):
+        latestVersion = MinimumVersion.objects.latest('version')
+        versionNum = latestVersion.version
+        versionStringWithoutPeriods = version.replace(".", "")
+        versionNumRequest = int(versionStringWithoutPeriods)
+        if versionNumRequest < versionNum:
+            return JsonResponse({ 'passed': False })
+        else:
+            return JsonResponse({ 'passed': True })
+
+# =============================================================
+
+# =============================================================
 #                        HELPERS
 # =============================================================
+
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
