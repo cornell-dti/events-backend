@@ -176,7 +176,7 @@ class CreateEvent extends Component {
     axios.post(`/api/upload_image_s3/?file_name=${file.name}$file_type=${file.type}`, {
         file: file
     }).then((res) => {
-
+        console.log(res);
     }).catch(err => {
         alert(`Could not upload image! Reason: ${err}`);
     });
