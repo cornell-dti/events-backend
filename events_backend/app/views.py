@@ -8,7 +8,7 @@ import dateutil.parser
 import boto3
 import math
 
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
@@ -71,7 +71,7 @@ EVENTS_PER_PAGE = 15
 #                    AASA
 # =============================================================
 class AppleAppSite(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
     
     def get(self, request, format=None):
         response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
@@ -284,7 +284,7 @@ class UserProfile(ViewSet):
 
 class OrgEvents(ViewSet):
     # TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication,)  # (TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, TokenAuthentication)  # (TokenAuthentication, )
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_events(self, request, org_id=None, format=None):
@@ -332,13 +332,11 @@ class OrgEvents(ViewSet):
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
-            event_tag = Event_Tags(event=event, tags=tag)
-            event_tag.save()
+            Event_Tags.objects.get_or_create(event=event, tags=tag)
     
         if eventData["imageUrl"] != "":
             media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
-            event_media = Event_Media(event=event, media=media)
-            event_media.save()
+            Event_Media.objects.get_or_create(event=event, media=media)
 
         serializer = EventSerializer(event, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
@@ -366,12 +364,11 @@ class OrgEvents(ViewSet):
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
-            event_tag = Event_Tags.objects.get_or_create(event=event, tags=tag)
+            Event_Tags.objects.get_or_create(event=event, tags=tag)
 
         if eventData["imageUrl"] != "":
             media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
-            event_media = Event_Media(event=event, media=media)
-            event_media.save()
+            Event_Media.objects.get_or_create(event=event, media=media)
 
         serializer = EventSerializer(event, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
@@ -435,105 +432,16 @@ class Locations(ViewSet):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 # =============================================================
-#                           FEEDS
+#                          FEEDS
 # =============================================================
 
-#TODO: FIGURE OUT HOW THIS IS BEING USED. 
-class OrgFeed(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
+class Feeds(ViewSet):
+    permission_classes = (AllowAny,)
 
-    def get(self, request, in_timestamp, format=None):
-        old_timestamp = dateutil.parser.parse(in_timestamp)
-        outdated_orgs, all_deleted = outdatedOrgs(old_timestamp)
-        # json_orgs = JSONRenderer().render(OrgSerializer(outdated_orgs, many = True).data)
-
-        json_orgs = OrgSerializer(outdated_orgs, many=True).data
-        serializer = UpdatedOrgSerializer(
-            {"orgs": json_orgs, "timestamp": timezone.now()}
-        )
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-def outdatedOrgs(in_timestamp):
-    # org_updates = Org.history.filter(history_date__gte = in_timestamp)
-    # org_updates = org_updates.distinct('id').order_by('id')
-
-    # org_list = org_updates.values_list('id', flat = True).order_by('id')
-    # TODO: What if not in list
-    changed_orgs = Org.objects  # .filter(pk__in=org_list)
-    # present_pks = Org.objects.filter(pk__in = org_list).values_list('pk', flat = True)
-    all_deleted_pks = list()  # set(org_list).difference(set(present_pks)))
-    return changed_orgs, all_deleted_pks
-
-#TODO: FIGURE OUT HOW THIS IS BEING USED. COMBINE WITH GET_EVENTS IF POSSIBLE.
-class EventFeed(APIView):
-    # TODO: token authentication not working...?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    # get event feed, parse timestamp and return events
-    # events are reported as blocks of 15
-    def get(self, request, format=None):
-        start_time = request.GET.get("start")
-        end_time = request.GET.get("end")
-
-        pageSize = -1
-        pageSizeFound = False
-        try:
-            pageSize = int(request.GET.get("pageSize"))
-            pageSizeFound = True
-        except:
-            pageSize = EVENTS_PER_PAGE
-
-        try:
-            page = int(request.GET.get("page"))
-        except:
-            if(pageSizeFound):
-                page = 1
-            else:
-                allSerializer = EventSerializer(Event.objects.all(), many=True)
-                serializer = UpdatedEventsSerializer({
-                    "events": allSerializer.data,
-                    "timestamp": timezone.now(),
-                    "page": 1,
-                    "pages": 1,
-                    "pageSize": Event.objects.count(),
-                    "totalEventCount": Event.objects.count()
-                })
-                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-        start_time = dateutil.parser.parse(start_time)
-        end_time = dateutil.parser.parse(end_time)
-        filtered_events, all_deleted = outdatedEvents(start_time, end_time)
-        # pagination; Report back the chunk of events represented by page=_
-        json_events = EventSerializer(filtered_events, many=True).data
-        total_pages = int(math.ceil((len(json_events) / pageSize)))
-
-        # "page" is constrained to 1 and the last page (total_pages)
-        page = max(min(total_pages, page), 1)
-
-        this_page_events = json_events[(page - 1) * pageSize: page * pageSize]
-
-        serializer = UpdatedEventsSerializer({
-            "events": this_page_events,
-            "timestamp": timezone.now(),
-            "page": page,
-            "pages": total_pages,
-            "pageSize": pageSize,
-            "totalEventCount": Event.objects.count()
-        })
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-def outdatedEvents(start_time, end_time):
-    changed_events = Event.objects.filter(
-        start_date__gte=start_time, end_date__lte=end_time
-    ).order_by("id")
-    # present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
-    all_deleted_pks = list()  # set(pks).difference(set(present_pks)))
-    return changed_events, all_deleted_pks
+    def get_event_feed(self, request, format=None):
+        upcoming_events = Event.objects.filter(start_date__gte=date.today())
+        serializer = EventSerializer(upcoming_events, many=True)
+        return JsonResponse({"events": serializer.data}, status=status.HTTP_200_OK)
 
 # =============================================================
 #                          MEDIA

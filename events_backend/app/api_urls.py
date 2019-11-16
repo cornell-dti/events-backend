@@ -57,8 +57,12 @@ urlpatterns = [
     # locations
     url(r'^get_location/(?P<location_id>[0-9]+)/?$',
         views.Locations.as_view({'get': 'get_location'}), name='Get-Location'),
-    url(r'^get_all_locations/?$', 
+    url(r'^get_all_locations/?$',
         views.Locations.as_view({'get': 'get_all_locations'}), name='Get-All-Locations'),
+
+    # feeds
+    url(r'^get_event_feed/?$',
+        views.Feeds.as_view({'get': 'get_event_feed'}), name='Get-Event-Feed'),
 
     url(r"^sign_s3/?$", views.GetSignedRequest.as_view(), name="Get-Signed-Request"),
 ]
