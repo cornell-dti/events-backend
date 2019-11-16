@@ -97,7 +97,7 @@ class Tokens(ViewSet):
         mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
         if mobile_user_set.exists():
             user = mobile_user_set[0]
-            token = Token.objects.get(user=user)
+            token = get_object_or_404(Token, user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return HttpResponse("Reset Token Error")
@@ -315,7 +315,7 @@ class OrgEvents(ViewSet):
         Event_Org.objects.create(event=event, org=org)
 
         for t in eventData["tags"]:
-            tag = Tag.objects.get(name=t["label"])
+            tag = get_object_or_404(Tag, name=t["label"])
             event_tag = Event_Tags(event=event, tags=tag)
             event_tag.save()
     
@@ -349,7 +349,7 @@ class OrgEvents(ViewSet):
         event.save()
 
         for t in eventData["tags"]:
-            tag = Tag.objects.get(name=t["label"])
+            tag = get_object_or_404(Tag, name=t["label"])
             event_tag = Event_Tags.objects.get_or_create(event=event, tags=tag)
 
         if eventData["imageUrl"] != "":
@@ -491,6 +491,7 @@ def outdatedEvents(in_timestamp, start_time, end_time):
 #                          MEDIA
 # =============================================================
 
+#TODO: DEAL WITH THIS AFTER SCOTT IS DONE WITH HIS S3 FIX
 class GetSignedRequest(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -561,6 +562,7 @@ class UploadImage(APIView):
 # =============================================================
 #                        HELPERS
 # =============================================================
+
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
@@ -587,7 +589,7 @@ def validate_firebase(mobile_id):
     except Exception as e:
         return False, mobile_id
 
-
+#TODO: FIGURE OUT WHAT THE BOTTOM 3 APIS DO
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
