@@ -9,7 +9,6 @@ import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 import routes from "./routes";
 import LinkColorless from "./components/LinkColorless";
 import Logo from "./components/Logo";
-import Landing from "./Landing";
 import axios from "axios";
 
 class Main extends Component {
@@ -132,21 +131,21 @@ class Main extends Component {
             <Redirect to={"/"} />
           </Switch>
         ) : (
-            <Switch>
-              {Object.values(routes.noAuth).map(obj => (
-                <Route
-                  exact
-                  key={obj.route}
-                  path={obj.route}
-                  component={obj.component}
-                />
-              ))}
-              {Object.values(routes.auth).map(obj => (
-                <Redirect key={obj.route} from={obj.route} to={"/login/"} />
-              ))}
-              <Redirect to={"/"} />
-            </Switch>
-          )}
+          <Switch>
+            {Object.values(routes.noAuth).map(obj => (
+              <Route
+                exact
+                key={obj.route}
+                path={obj.route}
+                component={obj.component}
+              />
+            ))}
+            {Object.values(routes.auth).map(obj => (
+              <Redirect key={obj.route} from={obj.route} to={"/login/"} />
+            ))}
+            <Redirect to={"/"} />
+          </Switch>
+        )}
         <AppBar color={"default"} className={classes.footer}>
           {this.getFooter(classes)}
         </AppBar>
