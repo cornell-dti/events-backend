@@ -754,18 +754,19 @@ class UploadImageS3(APIView):
         file_type = request.GET.get("file_type").replace('"', '')
         uploaded_file_name = request.GET.get("file_name").replace('"', '')
         
-        fileData = request.POST["file"]
+        fileData = request.POST.get("file", b"")
 
         temp_file_name = user_id + '_' + str(uploaded_file_name) + '.' + str(file_type)
 
 
         print("about to save", temp_file_name)
         fileObj = tempfile.TemporaryFile()
+        print("did we create fileObj?")
         # byteData = b""
         # fileData = byteData
         fileObj.write(fileData)
         fileObj.seek(0)
-
+        print("did we save?")
         
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
