@@ -6,19 +6,20 @@ import MenuItem from "@material-ui/core/MenuItem/MenuItem";
 import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip/Chip";
-import Paper from "@material-ui/core/Paper/Paper";
-import Typography from "@material-ui/core/Typography/Typography";
+
 
 class Autocomplete extends Component {
   state = { selected: null };
 
   componentDidMount() {
-    this.setState({ selected: this.props.value });
+    this.setState({selected: this.props.value});
   }
+
   onSelect(val) {
     this.setState({ selected: val });
     this.props.onUpdate(val);
   }
+
   onChange(val) {
     if (this.props.onChange !== undefined) this.props.onChange(val);
   }
@@ -26,7 +27,7 @@ class Autocomplete extends Component {
     const { classes } = this.props;
     const Field = this.props.canCreate ? CreatableSelect : Select;
     return (
-      <Field //styles={customStyles}
+      <Field
         classes={classes}
         value={this.state.selected}
         onChange={this.onSelect.bind(this)}
@@ -39,6 +40,7 @@ class Autocomplete extends Component {
         placeholder={this.props.placeholder}
         components={components}
         isMulti={this.props.multiSelect}
+        // isClearable
       />
     );
   }
@@ -57,18 +59,6 @@ Autocomplete.propTypes = {
   onUpdate: PropTypes.func.isRequired
 };
 
-// Changes the styling of the no options message
-function NoOptionsMessage(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.noOptionsMessage}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  );
-}
 
 function inputComponent({ inputRef, ...props }) {
   return <div ref={inputRef} {...props} />;
@@ -100,36 +90,11 @@ function Option(props) {
       buttonRef={props.innerRef}
       selected={props.isFocused}
       component="div"
-      style={{ fontWeight: props.isSelected ? 400 : 300 }}
+      style={{ fontWeight: props.isSelected ? 500 : 300 }}
       {...props.innerProps}
     >
       {props.children}
     </MenuItem>
-  );
-}
-
-// Changes the size and color of placeholder
-function Placeholder(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.placeholder}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  );
-}
-
-// Changes the font size of single value selects
-function SingleValue(props) {
-  return (
-    <Typography
-      className={props.selectProps.classes.singleValue}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
   );
 }
 
@@ -156,27 +121,11 @@ function MultiValue(props) {
   );
 }
 
-function Menu(props) {
-  return (
-    <Paper
-      square
-      className={props.selectProps.classes.paper}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Paper>
-  );
-}
-
 const components = {
   ValueContainer,
-  // NoOptionsMessage,
-  // Option,
   Control,
-  // Placeholder,
-  // SingleValue,
+  Option,
   // MultiValue,
-  // Menu
 };
 
 const styles = theme => ({
@@ -188,31 +137,10 @@ const styles = theme => ({
   },
   valueContainer: {
     display: "flex",
-    flexWrap: "wrap",
     flex: 1,
+    flexWrap: "wrap",
     alignItems: "center",
     paddingLeft: 0
-  },
-  chip: {
-      margin: `${theme.spacing(1) / 2}px ${theme.spacing(1) / 4}px`
-  },
-  placeholder: {
-    position: "absolute",
-    left: 2,
-    fontSize: 16
-  },
-  noOptionsMessage: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(1)}px`
-  },
-  singleValue: {
-    fontSize: 16
-  },
-  paper: { // options
-    position: "absolute",
-    zIndex: 1,
-    marginTop: theme.spacing(1),
-    left: 0,
-    right: 0
   }
 });
 
