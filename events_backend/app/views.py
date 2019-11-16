@@ -192,7 +192,6 @@ class UserProfile(ViewSet):
 
     def get_profile(self, request, org_id=None, format=None):
         if org_id is None:
-            print("ahahahahaha")
             org_owner_id = request.user.id
             org_set = get_object_or_404(Org, owner=org_owner_id)
         else: 
@@ -221,236 +220,7 @@ class UserProfile(ViewSet):
         )
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-# =============================================================
-#                     ORGANIZATION EVENTS
-# =============================================================
-
-class OrgEvents(ViewSet):
-    # TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication)  # (TokenAuthentication, )
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_events(self, request, org_id=None, page=None, format=None):
-        if org_id is None:
-            org = request.user.org
-            event_count = Event.objects.count()
-            event_set = Event.objects.filter(organizer=org)\
-                [(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
-            serializer = EventSerializer(event_set, many=True)
-            last_page= ceil(event_count / EVENTS_PER_PAGE)
-            return JsonResponse({"last_page": last_page, "events":\
-                serializer.data}, safe=False, status=status.HTTP_200_OK)
-
-    def add_event(self, request):
-        org = request.user.org
-        eventData = request.data
-        loc = Location.objects.get_or_create(
-            room=eventData["location"]["room"],
-            building=eventData["location"]["building"],
-            place_id=eventData["location"]["place_id"],
-        )
-
-        event.name = eventData["name"]
-        event.location = loc[0]
-        event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-        event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-        event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-        event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
-        event.description = eventData["description"]
-        event.organizer = org
-
-        # IMPROVE THIS! RN JUST DELETE ALL THE RELATED TAGS AND PUTTING IT IN
-        Event_Tags.objects.filter(event_id=event).delete()
-
-        for t in eventData["tags"]:
-            tag = Tag.objects.get(name=t["label"])
-            event_tag = Event_Tags.objects.create(event_id=event, tags_id=tag)
-        event.save()
-        serializer = EventSerializer(event, many=False)
-
-        if eventData["imageUrl"] != "":
-            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
-            event_media = Event_Media(event=event, media=media)
-            event_media.save()
-        # add
-
-    def edit_event(self, event_id, request):
-            event = Event.objects.create(
-                name=eventData["name"],
-                location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
-                end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
-                end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
-                description=eventData["description"],
-                organizer=org,
-            )
-            Event_Org.objects.create(event=event, org=org)
-
-            for t in eventData["tags"]:
-                tag = Tag.objects.get(name=t["label"])
-                event_tag = Event_Tags(event_id=event, tags_id=tag)
-                event_tag.save()
-
-            serializer = EventSerializer(event, many=False)
-
-        if eventData["imageUrl"] != "":
-            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
-            event_media = Event_Media(event=event, media=media)
-            event_media.save()
-
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self, request, event_id, format=None):
-        org = request.user.org
-        event_set = get_object_or_404(Event, pk=event_id)
-
-        if event_set.organizer == org:
-            event_set.delete()
-            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
-# =============================================================
-#                   EVENT INFORMATION
-# =============================================================
-
-class GetEvents(APIView):
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def get(self, request, organizer_id, format=None):
-        org = Org.objects.get(pk=int(organizer_id))
-        org_events_pks = Event_Org.objects.filter(org_id=org).values_list(
-            "event_id", flat=True
-        )
-        event_set = Event.objects.filter(pk__in=org_events_pks)
-        serializer = EventSerializer(event_set, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-
-class GetAllTags(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication,)
-    permission_classes = ()
-
-    def get(self, request, format=None):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse({"tags":serializer.data}, safe=False, status=status.HTTP_200_OK)
-
-
-# =============================================================
-#                   EVENT INFORMATION
-# =============================================================
-
-class EventDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, event_id, format=None):
-        event_set = Event.objects.get(pk=event_id)
-        serializer = EventSerializer(event_set, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class IncrementAttendance(APIView):
-    authentication_classes = ()  # (TokenAuthentication,)
-    permission_classes = ()  # (IsAuthenticated,)
-
-    def get(self, request, event_id, format=None):
-        event = Event.objects.get(pk=event_id)
-        event.num_attendees = event.num_attendees + 1
-        event.save()
-        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
-
-class UnincrementAttendance(APIView):
-    authentication_classes = ()  # (TokenAuthentication,)
-    permission_classes = ()  # (IsAuthenticated,)
-
-    def get(self, request, event_id, format=None):
-        event = Event.objects.get(pk=event_id)
-        event.num_attendees = event.num_attendees - 1
-        event.save()
-        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
-
-    # def post(self, request, format=None):
-    #     event = Event.objects.filter(pk=request.data["event"])[0]
-    #     user = Token.objects.filter(
-    #         pk=extractToken(request.META.get("HTTP_AUTHORIZATION"))
-    #     )[0].user
-    #     attendingSet = Attendance.objects.filter(user_id=user, event_id=event)
-
-    #     if not attendingSet.exists():
-    #         attendance = Attendance(user_id=user, event_id=event)
-    #         attendance.save()
-    #         event.num_attendees += 1
-    #         event.save()
-
-    #     return HttpResponse(status=status.HTTP_200_OK)
-    #     # TODO: if exists then response
-
-
-# =============================================================
-#                   LOCATION INFORMATION
-# =============================================================
-
-
-class SingleLocationDetail(APIView):
-
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, location_id, format=None):
-        location_set = Location.objects.get(pk=location_id)
-        serializer = LocationSerializer(location_set, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class AllLocationDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        location_set = Location.objects.all()
-        serializer = LocationSerializer(location_set, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-
-# =============================================================
-#                    TAG INFORMATION
-# =============================================================
-
-
-class SingleTagDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, tag_id, format=None):
-        tag = Tag.objects.get(id=tag_id)
-        serializer = TagSerializer(tag, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-class AllTagDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, format=None):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-
-# =============================================================
-#                           FEEDS
-# =============================================================
-
-
+#TODO: FIGURE OUT HOW THIS IS BEING USED. MERGE INTO USERPROFILE IF POSSIBLE.
 class OrgFeed(APIView):
     # TODO: alter classes to token and admin?
     authentication_classes = ()  # (TokenAuthentication, )
@@ -479,7 +249,129 @@ def outdatedOrgs(in_timestamp):
     all_deleted_pks = list()  # set(org_list).difference(set(present_pks)))
     return changed_orgs, all_deleted_pks
 
+# =============================================================
+#                     ORGANIZATION EVENTS
+# =============================================================
 
+class OrgEvents(ViewSet):
+    # TODO: alter classes to token and admin?
+    authentication_classes = (SessionAuthentication,)  # (TokenAuthentication, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_events(self, request, org_id=None, format=None):
+        if org_id is None:
+            org_owner_id = request.user.id
+            org = get_object_or_404(Org, owner=org_owner_id)
+        else:
+            org = get_object_or_404(Org, pk=org_id)
+
+        event_set = Event.objects.filter(organizer=org)
+        if request.GET.get("page") != None:
+            page = request.GET.get("page")
+            event_set = Event.objects.filter(organizer=org)\
+                [(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+            last_page = ceil(event_set.count()/EVENTS_PER_PAGE)
+            serializer = EventSerializer(event_set, many=True)
+            return JsonResponse({"last_page": last_page, "events":\
+                serializer.data}, safe=False, status=status.HTTP_200_OK)
+
+        else:
+            serializer = EventSerializer(event_set, many=True)
+            return JsonResponse({"events": serializer.data}, status=status.HTTP_200_OK)
+
+    def add_event(self, request):
+        org_owner_id = request.user.id
+        org = get_object_or_404(Org, owner=org_owner_id)
+        eventData = request.data
+        loc = Location.objects.get_or_create(
+            room=eventData["location"]["room"],
+            building=eventData["location"]["building"],
+            place_id=eventData["location"]["place_id"],
+        )
+
+        event = Event.objects.create(
+            name=eventData["name"],
+            location=loc[0],
+            start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
+            end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
+            start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+            end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
+            description=eventData["description"],
+            organizer=org,
+        )
+        Event_Org.objects.create(event=event, org=org)
+
+        for t in eventData["tags"]:
+            tag = Tag.objects.get(name=t["label"])
+            event_tag = Event_Tags(event=event, tags=tag)
+            event_tag.save()
+    
+        if eventData["imageUrl"] != "":
+            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
+
+        serializer = EventSerializer(event, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def edit_event(self, request):
+        org_owner_id = request.user.id
+        org = get_object_or_404(Org, owner=org_owner_id)
+
+        eventData = request.data
+        event = get_object_or_404(Event, pk=eventData["pk"])
+        loc = Location.objects.get_or_create(
+            room=eventData["location"]["room"],
+            building=eventData["location"]["building"],
+            place_id=eventData["location"]["place_id"],
+        )
+        event.name = eventData["name"]
+        event.location = loc[0]
+        event.start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
+        event.end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+        event.start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
+        event.end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
+        event.description = eventData["description"]
+        event.organizer = org
+        event.save()
+
+        for t in eventData["tags"]:
+            tag = Tag.objects.get(name=t["label"])
+            event_tag = Event_Tags.objects.get_or_create(event=event, tags=tag)
+
+        if eventData["imageUrl"] != "":
+            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            event_media = Event_Media(event=event, media=media)
+            event_media.save()
+
+        serializer = EventSerializer(event, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def delete_event(self, request, event_id, format=None):
+        org_owner_id = request.user.id
+        org = get_object_or_404(Org, owner=org_owner_id)
+        event = get_object_or_404(Event, pk=event_id)
+
+        if event.organizer == org:
+            event.delete()
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
+
+    #TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
+    def increment_attendence(self, request, event_id, format=None):
+        event = Event.objects.get_object_or_404(pk=event_id)
+        event.num_attendees = event.num_attendees + 1
+        event.save()
+        return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
+
+    def decrement_attendance(self, request, event_id, format=None):
+        event = Event.objects.get_object_or_404(pk=event_id)
+        event.num_attendees = event.num_attendees - 1
+        event.save()
+        return HttpResponse("Attendance decremented for event with ID: " + event_id, status=status.HTTP_200_OK)
+
+#TODO: FIGURE OUT HOW THIS IS BEING USED. COMBINE WITH GET_EVENTS IF POSSIBLE.
 class EventFeed(APIView):
     # TODO: token authentication not working...?
     authentication_classes = ()  # (TokenAuthentication, )
@@ -514,6 +406,70 @@ def outdatedEvents(in_timestamp, start_time, end_time):
     # present_pks = Event.objects.filter(pk__in = pks).values_list('pk', flat = True)
     all_deleted_pks = list()  # set(pks).difference(set(present_pks)))
     return changed_events, all_deleted_pks
+
+# =============================================================
+#                        TAGS
+# =============================================================
+
+class GetAllTags(APIView):
+    # TODO: alter classes to token and admin?
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = ()
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse({"tags":serializer.data}, safe=False, status=status.HTTP_200_OK)
+
+
+class SingleTagDetail(APIView):
+    # TODO: alter classes to token and admin?
+    authentication_classes = ()  # (TokenAuthentication, )
+    permission_classes = ()  # (IsAuthenticated, )
+
+    def get(self, request, tag_id, format=None):
+        tag = Tag.objects.get(id=tag_id)
+        serializer = TagSerializer(tag, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+
+class AllTagDetail(APIView):
+    # TODO: alter classes to token and admin?
+    authentication_classes = ()  # (TokenAuthentication, )
+    permission_classes = ()  # (IsAuthenticated, )
+
+    def get(self, request, format=None):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+
+# =============================================================
+#                   LOCATION INFORMATION
+# =============================================================
+
+
+class SingleLocationDetail(APIView):
+
+    # TODO: alter classes to token and admin?
+    authentication_classes = ()  # (TokenAuthentication, )
+    permission_classes = ()  # (IsAuthenticated, )
+
+    def get(self, request, location_id, format=None):
+        location_set = Location.objects.get(pk=location_id)
+        serializer = LocationSerializer(location_set, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+
+class AllLocationDetail(APIView):
+    # TODO: alter classes to token and admin?
+    authentication_classes = ()  # (TokenAuthentication, )
+    permission_classes = ()  # (IsAuthenticated, )
+
+    def get(self, request, format=None):
+        location_set = Location.objects.all()
+        serializer = LocationSerializer(location_set, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
 
 # =============================================================
@@ -559,16 +515,6 @@ class GetSignedRequest(APIView):
             },
             status=status.HTTP_200_OK,
         )
-
-
-def tagDetail(tag_id=0, all=False):
-    tags = Tag.objects.all()
-    if all:
-        serializer = TagSerializer(tags, many=True)
-    else:
-        serializer = TagSerializer(tags.filter(pk=tag_id), many=False)
-
-    return serializer
 
 
 class ImageDetail(APIView):
@@ -645,101 +591,6 @@ class UploadImage(APIView):
 
 
 # =============================================================
-#                        FORMS
-# =============================================================
-
-
-class TagFormView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        form = TagForm()
-        return render(request, "post_edit.html", {"form": form})
-
-    def post(self, request):
-        form = TagForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect("post_detail_tag", pk=post.pk)
-
-
-class EventFormView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        form = EventForm()
-        return render(request, "post_edit.html", {"form": form})
-
-    def post(self, request):
-        form = EventForm(request.POST)
-
-        if form.is_valid():
-            e = Event()
-            e.name = form.cleaned_data["name"]
-            e.description = form.cleaned_data["description"]
-            e.start_date = form.cleaned_data["start_date"]
-            e.end_date = form.cleaned_data["end_date"]
-            e.start_time = form.cleaned_data["start_time"]
-            e.end_time = form.cleaned_data["end_time"]
-            e.is_public = form.cleaned_data["is_public"]
-            e.organizer = form.cleaned_data["organizer"]
-
-            l = Location()
-            if form.cleaned_data["existing_location"]:
-                l = form.cleaned_data["existing_location"]
-                e.location = l
-            elif form.cleaned_data["new_location_building"]:
-                l.building = form.cleaned_data["new_location_building"]
-                l.place_id = form.cleaned_data["new_location_placeid"]
-                l.save()
-                e.location = l
-            else:
-                return redirect("post_detail_event_error.html")
-
-            e.save()
-            return redirect("post_detail_event", pk=e.pk)
-
-
-class LocationFormView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        form = LocationForm()
-        return render(request, "post_edit.html", {"form": form})
-
-    def post(self, request):
-        form = LocationForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect("post_detail_location", pk=post.pk)
-
-
-class OrgFormView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        form = OrgForm()
-        return render(request, "post_edit.html", {"form": form})
-
-    def post(self, request):
-        form = OrgForm(request.POST)
-        if form.is_valid():
-            o = Org()
-            o.name = form.cleaned_data["name"]
-            o.description = form.cleaned_data["description"]
-            o.verified = form.cleaned_data["verified"]
-            o.website = form.cleaned_data["website"]
-            o.photo = form.cleaned_data["photo"]
-
-            o.owner = request.user
-
-            o.save()
-            return redirect("post_detail_org", pk=o.pk)
-
-
-# =============================================================
 #                        HELPERS
 # =============================================================
 def check_login_status(request):
@@ -754,57 +605,6 @@ def generateUserName():
     # HANDLE user.obects.latest is null case
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
     return "user{0}".format(User.objects.latest("pk").pk + 1)
-
-
-def post_detail_org(request, pk):
-    post = get_object_or_404(Org, pk=pk)
-    return render(request, "post_detail_org.html", {"post": post})
-
-
-def post_detail_tag(request, pk):
-    post = get_object_or_404(Tag, pk=pk)
-    return render(request, "post_detail_tag.html", {"post": post})
-
-
-def post_detail_event(request, pk):
-    post = get_object_or_404(Event, pk=pk)
-    return render(request, "post_detail_event.html", {"post": post})
-
-
-def post_detail_location(request, pk):
-    post = get_object_or_404(Location, pk=pk)
-    return render(request, "post_detail_location.html", {"post": post})
-
-
-def post_detail_user(request, pk):
-    post = get_object_or_404(User, pk=pk)
-    return render(request, "post_detail_user.html", {"post": post})
-
-
-def post_edit_org(request, pk):
-    post = get_object_or_404(Org, pk=pk)
-    if request.method == "POST":
-        form = OrgForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect("post_detail_org", pk=post.pk)
-    else:
-        form = OrgForm(instance=post)
-    return render(request, "post_edit.html", {"form": form})
-
-
-def post_event_edit(request, pk):
-    post = get_object_or_404(Event, pk=pk)
-    if request.method == "POST":
-        form = EventForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect("post_detail", pk=post.pk)
-    else:
-        form = EventForm(instance=post)
-    return render(request, "blog/post_edit.html", {"form": form})
 
 
 def validate_email(email):
