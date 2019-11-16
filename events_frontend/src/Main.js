@@ -11,6 +11,8 @@ import LinkColorless from "./components/LinkColorless";
 import Logo from "./components/Logo";
 import axios from "axios";
 
+let DOWNLOAD_LINK = "https://dticornell.typeform.com/to/RfyNiq";
+
 class Main extends Component {
   state = { loggedIn: true };
 
@@ -86,13 +88,13 @@ class Main extends Component {
           </Typography>
         </a>
         <div className={classes.buttonContainer}>
-          <a href={"/"} className={classes.appButton}>
+          <a href={DOWNLOAD_LINK} className={classes.appButton}>
             <img
               src={"https://upload.wikimedia.org/wikipedia/commons/5/55/Download_on_iTunes.svg"}
               alt="Download on the App Store"
             />
           </a>
-          <a href={"/"} className={classes.appButton}>
+          <a href={DOWNLOAD_LINK} className={classes.appButton}>
             <img
               src={"https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"}
               alt="Download on the Google Play Store"
@@ -188,7 +190,7 @@ const styles = theme => ({
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   appBarSpace: theme.mixins.toolbar,
   button: {

@@ -161,6 +161,7 @@ class SignUp(APIView):
             errors = dict(form.errors.items())
             for _, value in errors.items():
                 errorList += value
+
             return JsonResponse(
                 {"messages": errorList}, status=status.HTTP_400_BAD_REQUEST
             )

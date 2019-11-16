@@ -5,8 +5,11 @@ import { withStyles } from "@material-ui/core";
 class FormError extends Component {
   state = { errors: [] };
 
-  componentDidReceiveProps(nextProps) {
-    this.setState({ errors: nextProps.errors });
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.errors != prevState.errors) {
+      return {errors: nextProps.errors };
+    }
+    else return null;
   }
 
   render() {
@@ -15,7 +18,7 @@ class FormError extends Component {
     return (
       <Typography
         className={classes.error}
-        variant={"h6"}
+        variant={"subtitle1"}
         color={"secondary"}
         align={"center"}
       >

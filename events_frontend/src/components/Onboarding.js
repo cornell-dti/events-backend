@@ -9,12 +9,12 @@ class Onboarding extends Component {
     const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <Typography variant={"headline"} className={classes.title}>
+        <Typography variant={"h5"} className={classes.title}>
           {this.props.title}
         </Typography>
         {this.props.body !== undefined ? (
           <Typography
-            variant={"h6"}
+            variant={"h5"}
             className={classes.spaced}
             align={"center"}
           >

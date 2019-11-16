@@ -323,9 +323,7 @@ class CreateEvent extends Component {
             onUpdate={data =>
               this.setState({ location: data.label, place_id: data.value })
             }
-            placeholder={
-              "Building to navigate to (e.g. Bill and Melinda Gates Hall)"
-            }
+            placeholder={"Building to navigate to (e.g. Bill and Melinda Gates Hall)"}
             multiSelect={false}
             canCreate={false}
             margin={"normal"}
@@ -395,7 +393,8 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
-    width: '36vw'
+    width: '36vw',
+    padding: theme.spacing(4)
   }
 });
 
