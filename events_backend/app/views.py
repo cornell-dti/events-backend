@@ -757,8 +757,7 @@ class UploadImageS3(APIView):
         s3_resource = boto3.resource(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=s
-            ettings.AWS_SECRET_ACCESS_KEY
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
 
         simple_filename = str(uploaded_file_name) + "." + str(file_type)
