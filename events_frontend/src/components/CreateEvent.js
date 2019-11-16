@@ -172,7 +172,13 @@ class CreateEvent extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    
+    const fileType = file.type.replace("image/", "");
+
+    if (fileType.length == file.type.length) {
+      alert("Could not upload image. Please use a different file type");
+    }
+
+    console.log(fileType);
     axios.post(`/api/upload_image_s3/?file_name=${file.name}&file_type=${file.type}`, {
         file: file
     }).then((res) => {
