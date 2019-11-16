@@ -173,7 +173,7 @@ class CreateEvent extends Component {
   uploadImage(callback) {
     const file = this.state.image;
 
-    axios.post(`/api/upload_image_s3/?file_name=${file.name}$file_type=${file.type}`, {
+    axios.post(`/api/upload_image_s3/?file_name=${file.name}&file_type=${file.type}`, {
         file: file
     }).then((res) => {
         console.log(res);
