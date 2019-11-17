@@ -737,11 +737,21 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
-def upload_image(bucket, filename, file_data):
+def upload_image(s3, bucket_name, filename_path, file_data):
     if not isinstance(file_data, bytes):
-        return False
+        return False, ""
     try:
-        bucket.put_object(Key=filename, Body=file_data)
+        s3.put_object(Bucket=bucket_name, Key=filename_path, Body=file_data)
+    except ClientError as e:
+        logging.error(e)
+        return False, ""
+    finally:
+        return True, filename_path
+
+def make_public(s3, bucket_name, filename_path):
+    try:
+        s3.put_object_acl(ACL="public-read",
+        Bucket=bucket_name)
     except ClientError as e:
         logging.error(e)
         return False
@@ -760,8 +770,6 @@ class UploadImageS3(APIView):
         fileData = request.POST.get("file", b"")
 
         temp_file_name = user_id + '_' + str(uploaded_file_name) + '.' + str(file_type)
-
-        fileData = b""
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
@@ -787,8 +795,13 @@ class UploadImageS3(APIView):
 
         simple_filename = user_id + '_' + str(uploaded_file_name) + "." + str(file_type)
 
-        success = upload_image(s3_resource.Bucket(S3_BUCKET), simple_filename, fileData)
+        upload_success, s3_url = upload_image(s3, S3_BUCKET, simple_filename, fileData)
 
+
+        if upload_success:
+            make_public_success = make_public(s3, S3_BUCKET, simple_filename)
+        else:
+            print("failure to make public")
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,
@@ -806,10 +819,10 @@ class UploadImageS3(APIView):
         postData = {}
         for key in presigned_post:
             postData[key] = presigned_post[key]
-            print(key, presigned_post[key])
+            # print(key, presigned_post[key])
 
 
-        s3_res = requests.post(file_url, data=postData)
+        # s3_res = requests.post(file_url, data=postData)
 
 
 
@@ -819,7 +832,9 @@ class UploadImageS3(APIView):
                 "url": file_url,
                 "bucket": S3_BUCKET,
                 "filename": file_name,
-                "s3-response": s3_res.text
+                "upload_success": upload_success,
+                "make_public_success": make_public_success,
+                "s3_url": s3_url
             },
             status=status.HTTP_200_OK
         )
