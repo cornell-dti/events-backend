@@ -761,16 +761,7 @@ class UploadImageS3(APIView):
 
         temp_file_name = user_id + '_' + str(uploaded_file_name) + '.' + str(file_type)
 
-
-        print("about to save", temp_file_name)
-        fileObj = tempfile.TemporaryFile()
-        print("did we create fileObj?")
-        # byteData = b""
-        # fileData = byteData
-        fileObj.write(fileData)
-        fileObj.seek(0)
-        print("did we save?")
-        
+        fileData = b""
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
@@ -812,12 +803,15 @@ class UploadImageS3(APIView):
     
 
         # make POST request to amazon at file_url
-        # s3_res = requests.post(file_url, data={
-        #     "file": fileObj
-        # })
+        postData = {}
+        for key in presigned_post:
+            postData[key] = presigned_post[key]
+            print(key, presigned_post[key])
 
-        
-        fileObj.close()
+
+        s3_res = requests.post(file_url, data=postData)
+
+
 
         return JsonResponse(
             {
@@ -825,7 +819,7 @@ class UploadImageS3(APIView):
                 "url": file_url,
                 "bucket": S3_BUCKET,
                 "filename": file_name,
-                # "s3-response": s3_resource.text
+                "s3-response": s3_res.text
             },
             status=status.HTTP_200_OK
         )
