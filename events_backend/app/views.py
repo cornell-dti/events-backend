@@ -737,7 +737,7 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
-def upload_image(s3, bucket_name, filename_path, file_data):
+def upload_image(s3, bucket_name, filename, file_data):
     if not isinstance(file_data, bytes):
         return False, ""
     try:
@@ -746,7 +746,7 @@ def upload_image(s3, bucket_name, filename_path, file_data):
         logging.error(e)
         return False, ""
     finally:
-        return True, filename_path
+        return True, filename
 
 def make_public(s3, bucket_name, filename_path):
     try:
@@ -769,61 +769,36 @@ class UploadImageS3(APIView):
         
         fileData = request.POST.get("file", b"")
 
-        temp_file_name = user_id + '_' + str(uploaded_file_name) + '.' + str(file_type)
+
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
-        file_name = (
-            "user_media/"
-            + str(request.user.id)
-            + "/"
-            + timeString
-            + "_"
-            + uploaded_file_name
-        )
+
 
         s3 = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
-        s3_resource = boto3.resource(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        )
 
-        simple_filename = user_id + '_' + str(uploaded_file_name) + "." + str(file_type)
 
-        upload_success, s3_url = upload_image(s3, S3_BUCKET, simple_filename, fileData)
+        file_name = ("user_media/"
+            + user_id + '/'
+            + timeString
+            + '_'
+            + str(uploaded_file_name))
+
+        upload_success, s3_url = upload_image(s3, S3_BUCKET, file_name, fileData)
 
 
         if upload_success:
-            make_public_success = make_public(s3, S3_BUCKET, simple_filename)
+            make_public_success = make_public(s3, S3_BUCKET, file_name)
         else:
             print("failure to make public")
 
-        presigned_post = s3.generate_presigned_post(
-            Bucket=S3_BUCKET,
-            Key=file_name,
-            Fields={"acl": "public-read", "Content-Type": file_type},
-            Conditions=[{"acl": "public-read"}, {"Content-Type": file_type}],
-            ExpiresIn=3600,
-        )
-
-        file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
+        file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, s3_url)
 
     
-
-        # make POST request to amazon at file_url
-        postData = {}
-        for key in presigned_post:
-            postData[key] = presigned_post[key]
-            # print(key, presigned_post[key])
-
-
-        # s3_res = requests.post(file_url, data=postData)
-
 
 
         return JsonResponse(
