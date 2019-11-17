@@ -737,13 +737,16 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
-def uploadImage(userId, eventId, name, file):
-    fs = FileSystemStorage()
-
-    filename = userId + evenId + name
-
-
-
+def upload_image(bucket, filename, file_data):
+    if not isinstance(file_data, bytes):
+        return False
+    try:
+        bucket.put_object(Key=filename, Body=file_data)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    finally:
+        return True
 
 class UploadImageS3(APIView):
     authentication_classes = ()
@@ -791,8 +794,10 @@ class UploadImageS3(APIView):
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
 
-        simple_filename = str(uploaded_file_name) + "." + str(file_type)
-        s3_resource.Bucket(S3_BUCKET).put_object(Key=simple_filename, Body=fileData)
+        simple_filename = user_id + '_' + str(uploaded_file_name) + "." + str(file_type)
+
+        success = upload_image(s3_resource.Bucket(S3_BUCKET), simple_filename, fileData)
+
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,
