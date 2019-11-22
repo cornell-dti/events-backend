@@ -56,16 +56,22 @@ class Command(BaseCommand):
                     start = event['event_instances'][0]['event_instance']['start']
                     end = event['event_instances'][0]['event_instance']['end']
 
-                    if start[-3:] == ':00':
+                    if start is not None and start[-3:] == ':00':
                         start = start[:-3] + '00'
-                    if end[-3:] == ':00':
+                    if end is not None and end[-3:] == ':00':
                         end = end[:-3] + '00'
 
                     # How do we handle?
                     if all_day and end is None:
                         end = start
 
-                    org_name = event['filters']['departments'][0]['name']
+                    try:
+                        org_name = event['filters']['departments'][0]['name']
+                    except KeyError:
+                        print("Missing department(s)")
+                        data_count += 1
+                        fail_data_count += 1
+                        continue
 
                     contact_email = "donotdisplay@cornell.edu"
                     try:

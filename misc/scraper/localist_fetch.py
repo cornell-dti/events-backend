@@ -1,6 +1,18 @@
 import json
 
 import requests
+from geopy.distance import geodesic
+
+MAX_EVENT_PER_PAGE = 100
+SCRAPER_START_DATE = "2019-11-21"
+SCRAPER_END_DATE = "2019-12-06"
+ITHACA_COORDS = (42.4534492, -76.4735027)
+MAX_DIST_MILES = 7
+IGNORE_WORDS = ['faculty', "staff", "instructor", "phd", "postdoc", "grad", "resident", "member", "rose"]
+
+
+def is_nearby_event(lat, lon):
+    return geodesic(ITHACA_COORDS, (lat, lon)).miles <= MAX_DIST_MILES
 
 
 def is_valid_event(event_id):
@@ -39,6 +51,7 @@ def is_valid_event(event_id):
         except KeyError:
             pass
 
+        img_src = event['photo_url']
         all_day = event['event_instances'][0]['event_instance']['all_day']
 
         start = event['event_instances'][0]['event_instance']['start']
@@ -64,12 +77,20 @@ def is_valid_event(event_id):
             print("Missing datetime")
             return False
 
-        if (latitude == "" or latitude is None or longitude == "" or longitude is None) and (
-                location == "" or location is None):
-            print("Missing location AND coordinates")
+        if latitude == "" or latitude is None or longitude == "" or longitude is None:
+            if location == "" or location is None:
+                print("Missing location AND coordinates")
+                return False
+        elif not is_nearby_event(latitude, longitude):
+            print("Event too far away")
             return False
 
-        if "CCE" in keywords or "CCE" in groups or any(x.startsWith("CCE") for x in departments):
+        if img_src == "" or img_src is None:
+            print("Missing image link")
+            return False
+
+        if "CCE" in keywords or "CCE" in groups or any(x['name'].startswith("CCE") for x in departments):
+        # if "CCE" in keywords or "CCE" in groups or any(x.startsWith("CCE") for x in departments):
             print("Ignoring CCE events")
             return False
     except:
@@ -78,9 +99,6 @@ def is_valid_event(event_id):
 
 
 if __name__ == '__main__':
-    MAX_EVENT_PER_PAGE = 100
-    SCRAPER_START_DATE = "2019-10-01"
-    SCRAPER_END_DATE = "2019-11-04"
 
     URL = f"https://events.cornell.edu/api/2/events?start={SCRAPER_START_DATE}&end={SCRAPER_END_DATE}&pp={MAX_EVENT_PER_PAGE}"
 
