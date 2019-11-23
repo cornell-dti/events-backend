@@ -136,12 +136,6 @@ class Verified_Emails(models.Model):
 #     def __str__(self):
 #         return self.name
 
-class MinimumVersion(models.Model):
-    class Meta:
-        app_label = 'app'
-
-    version = models.IntegerField(unique=True)
-
 
 class Event(models.Model):
     class Meta:
