@@ -33,6 +33,8 @@ urlpatterns = [
         views.UserProfile.as_view({'post': 'edit_profile'}), name="Edit-Profile"),
 
     # events
+    url(r"^get_event/(?P<event_id>[0-9]+)/?$",
+        views.OrgEvents.as_view({'get': 'get_event'}), name="Get-Org-Event"),
     url(r"^get_events/(?P<org_id>[0-9]+)/?$",
         views.OrgEvents.as_view({'get': 'get_events'}), name="Get-Org-Events"),
     url(r"^get_events/?$",

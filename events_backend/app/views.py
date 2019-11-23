@@ -61,7 +61,7 @@ from django.core.mail import send_mail
 import os
 import re
 
-from math import ceil;
+from math import ceil
 
 User = get_user_model()
 EVENTS_PER_PAGE = 15
@@ -72,9 +72,10 @@ EVENTS_PER_PAGE = 15
 # =============================================================
 class AppleAppSite(APIView):
     permission_classes = (AllowAny,)
-    
+
     def get(self, request, format=None):
-        response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
+        response = StreamingHttpResponse(staticfiles_storage.open(
+            "apple-app-site-association"), content_type="application/json")
         return response
 
 
@@ -122,7 +123,7 @@ class Tokens(ViewSet):
 # =============================================================
 #            LOGIN/SIGNUP/CHANGE LOGIN EMAIL/PASSWORD
 # =============================================================
- 
+
 class SignUp(APIView):
     permission_classes = (AllowAny,)
 
@@ -253,7 +254,7 @@ class UserProfile(ViewSet):
         if org_id is None:
             org_owner_id = request.user.id
             org_set = get_object_or_404(Org, owner=org_owner_id)
-        else: 
+        else:
             org_set = get_object_or_404(Org, pk=org_id)
         serializer = OrgSerializer(org_set, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
@@ -268,7 +269,8 @@ class UserProfile(ViewSet):
         org_set.bio = orgData["bio"]
 
         if orgData["imageUrl"] != "":
-            media = Media.objects.create(link=orgData["imageUrl"], uploaded_by=org_set)
+            media = Media.objects.create(
+                link=orgData["imageUrl"], uploaded_by=org_set)
             org_media = Org_Media(org=org_set, media=media)
             org_media.save()
 
@@ -283,10 +285,17 @@ class UserProfile(ViewSet):
 #                     ORGANIZATION EVENTS
 # =============================================================
 
+
 class OrgEvents(ViewSet):
     # TODO: alter classes to token and admin?
-    authentication_classes = (SessionAuthentication, TokenAuthentication)  # (TokenAuthentication, )
+    # (TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_event(self, request, event_id, format=None):
+        event_set = get_object_or_404(Event, pk=event_id)
+        serializer = EventSerializer(event_set, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def get_events(self, request, org_id=None, format=None):
         if org_id is None:
@@ -298,12 +307,12 @@ class OrgEvents(ViewSet):
         event_set = Event.objects.filter(organizer=org)
         if request.GET.get("page") != None:
             page = request.GET.get("page")
-            event_set = Event.objects.filter(organizer=org)\
-                [(int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
+            event_set = Event.objects.filter(organizer=org)[(
+                int(page)-1)*EVENTS_PER_PAGE:int(page)*EVENTS_PER_PAGE]
             last_page = ceil(event_set.count()/EVENTS_PER_PAGE)
             serializer = EventSerializer(event_set, many=True)
-            return JsonResponse({"last_page": last_page, "events":\
-                serializer.data}, status=status.HTTP_200_OK)
+            return JsonResponse({"last_page": last_page, "events":
+                                 serializer.data}, status=status.HTTP_200_OK)
 
         else:
             serializer = EventSerializer(event_set, many=True)
@@ -324,7 +333,8 @@ class OrgEvents(ViewSet):
             location=loc[0],
             start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
             end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
-            start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+            start_time=dt.strptime(
+                eventData["start_time"], "%H:%M:%S %p").time(),
             end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
             description=eventData["description"],
             organizer=org,
@@ -334,9 +344,10 @@ class OrgEvents(ViewSet):
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
             Event_Tags.objects.get_or_create(event=event, tags=tag)
-    
+
         if eventData["imageUrl"] != "":
-            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            media = Media.objects.create(
+                link=eventData["imageUrl"], uploaded_by=org)
             Event_Media.objects.get_or_create(event=event, media=media)
 
         serializer = EventSerializer(event, many=False)
@@ -355,10 +366,13 @@ class OrgEvents(ViewSet):
         )
         event.name = eventData["name"]
         event.location = loc[0]
-        event.start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
-        event.end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
-        event.start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
-        event.end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
+        event.start_date = dt.strptime(
+            eventData["start_date"], "%m/%d/%Y").date()
+        event.end_date = dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+        event.start_time = dt.strptime(
+            eventData["start_time"], "%H:%M:%S %p").time()
+        event.end_time = dt.strptime(
+            eventData["end_time"], "%H:%M:%S %p").time()
         event.description = eventData["description"]
         event.organizer = org
         event.save()
@@ -368,7 +382,8 @@ class OrgEvents(ViewSet):
             Event_Tags.objects.get_or_create(event=event, tags=tag)
 
         if eventData["imageUrl"] != "":
-            media = Media.objects.create(link=eventData["imageUrl"], uploaded_by=org)
+            media = Media.objects.create(
+                link=eventData["imageUrl"], uploaded_by=org)
             Event_Media.objects.get_or_create(event=event, media=media)
 
         serializer = EventSerializer(event, many=False)
@@ -385,7 +400,7 @@ class OrgEvents(ViewSet):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
-    #TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
+    # TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
     def increment_attendence(self, request, event_id, format=None):
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees + 1
@@ -402,13 +417,14 @@ class OrgEvents(ViewSet):
 #                          TAGS
 # =============================================================
 
+
 class Tags(ViewSet):
     permission_classes = (AllowAny,)
 
     def get_all_tags(self, request, format=None):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
-        return JsonResponse({"tags":serializer.data}, status=status.HTTP_200_OK)
+        return JsonResponse({"tags": serializer.data}, status=status.HTTP_200_OK)
 
     def get_tag(self, request, tag_id, format=None):
         tag = get_object_or_404(Tag, id=tag_id)
@@ -419,13 +435,14 @@ class Tags(ViewSet):
 #                        LOCATIONS
 # =============================================================
 
+
 class Locations(ViewSet):
     permission_classes = (AllowAny,)
 
     def get_all_locations(self, request, format=None):
         location_set = Location.objects.all()
         serializer = LocationSerializer(location_set, many=True)
-        return JsonResponse({"locations":serializer.data}, status=status.HTTP_200_OK)
+        return JsonResponse({"locations": serializer.data}, status=status.HTTP_200_OK)
 
     def get_location(self, request, location_id, format=None):
         location_set = get_object_or_404(Location, pk=location_id)
@@ -435,6 +452,7 @@ class Locations(ViewSet):
 # =============================================================
 #                          FEEDS
 # =============================================================
+
 
 class Feeds(ViewSet):
     permission_classes = (AllowAny,)
@@ -448,7 +466,9 @@ class Feeds(ViewSet):
 #                          MEDIA
 # =============================================================
 
-#TODO: DEAL WITH THIS AFTER SCOTT IS DONE WITH HIS S3 FIX
+# TODO: DEAL WITH THIS AFTER SCOTT IS DONE WITH HIS S3 FIX
+
+
 class GetSignedRequest(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -470,7 +490,7 @@ class GetSignedRequest(APIView):
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-       )
+        )
 
         presigned_post = s3.generate_presigned_post(
             Bucket=S3_BUCKET,
@@ -497,7 +517,8 @@ class ImageDetail(APIView):
     def get(self, request, img_id, format=None):
         media = Media.objects.filter(pk=img_id)[0].file.name
         name, extension = os.path.splitext(media)
-        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID,
+                          settings.AWS_SECRET_ACCESS_KEY)
         s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
         s3key = s3bucket.get_key(media)
         response = HttpResponse(
@@ -525,7 +546,7 @@ def check_login_status(request):
 
 
 def extractToken(header):
-    return header[header.find(" ") + 1 :]
+    return header[header.find(" ") + 1:]
 
 
 def generateUserName():
@@ -546,7 +567,9 @@ def validate_firebase(mobile_id):
     except Exception as e:
         return False, mobile_id
 
-#TODO: FIGURE OUT WHAT THE BOTTOM 3 APIS DO
+# TODO: FIGURE OUT WHAT THE BOTTOM 3 APIS DO
+
+
 class UserList(generics.ListAPIView):
     queryset = User.objects.filter(is_staff=False)
     serializer_class = UserSerializer
