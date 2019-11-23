@@ -6,6 +6,7 @@ from app.models import Org, Event, Location, Media, Event_Media, Event_Org, Tag,
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
+SKIP_MISSING_DEPARTMENTS = False
 
 def titlecase(s):
     return re.sub(r"[A-Za-z]+('[A-Za-z]+)?", lambda mo: mo.group(0).capitalize(), s)
@@ -65,13 +66,17 @@ class Command(BaseCommand):
                     if all_day and end is None:
                         end = start
 
+                    org_name = "Cornell Organization"
                     try:
                         org_name = event['filters']['departments'][0]['name']
                     except KeyError:
-                        print("Missing department(s)")
-                        data_count += 1
-                        fail_data_count += 1
-                        continue
+                        if SKIP_MISSING_DEPARTMENTS:
+                            print("Missing department(s)")
+                            data_count += 1
+                            fail_data_count += 1
+                            continue
+                        else:
+                            pass
 
                     contact_email = "donotdisplay@cornell.edu"
                     try:
