@@ -33,7 +33,6 @@ from rest_framework.views import APIView
 
 from .models import (
     Org,
-    MinimumVersion,
     Mobile_User,
     Event,
     Event_Org,
@@ -54,7 +53,6 @@ from .serializers import (
     UpdatedEventsSerializer,
     UpdatedOrgSerializer,
     UserSerializer,
-    MinimumVersionSerializer,
 )
 
 from django.core.mail import send_mail
@@ -793,30 +791,25 @@ class OrgFormView(APIView):
 #                       VERSIONING
 # =============================================================
 
-class SetMinVersionView(APIView):
-
-    permission_classes = ()
-
-    def get(self, request, version):
-        MinimumVersion.objects.all().delete()
-        versionStringWithoutPeriods = version.replace(".", "")
-        versionNumRequest = int(versionStringWithoutPeriods)
-        MinimumVersion.objects.create(version=versionNumRequest).save()
-        return JsonResponse({ 'version': versionNumRequest })
-
 class GetMinVersionView(APIView):
 
     permission_classes = ()
 
-    def get(self, request, version):
-        latestVersion = MinimumVersion.objects.latest('version')
-        versionNum = latestVersion.version
-        versionStringWithoutPeriods = version.replace(".", "")
-        versionNumRequest = int(versionStringWithoutPeriods)
-        if versionNumRequest < versionNum:
-            return JsonResponse({ 'passed': False })
-        else:
-            return JsonResponse({ 'passed': True })
+    def get(self, request, version, platform):
+        minIosVersion = "3.3.5"
+        minAndroidVersion = "3.6.7"
+        plat = platform.lower()
+        versionSplits = version.split(".")
+        if plat == "android":
+            minVersionSplits = minAndroidVersion.split(".")
+        elif plat == "ios":
+            minVersionSplits = minIosVersion.split(".")
+
+        for i in range(0, len(minVersionSplits)):
+            if int(versionSplits[i]) < int(minVersionSplits[i]):
+                return JsonResponse({ 'passed': False })
+
+        return JsonResponse({ 'passed': True })
 
 # =============================================================
 

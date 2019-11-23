@@ -71,8 +71,7 @@ urlpatterns = [
         views.IncrementAttendance.as_view(), name="Increment Attendance"),
     url(r'^attendance/unincrement/(?P<event_id>[0-9]+)/$',
         views.UnincrementAttendance.as_view(), name="Unicrement Attendance"),
-    url(r'^setMinVersion/(?P<version>.*)/$', views.SetMinVersionView.as_view()),
-    url(r'^checkMinVersion/(?P<version>.*)/$',
+    url(r'^checkMinVersion/(?P<version>.*)/(?P<platform>.*)/$',
         views.GetMinVersionView.as_view()),
 
     url(r'^users/$', views.UserList.as_view()),

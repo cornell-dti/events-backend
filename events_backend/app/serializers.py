@@ -83,13 +83,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ("pk", "name")
 
 
-class MinimumVersionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-
-        fields = ("version")
-
-
 class UpdatedEventsSerializer(serializers.Serializer):
     events = serializers.JSONField()  # pass in serialized events
     timestamp = serializers.DateTimeField()
