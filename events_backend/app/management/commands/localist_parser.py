@@ -6,7 +6,8 @@ from app.models import Org, Event, Location, Media, Event_Media, Event_Org, Tag,
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
-SKIP_MISSING_DEPARTMENTS = False
+SKIP_MISSING_ORG_INFO = False
+
 
 def titlecase(s):
     return re.sub(r"[A-Za-z]+('[A-Za-z]+)?", lambda mo: mo.group(0).capitalize(), s)
@@ -66,23 +67,19 @@ class Command(BaseCommand):
                     if all_day and end is None:
                         end = start
 
-                    org_name = "Cornell Organization"
                     try:
                         org_name = event['filters']['departments'][0]['name']
+                        contact_email = event['custom_fields']['contact_email']
                     except KeyError:
-                        if SKIP_MISSING_DEPARTMENTS:
-                            print("Missing department(s)")
+                        if SKIP_MISSING_ORG_INFO:
+                            print("Missing org info, skipping")
                             data_count += 1
                             fail_data_count += 1
                             continue
                         else:
-                            pass
-
-                    contact_email = "donotdisplay@cornell.edu"
-                    try:
-                        contact_email = event['custom_fields']['contact_email']
-                    except KeyError:
-                        print("using dummy email")
+                            print("Missing org info, using default values")
+                            org_name = "Cornell Organization"
+                            contact_email = "donotdisplay@cornell.edu"
 
                     """
                     TODO: HOW TO MANUALLY ADD AN EVENT
