@@ -27,7 +27,6 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **kwargs):
-        # Max pp is 100
         EVENTS_FILE_NAME = kwargs['path']
 
         data_count = 0
@@ -63,7 +62,6 @@ class Command(BaseCommand):
                     if end is not None and end[-3:] == ':00':
                         end = end[:-3] + '00'
 
-                    # How do we handle?
                     if all_day and end is None:
                         end = start
 

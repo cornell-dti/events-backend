@@ -90,7 +90,6 @@ def is_valid_event(event_id):
             return False
 
         if "CCE" in keywords or "CCE" in groups or any(x['name'].startswith("CCE") for x in departments):
-        # if "CCE" in keywords or "CCE" in groups or any(x.startsWith("CCE") for x in departments):
             print("Ignoring CCE events")
             return False
     except:
