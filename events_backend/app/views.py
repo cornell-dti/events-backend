@@ -6,11 +6,15 @@ from boto.s3.connection import S3Connection
 
 import dateutil.parser
 import boto3
+import math
 
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 
 from django.conf import settings
 from django.contrib.auth import login, authenticate, get_user_model
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http.response import StreamingHttpResponse
+
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
@@ -59,6 +63,18 @@ from math import ceil;
 
 User = get_user_model()
 EVENTS_PER_PAGE = 15
+
+
+# =============================================================
+#                    AASA
+# =============================================================
+class AppleAppSite(APIView):
+    permission_classes = (permissions.AllowAny,)
+    
+    def get(self, request, format=None):
+        response = StreamingHttpResponse(staticfiles_storage.open("apple-app-site-association"), content_type="application/json")
+        return response
+
 
 # =============================================================
 #                    LOGIN/SIGNUP
@@ -275,10 +291,10 @@ class AddOrEditEvent(APIView):
             event = Event.objects.get(pk=eventData["pk"])
             event.name = eventData["name"]
             event.location = loc[0]
-            event.start_date = dt.strptime(eventData["start_date"], "%Y-%m-%d").date()
-            event.end_date = dt.strptime(eventData["end_date"], "%Y-%m-%d").date()
-            event.start_time = dt.strptime(eventData["start_time"], "%H:%M").time()
-            event.end_time = dt.strptime(eventData["end_time"], "%H:%M").time()
+            event.start_date = dt.strptime(eventData["start_date"], "%m/%d/%Y").date()
+            event.end_date = dt.strptime(eventData["end_date"], "%m/%d/%Y").date()
+            event.start_time = dt.strptime(eventData["start_time"], "%H:%M:%S %p").time()
+            event.end_time = dt.strptime(eventData["end_time"], "%H:%M:%S %p").time()
             event.description = eventData["description"]
             event.organizer = org
 
@@ -296,15 +312,15 @@ class AddOrEditEvent(APIView):
             event = Event.objects.create(
                 name=eventData["name"],
                 location=loc[0],
-                start_date=dt.strptime(eventData["start_date"], "%Y-%m-%d").date(),
-                end_date=dt.strptime(eventData["end_date"], "%Y-%m-%d").date(),
-                start_time=dt.strptime(eventData["start_time"], "%H:%M").time(),
-                end_time=dt.strptime(eventData["end_time"], "%H:%M").time(),
+                start_date=dt.strptime(eventData["start_date"], "%m/%d/%Y").date(),
+                end_date=dt.strptime(eventData["end_date"], "%m/%d/%Y").date(),
+                start_time=dt.strptime(eventData["start_time"], "%H:%M:%S %p").time(),
+                end_time=dt.strptime(eventData["end_time"], "%H:%M:%S %p").time(),
                 description=eventData["description"],
                 organizer=org,
             )
             Event_Org.objects.create(event=event, org=org)
-            
+
             for t in eventData["tags"]:
                 tag = Tag.objects.get(name=t["label"])
                 event_tag = Event_Tags(event_id=event, tags_id=tag)
@@ -533,28 +549,13 @@ class EventFeed(APIView):
     permission_classes = ()  # (permissions.IsAuthenticated, )
 
     # get event feed, parse timestamp and return events
+    # events are reported as blocks of 15
     def get(self, request, format=None):
-        in_timestamp = request.GET.get("timestamp")
-        start_time = request.GET.get("start")
-        end_time = request.GET.get("end")
-        old_timestamp = dateutil.parser.parse(in_timestamp)
-        start_time = dateutil.parser.parse(start_time)
-        end_time = dateutil.parser.parse(end_time)
-        outdated_events, all_deleted = outdatedEvents(
-            old_timestamp, start_time, end_time
-        )
-        json_events = EventSerializer(outdated_events, many=True).data
-        serializer = UpdatedEventsSerializer(
-            {"events": json_events, "timestamp": timezone.now()}
-        )
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        upcoming_events = Event.objects.filter(start_date__gte=date.today())
+        serializer = EventSerializer(upcoming_events, many=True)
+        return JsonResponse({"events": serializer.data}, status=status.HTTP_200_OK)
 
-
-def outdatedEvents(in_timestamp, start_time, end_time):
-    # history_set = Event.history.filter(history_date__gte = in_timestamp)
-    # unique_set  = history_set.values_list('id', flat=True).distinct().order_by('id')
-    # pks = unique_set.values_list('id', flat=True).order_by('id')
-    # #TODO: What if not in list
+def outdatedEvents(start_time, end_time):
     changed_events = Event.objects.filter(
         start_date__gte=start_time, end_date__lte=end_time
     ).order_by("id")
@@ -682,6 +683,15 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
+class UploadImage(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        return JsonResponse({
+            "potato": "123"
+        }, status=status.HTTP_200_OK)
+
+
 # =============================================================
 #                        FORMS
 # =============================================================
@@ -778,8 +788,35 @@ class OrgFormView(APIView):
 
 
 # =============================================================
+#                       VERSIONING
+# =============================================================
+
+class GetMinVersionView(APIView):
+
+    permission_classes = ()
+
+    def get(self, request, version, platform):
+        minIosVersion = "3.3.5"
+        minAndroidVersion = "3.6.7"
+        plat = platform.lower()
+        versionSplits = version.split(".")
+        if plat == "android":
+            minVersionSplits = minAndroidVersion.split(".")
+        elif plat == "ios":
+            minVersionSplits = minIosVersion.split(".")
+
+        for i in range(0, len(minVersionSplits)):
+            if int(versionSplits[i]) < int(minVersionSplits[i]):
+                return JsonResponse({ 'passed': False })
+
+        return JsonResponse({ 'passed': True })
+
+# =============================================================
+
+# =============================================================
 #                        HELPERS
 # =============================================================
+
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
