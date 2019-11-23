@@ -65,6 +65,8 @@ from .serializers import (
 from django.core.mail import send_mail
 import os
 import re
+import logging
+from botocore.exceptions import ClientError
 
 from math import ceil;
 
@@ -690,16 +692,21 @@ class ResetToken(APIView):
             return HttpResponse("Reset Token Error")
 
 
-def upload_image(s3, bucket_name, filename, file_data):
-    if not isinstance(file_data, bytes):
-        return False, ""
+def upload_image(s3, bucket_name, filename_path, file_data):
+    print("\nwhat does bytes look like?")
+    print((file_data.file))
+    # if not isinstance(file_data.file, bytes):
+        # print("\nnot byte data")
+        # return False, ""
     try:
-        s3.put_object(Bucket=bucket_name, Key=filename_path, Body=file_data)
+        print("\nattempting to upload:")
+        print(filename_path)
+        s3.put_object(Bucket=bucket_name, Key=filename_path, Body=file_data.file)
     except ClientError as e:
         logging.error(e)
         return False, ""
     finally:
-        return True, filename
+        return True, filename_path
 
 def make_public(s3, bucket_name, filename_path):
     try:
@@ -720,8 +727,11 @@ class UploadImageS3(APIView):
         file_type = request.GET.get("file_type").replace('"', '')
         uploaded_file_name = request.GET.get("file_name").replace('"', '')
         
-        fileData = request.POST.get("file", b"")
+        # fileData = request.POST.get("file")
+        fileData = request.data["file"]
 
+        print("reuest data")
+        print(list(request.POST.items()))
 
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
@@ -741,15 +751,30 @@ class UploadImageS3(APIView):
             + '_'
             + str(uploaded_file_name))
 
+
         upload_success, s3_url = upload_image(s3, S3_BUCKET, file_name, fileData)
 
-
-        if upload_success:
-            make_public_success = make_public(s3, S3_BUCKET, file_name)
-        else:
-            print("failure to make public")
-
         file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, s3_url)
+
+
+        print("\n\n\n\n\n\n\n\n\n")
+        make_public_success = False
+        if upload_success:
+            print("succesfully uploaded file:")
+            print(file_name)
+            print(file_url)
+            # print(s3_url)
+            make_public_success = make_public(s3, S3_BUCKET, file_name)
+
+            if (make_public_success):
+                print("successfully make public")
+            else:
+                print("failure to make public")
+        else:
+            print("failure to make upload")
+
+        
+
 
     
 
