@@ -65,7 +65,7 @@ urlpatterns = [
         views.ObtainToken.as_view(), name='Create Mobile Token'),
     url(r'^reset_token/(?P<mobile_id>.*)/$',
         views.ResetToken.as_view(), name='Reset Mobile Token'),
-    url(r'upload_image_s3/', views.UploadImage.as_view(),
+    url(r'upload_image_s3/', views.UploadImageS3.as_view(),
         name='Upload Image to Amazon S3'),
     url(r'^attendance/increment/(?P<event_id>[0-9]+)/$',
         views.IncrementAttendance.as_view(), name="Increment Attendance"),
