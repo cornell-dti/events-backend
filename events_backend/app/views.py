@@ -693,11 +693,7 @@ class ResetToken(APIView):
 
 
 def upload_image(s3, bucket_name, filename_path, file_data):
-    print("\nwhat does bytes look like?")
-    print((file_data.file))
-    # if not isinstance(file_data.file, bytes):
-        # print("\nnot byte data")
-        # return False, ""
+
     try:
         print("\nattempting to upload:")
         print(filename_path)
@@ -727,7 +723,6 @@ class UploadImageS3(APIView):
         file_type = request.GET.get("file_type").replace('"', '')
         uploaded_file_name = request.GET.get("file_name").replace('"', '')
         
-        # fileData = request.POST.get("file")
         fileData = request.data["file"]
 
         print("reuest data")
@@ -756,14 +751,10 @@ class UploadImageS3(APIView):
 
         file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, s3_url)
 
-
-        print("\n\n\n\n\n\n\n\n\n")
         make_public_success = False
         if upload_success:
-            print("succesfully uploaded file:")
-            print(file_name)
-            print(file_url)
-            # print(s3_url)
+
+
             make_public_success = make_public(s3, S3_BUCKET, file_name)
 
             if (make_public_success):
@@ -772,12 +763,6 @@ class UploadImageS3(APIView):
                 print("failure to make public")
         else:
             print("failure to make upload")
-
-        
-
-
-    
-
 
         return JsonResponse(
             {
@@ -791,14 +776,6 @@ class UploadImageS3(APIView):
             },
             status=status.HTTP_200_OK
         )
-
-        #     return JsonResponse(
-        #         {
-        #             "data": presigned_post,
-        #             "url": "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name),
-        #         },
-        #         status=status.HTTP_200_OK,
-        #     )
 
 def uploadToS3(file_name, bucket, object_name):
     s3_client = boto3.client('s3')
