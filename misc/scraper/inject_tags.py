@@ -2,15 +2,23 @@ import json
 
 if __name__ == '__main__':
 
-    ignore_present = True
-    remove_invalid = False
-
     data_count = 0
     success_data_count = 0
     fail_data_count = 0
 
+    TAG_PATH = "tags.txt"
+
+    tags = []
+    try:
+        with open(TAG_PATH) as f:
+            for tag in f:
+                tags.append(tag.strip())
+    except:
+        print(f"{TAG_PATH} not found, skipping tag search")
+        tags = []
+
     EXT = ".json"
-    FILE_NAME = "events_2019-10-27_2019-11-04"
+    FILE_NAME = "events_2019-11-21_2019-12-06"
     IN_FILE = FILE_NAME + EXT
     OUT_FILE = FILE_NAME + "_tags" + EXT
 
@@ -53,31 +61,45 @@ if __name__ == '__main__':
             try:
                 event = event_id['event']
 
-                tags = event['tags']
+                event_title = event['title']
+                event_desc = event['description_text']
+                event_tags = event['tags']
 
-                if tags == "" or tags is None:
-                    tags = {}
-                    continue
+                if event_title is None:
+                    event_title = ""
+                if event_desc is None:
+                    event_desc = ""
+                if event_tags is None:
+                    event_tags = []
+
+                event_title = event_title.lower();
+                event_desc = event_desc.lower();
+
+                for tag in tags:
+                    tag_lower = tag.lower();
+                    tag_alt = tag_lower.replace('-', " ")
+                    if tag_lower in event_title or tag_lower in event_desc or tag_alt in event_title or tag_alt in event_desc:
+                        event_tags.append(tag)
 
                 if 'groups' in event:
                     for group in event['groups']:
                         match = mapping.get("groups").get(group['name'])
                         if match is not None:
-                            tags.extend(mapping.get("groups").get(group['name']))
+                            event_tags.extend(mapping.get("groups").get(group['name']))
 
                 if 'keywords' in event:
                     for keyword in event['keywords']:
                         match = mapping.get("keywords").get(keyword)
                         if match is not None:
-                            tags.extend(match)
+                            event_tags.extend(match)
 
                 if 'filters' in event and 'departments' in event['filters']:
                     for department in event['filters']['departments']:
                         match = mapping.get("departments").get(department['name'])
                         if match is not None:
-                            tags.extend(match)
+                            event_tags.extend(match)
 
-                event['tags'] = list(set(tags))
+                event['tags'] = list(set(event_tags))
 
                 data_count += 1
                 success_data_count += 1
