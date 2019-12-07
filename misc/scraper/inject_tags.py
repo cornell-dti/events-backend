@@ -1,21 +1,25 @@
 import json
 
 if __name__ == '__main__':
-
     data_count = 0
     success_data_count = 0
     fail_data_count = 0
 
     TAG_PATH = "tags.txt"
 
-    tags = []
+    tags = {}
     try:
         with open(TAG_PATH) as f:
             for tag in f:
-                tags.append(tag.strip())
+                tag = tag.strip()
+                tags[tag] = tag
     except:
         print(f"{TAG_PATH} not found, skipping tag search")
-        tags = []
+        tags = {}
+
+    food_keys = ["dinner", "lunch", "food", "meal"]
+    for key in food_keys:
+        tags[key] = 'Free-Food'
 
     EXT = ".json"
     FILE_NAME = "events_2019-11-21_2019-12-06"
@@ -72,13 +76,13 @@ if __name__ == '__main__':
                 if event_tags is None:
                     event_tags = []
 
-                event_title = event_title.lower();
-                event_desc = event_desc.lower();
+                event_title = event_title.lower()
+                event_desc = event_desc.lower()
 
-                for tag in tags:
-                    tag_lower = tag.lower();
-                    tag_alt = tag_lower.replace('-', " ")
-                    if tag_lower in event_title or tag_lower in event_desc or tag_alt in event_title or tag_alt in event_desc:
+                for key, tag in tags.items():
+                    key_lower = key.lower()
+                    key_replaced = key_lower.replace('-', " ")
+                    if key_lower in event_title or key_lower in event_desc or key_replaced in event_title or key_replaced in event_desc:
                         event_tags.append(tag)
 
                 if 'groups' in event:
