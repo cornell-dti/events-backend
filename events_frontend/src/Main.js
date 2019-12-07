@@ -80,7 +80,8 @@ class Main extends Component {
         <a
           target="_blank"
           style={{ textDecoration: "none" }}
-          href={"https://forms.gle/UUCa8mzi6b9fnfxq9"}
+          href="https://forms.gle/UUCa8mzi6b9fnfxq9"
+          rel="noopener noreferrer"
         >
           <Typography variant="h6" color="primary">
             Contact Us
