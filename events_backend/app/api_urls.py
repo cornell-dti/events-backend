@@ -16,7 +16,6 @@ urlpatterns = [
     # login/signup/change login credentials
     url(r"^signup/?$", ensure_csrf_cookie(views.SignUp.as_view()), name="Sign-Up"),
     url(r"^login/?$", ensure_csrf_cookie(views.Login.as_view()), name="Login"),
-    url(r"^logged_in/?$", views.check_login_status, name="Check-Login"),
     url(r"^change_password/?$",
         views.ChangeLoginCredentials.as_view({'post': 'change_password'}), name="Change-Password"),
     url(
