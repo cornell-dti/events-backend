@@ -547,8 +547,10 @@ class GetMinVersionView(APIView):
     def get(self, request, version, platform):
         minIosVersion = "3.3.5"
         minAndroidVersion = "3.6.7"
-        plat = platform.lower()
         versionSplits = version.split(".")
+        plat = platform.lower()
+        if plat != "android" and plat != "ios":
+            return JsonResponse ({ 'passed': False })
         if plat == "android":
             minVersionSplits = minAndroidVersion.split(".")
         elif plat == "ios":
