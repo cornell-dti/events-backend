@@ -37,6 +37,9 @@ urlpatterns = [
 
     url(r'^apple-app-site-association', views.AppleAppSite.as_view(),
         name="Apple App Site Association"),
+        
+    url(r'^checkMinVersion/(?P<version>.*)/(?P<platform>.*)/$',
+        views.GetMinVersionView.as_view()),
 
     url(r'^', TemplateView.as_view(template_name="main.html"))
 ]

@@ -536,6 +536,30 @@ class UploadImage(APIView):
             "potato": "123"
         }, status=status.HTTP_200_OK)
 
+# =============================================================
+#                       VERSIONING
+# =============================================================
+
+class GetMinVersionView(APIView):
+
+    permission_classes = ()
+
+    def get(self, request, version, platform):
+        minIosVersion = "3.3.5"
+        minAndroidVersion = "3.6.7"
+        plat = platform.lower()
+        versionSplits = version.split(".")
+        if plat == "android":
+            minVersionSplits = minAndroidVersion.split(".")
+        elif plat == "ios":
+            minVersionSplits = minIosVersion.split(".")
+
+        for i in range(0, len(minVersionSplits)):
+            if int(versionSplits[i]) >= int(minVersionSplits[i]):
+                return JsonResponse({ 'passed': True })
+
+        return JsonResponse({ 'passed': False })
+
 
 # =============================================================
 #                        HELPERS
