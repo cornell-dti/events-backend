@@ -102,8 +102,7 @@ class CreateEvent extends Component {
   }
 
   formComplete() {
-    return (
-      this.state.name !== undefined &&
+    return ( this.state.name !== undefined || this.props.name &&
       this.state.name !== "" &&
       this.state.room !== undefined &&
       this.state.room !== "" &&
@@ -236,7 +235,7 @@ class CreateEvent extends Component {
 
     const formattedFromDate = new Date(this.state.from);
     const formattedToDate = new Date(this.state.to);
-    
+
     const eventData = {
       pk: this.state.pk,
       name: this.state.name,
@@ -269,7 +268,19 @@ class CreateEvent extends Component {
   }
 
   onCancelEvent() {
-    // restore to old value
+    // restore to old values
+    const eve = this.props.event;
+
+    this.setState({ name: eve.name, 
+                    room: eve.location.room,
+                    location: eve.location.building,
+                    place_id: eve.location.place_id,
+                    from: new Date((eve.start_date + " " + eve.start_time).replace(/-/g, "/")),
+                    to: new Date((eve.end_date + " " + eve.end_time).replace(/-/g, "/")),
+                    description: eve.description,
+                    tags: eve.tags});
+
+    this.props.onCancel();
   }
 
   render() {
@@ -335,9 +346,8 @@ class CreateEvent extends Component {
                 minDate={new Date()}
                 value={this.state.from}
                 onChange={e => {
-                  this.setState({from : e})
-              }}
-            />
+                  this.setState({from : e})}}
+            /> 
             <DateTimePicker
                 label="To *"
                 margin={"normal"}
@@ -365,7 +375,7 @@ class CreateEvent extends Component {
               Delete{" "}
             </Button>
           ) : null}
-          <Button onClick={this.props.onCancel} color="secondary">
+          <Button onClick={this.onCancelEvent.bind(this)} color="secondary">
             Cancel
           </Button>
           <Button
