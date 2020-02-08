@@ -401,7 +401,7 @@ class OrgEvents(ViewSet):
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
     # TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
-    def increment_attendence(self, request, event_id, format=None):
+    def increment_attendance(self, request, event_id, format=None):
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees + 1
         event.save()
