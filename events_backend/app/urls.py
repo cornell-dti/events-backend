@@ -26,7 +26,7 @@ urlpatterns = [
 
     url(r'^media/(?P<img_id>[0-9]+)/$',
         views.ImageDetail.as_view(), name='Media Detail'),
-    url(r'upload_image_s3/', views.UploadImage.as_view(),
+    url(r'upload_image_s3/', views.UploadImageS3.as_view(),
         name='Upload Image to Amazon S3'),
 
     url(r'^users/$', views.UserList.as_view()),
