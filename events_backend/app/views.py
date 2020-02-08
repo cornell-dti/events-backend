@@ -364,6 +364,7 @@ class OrgEvents(ViewSet):
             building=eventData["location"]["building"],
             place_id=eventData["location"]["place_id"],
         )
+    
         event.name = eventData["name"]
         event.location = loc[0]
         event.start_date = dt.strptime(
@@ -376,6 +377,9 @@ class OrgEvents(ViewSet):
         event.description = eventData["description"]
         event.organizer = org
         event.save()
+        
+        for t in event.tags.all():
+            Event_Tags.objects.filter(tags_id=t.id).delete()
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
