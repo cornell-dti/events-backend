@@ -102,7 +102,7 @@ class CreateEvent extends Component {
   }
 
   formComplete() {
-    return (
+    return ( 
       this.state.name !== undefined &&
       this.state.name !== "" &&
       this.state.room !== undefined &&
@@ -172,47 +172,25 @@ class CreateEvent extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    let xhr = new XMLHttpRequest();
-    xhr.open(
-      "GET",
-      "/api/sign_s3/?file_name=" + file.name + "&file_type=" + file.type
-    );
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          xhr = new XMLHttpRequest();
-          xhr.open("POST", response.data.url);
+    const fileType = file.type.replace("image/", "");
 
-          let postData = new FormData();
-          for (let key in response.data.fields) {
-            postData.append(key, response.data.fields[key]);
-          }
-          postData.append("file", file);
 
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-              if (xhr.status === 200 || xhr.status === 204) {
-                console.log("File uploaded!");
-                callback(
-                  response.url
-                    .split("/")
-                    .slice(3)
-                    .join("/")
-                );
-              } else {
-                alert("Could not upload file.");
-              }
-            }
-          };
-          xhr.send(postData);
-          //self.uploadFile(file, response.data, response.url);
-        } else {
-          alert("Could not get signed URL.");
-        }
-      }
-    };
-    xhr.send();
+    if (fileType.length == file.type.length) {
+      alert("Could not upload image. Please use a different file type");
+    }
+
+    
+    const data = new FormData();
+    data.append("file", file);
+
+    console.log(file);
+    axios.post(`/api/upload_image_s3/?file_name=${file.name}&file_type=${fileType}`, data, {
+    }).then(res => {
+        console.log(res.data);
+        callback(res.data.url.split("/").slice(3).join("/"));
+    }).catch(err => {
+        alert(`Could not upload image! Reason: ${err}`);
+    });
   }
 
   async onPublishEvent() {
@@ -236,7 +214,7 @@ class CreateEvent extends Component {
 
     const formattedFromDate = new Date(this.state.from);
     const formattedToDate = new Date(this.state.to);
-    
+
     const eventData = {
       pk: this.state.pk,
       name: this.state.name,
@@ -269,7 +247,19 @@ class CreateEvent extends Component {
   }
 
   onCancelEvent() {
-    // restore to old value
+    // restore to old values
+    const eve = this.props.event;
+
+    this.setState({ name: eve.name, 
+                    room: eve.location.room,
+                    location: eve.location.building,
+                    place_id: eve.location.place_id,
+                    from: new Date((eve.start_date + " " + eve.start_time).replace(/-/g, "/")),
+                    to: new Date((eve.end_date + " " + eve.end_time).replace(/-/g, "/")),
+                    description: eve.description,
+                    tags: eve.tags});
+
+    this.props.onCancel();
   }
 
   render() {
@@ -335,9 +325,8 @@ class CreateEvent extends Component {
                 minDate={new Date()}
                 value={this.state.from}
                 onChange={e => {
-                  this.setState({from : e})
-              }}
-            />
+                  this.setState({from : e})}}
+            /> 
             <DateTimePicker
                 label="To *"
                 margin={"normal"}
@@ -365,7 +354,7 @@ class CreateEvent extends Component {
               Delete{" "}
             </Button>
           ) : null}
-          <Button onClick={this.props.onCancel} color="secondary">
+          <Button onClick={this.onCancelEvent.bind(this)} color="secondary">
             Cancel
           </Button>
           <Button
