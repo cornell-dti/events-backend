@@ -24,7 +24,7 @@ class ChangeOrgEmail extends Component {
       new_email: this.state.newOrgEmail
     };
     axios
-      .post("/api/change_org_email/", email)
+      .post("/api/change_login_email/", email)
       .then(response => {
         this.setState({
           errors: [],

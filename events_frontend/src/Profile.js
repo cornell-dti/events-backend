@@ -31,8 +31,12 @@ class Profile extends Component {
   componentDidMount() {
     ReactGA.pageview(window.location.pathname + window.location.search);
     axios
-      .get("/api/profile/")
+      .get("/api/get_profile/")
       .then(response => {
+        // let org_tags = response.data.tags.map(tag => ({
+        //   value: tag.id,
+        //   label: tag.name
+        // }));
         this.setState({
           name: response.data.name,
           website: response.data.website,
@@ -42,9 +46,9 @@ class Profile extends Component {
           imageUrl:
             response.data.photo.length > 0
               ? response.data.photo.sort(
-                  (a, b) =>
-                    Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
-                )[0].link
+                (a, b) =>
+                  Date.parse(b.uploaded_at) - Date.parse(a.uploaded_at)
+              )[0].link
               : ""
         });
       })
@@ -65,7 +69,7 @@ class Profile extends Component {
       "GET",
       "/api/sign_s3/?file_name=" + file.name + "&file_type=" + file.type
     );
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
@@ -78,7 +82,7 @@ class Profile extends Component {
           }
           postData.append("file", file);
 
-          xhr.onreadystatechange = function() {
+          xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
               if (xhr.status === 200 || xhr.status === 204) {
                 console.log("File uploaded!");
@@ -104,8 +108,15 @@ class Profile extends Component {
 
   async saveProfile() {
     this.setState({ profileUpdated: false });
-    let orgData = this.state,
-      imageUrl = "";
+    let { bio, email, name, tags, website } = this.state,
+    orgData = {
+      bio,
+      email,
+      name,
+      tags,
+      website
+    },
+    imageUrl = "";
 
     if (this.state.imageChanged) {
       let promise = new Promise((res, req) =>
@@ -114,10 +125,9 @@ class Profile extends Component {
       imageUrl = await promise;
     }
     orgData.imageUrl = imageUrl;
-    delete orgData.errors;
 
     axios
-      .post("/api/profile/", orgData)
+      .post("/api/edit_profile/", orgData)
       .then(response => {
         this.setState({
           name: response.data.name,
@@ -195,7 +205,9 @@ class Profile extends Component {
           margin={"normal"}
           multiline={true}
         />
-        <TagField onNewTags={tags => this.setState({ tags: tags })} />
+        <TagField 
+          tags={this.state.tags}
+          onNewTags={tags => this.setState({ tags: tags })} />
         <FormError errors={this.state.errors} />
         {this.state.profileUpdated ? (
           <Typography

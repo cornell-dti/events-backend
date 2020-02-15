@@ -32,12 +32,8 @@ class MyEvents extends Component {
   }
 
   retrievePageEvents() {
-    // Change Hardcoded Values D;
-    const startDate = "2000/1/1";
-    const endDate = "3000/1/1";
-    const page = 1; //parseInt(this.props.match.params.id)
     axios
-      .get(`/feed/events/?start=${startDate}&end=${endDate}&page=${page}`)
+      .get(`/api/get_events?page=${this.props.match.params.id || 1}`)
       .then(response => {
         // Response will tell you the page that was returned
         this.setState({
@@ -92,15 +88,16 @@ class MyEvents extends Component {
 
   //have to dynamically update event since we are paginating
   onUpdate(event) {
+    const url = event.pk ? "/api/edit_event/" : "/api/add_event/"
     axios
-      .post("/api/add_or_edit_event/", event)
+      .post(url, event)
       .then(response => {
         const updatedEvent = response.data;
         let events = this.state.events.slice();
         let edit = false;
         for (let i = 0; i < events.length; i++) {
           if (events[i].pk === updatedEvent.pk) {
-            events[i] = updatedEvent;
+            events[i] = updatedEvent; // does not update fast enough with tags
             edit = true;
             break;
           }

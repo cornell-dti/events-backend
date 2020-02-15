@@ -75,10 +75,8 @@
     "backend-windows": "python3 \"events_backend\\manage.py\" runserver",
     "heroku-postbuild": "webpack --config events_frontend/webpack.prod.js && python3 events_backend/manage.py collectstatic --noinput",
     "heroku-postbuild-windows": "webpack --config \"events_frontend\\webpack.prod.js\" && python3 \"events_backend\\manage.py\" collectstatic --noinput",
-    "python-migrate": "python events_backend/manage.py makemigrations app && python events_backend/manage.py migrate",
-    "python3-migrate": "python3 events_backend/manage.py makemigrations app && python3 events_backend/manage.py migrate",
-    "python-migrate-windows": "python \"events_backend\\manage.py\" makemigrations app && python \"events_backend\\manage.py\" migrate",
-    "python3-migrate-windows": "python3 \"events_backend\\manage.py\" makemigrations app && python3 \"events_backend\\manage.py\" migrate"
+    "python-migrate": "python3 events_backend/manage.py makemigrations app && python events_backend/manage.py migrate",
+    "python-migrate-windows": "python3 \"events_backend\\manage.py\" makemigrations app && python \"events_backend\\manage.py\" migrate"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
