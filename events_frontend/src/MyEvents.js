@@ -97,8 +97,6 @@ class MyEvents extends Component {
         let edit = false;
         for (let i = 0; i < events.length; i++) {
           if (events[i].pk === updatedEvent.pk) {
-            console.log(updatedEvent);
-            console.log(event);
             events[i] = updatedEvent; // does not update fast enough with tags
             edit = true;
             break;

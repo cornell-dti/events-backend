@@ -44,6 +44,7 @@ from .models import (
     Attendance,
     Event_Media,
     Event_Tags,
+    Org_Tags,
     Org_Media,
     Verified_Emails,
 )
@@ -270,6 +271,11 @@ class UserProfile(ViewSet):
         org_set.name = orgData["name"]
         org_set.website = orgData["website"]
         org_set.bio = orgData["bio"]
+        
+        # for t in orgData["tags"]:
+        #     tag = get_object_or_404(Tag, name=t["label"])
+        #     Org_Tags.objects.get_or_create(org=org_set, tags=tag)
+
 
         if orgData["imageUrl"] != "":
             media = Media.objects.create(
