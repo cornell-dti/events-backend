@@ -33,6 +33,10 @@ class Profile extends Component {
     axios
       .get("/api/get_profile/")
       .then(response => {
+        // let org_tags = response.data.tags.map(tag => ({
+        //   value: tag.id,
+        //   label: tag.name
+        // }));
         this.setState({
           name: response.data.name,
           website: response.data.website,
@@ -201,7 +205,9 @@ class Profile extends Component {
           margin={"normal"}
           multiline={true}
         />
-        <TagField onNewTags={tags => this.setState({ tags: tags })} />
+        <TagField 
+          tags={this.state.tags}
+          onNewTags={tags => this.setState({ tags: tags })} />
         <FormError errors={this.state.errors} />
         {this.state.profileUpdated ? (
           <Typography

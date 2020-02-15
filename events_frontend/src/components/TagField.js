@@ -42,11 +42,6 @@ class TagField extends Component {
     const newTag = tags.pop();
     if (newTag === undefined || this.isEqual(this.props.tags, newTag))
       return tags;
-    // if (tags.length > 4) {
-    // 	this.setState({ errors: ['Only can have up to 5 tags.'] })
-    // 	console.log("HELLO")
-    // 	return tags
-    // }
     tags.push(newTag);
     return tags;
   }
