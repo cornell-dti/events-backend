@@ -102,7 +102,8 @@ class CreateEvent extends Component {
   }
 
   formComplete() {
-    return ( this.state.name !== undefined || this.props.name &&
+    return ( 
+      this.state.name !== undefined &&
       this.state.name !== "" &&
       this.state.room !== undefined &&
       this.state.room !== "" &&
