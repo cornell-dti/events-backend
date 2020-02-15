@@ -51,7 +51,7 @@ chrome-user-data
 *.swp
 *.swo
 
-events_backend/staticfiles/bundles
+events_backend/staticfiles/*
 assets/bundles
 db.sqlite3
 
