@@ -11,7 +11,7 @@ class Logo extends Component {
         className={classes.title}
         style={{ fontSize: this.props.fontSize }}
       >
-        cue
+        eve
       </Typography>
     );
   }

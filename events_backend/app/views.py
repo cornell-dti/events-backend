@@ -222,7 +222,10 @@ class ChangeLoginCredentials(ViewSet):
             user_id = request.user.id
             user_set = get_object_or_404(User, pk=user_id)
             user_set.username = org_email["new_email"]
+            org_set = get_object_or_404(Org, pk=user_id)
+            org_set.email = org_email["new_email"]
             user_set.save()
+            org_set.save()
 
             return JsonResponse({"messages": []}, status=status.HTTP_200_OK)
 
@@ -377,9 +380,9 @@ class OrgEvents(ViewSet):
         event.description = eventData["description"]
         event.organizer = org
         event.save()
-        
+
         for t in event.tags.all():
-            Event_Tags.objects.filter(tags_id=t.id).delete()
+            Event_Tags.objects.get(tags_id=t.id).delete()
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
