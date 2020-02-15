@@ -89,7 +89,8 @@ class Org(models.Model):
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=30)
-    bio = models.CharField(max_length=MAX_DESC_LENGTH, default="", blank=True)
+    name = models.TextField()
+    bio = models.TextField(default="", blank=True)
     website = models.CharField(
         max_length=MAX_WEBSITE_LENGTH, default="", blank=True)
     email = models.CharField(
@@ -142,7 +143,8 @@ class Event(models.Model):
         app_label = 'app'
 
     name = models.CharField(max_length=MAX_NAME_LENGTH)
-    description = models.CharField(max_length=MAX_DESC_LENGTH)
+    name = models.TextField()
+    description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
     start_time = models.TimeField()
@@ -166,8 +168,10 @@ class Location(models.Model):
         app_label = 'app'
 
     room = models.CharField(max_length=MAX_NAME_LENGTH)
-    building = models.CharField(max_length=MAX_NAME_LENGTH)
+    room = models.TextField()
     place_id = models.CharField(max_length=MAX_NAME_LENGTH)
+    building = models.TextField()
+    place_id = models.TextField()
 
     def __str__(self):
         return self.building
@@ -243,7 +247,7 @@ class Media(models.Model):
     class Meta:
         app_label = 'app'
 
-    link = models.TextField()
+    link = models.TextField(default='https://dti-events-public.s3.amazonaws.com/default.jpg')
     uploaded_by = models.ForeignKey("Org", on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now=True)
 
