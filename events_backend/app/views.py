@@ -402,7 +402,7 @@ class OrgEvents(ViewSet):
 
     def increment_attendance(self, request, event_id, format=None):
         attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
-        if attendance:
+        if attendance.exists():
             return HttpResponse("Attendance has already been registered for event with ID: " + event_id, status=status.HTTP_200_OK)
         attendance = Attendance(event_id=event_id, user_id=request.user.id)
         attendance.save()
@@ -413,7 +413,7 @@ class OrgEvents(ViewSet):
 
     def decrement_attendance(self, request, event_id, format=None):
         attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
-        if not attendance:
+        if not attendance.exists():
             return HttpResponse("Attendance was not recorded for event with ID: " + event_id, status=status.HTTP_200_OK)
         attendance.delete()
         event = get_object_or_404(Event, pk=event_id)
