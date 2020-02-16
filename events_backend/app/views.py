@@ -107,13 +107,13 @@ class Tokens(ViewSet):
             new_mobile_user.save()
 
             # generate token
-            token = Token.objects.create(user=user)
+            token = Token.objects.get(user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
 
     def reset_token(self, request, mobile_id, format=None):
-        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
+        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
-            user = mobile_user_set[0]
+            user = User.objects.get(id=mobile_user_set[0].user_id)
             token = get_object_or_404(Token, user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         else:
@@ -400,14 +400,22 @@ class OrgEvents(ViewSet):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
-    # TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
     def increment_attendance(self, request, event_id, format=None):
+        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        if attendance:
+            return HttpResponse("Attendance has already been registered for event with ID: " + event_id, status=status.HTTP_200_OK)
+        attendance = Attendance(event_id=event_id, user_id=request.user.id)
+        attendance.save()
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees + 1
         event.save()
         return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
     def decrement_attendance(self, request, event_id, format=None):
+        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        if not attendance:
+            return HttpResponse("Attendance was not recorded for event with ID: " + event_id, status=status.HTTP_200_OK)
+        attendance.delete()
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees - 1
         event.save()
