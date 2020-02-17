@@ -73,6 +73,7 @@
     "backend-windows": "python3 \"events_backend\\manage.py\" runserver",
     "build": "webpack --config events_frontend/webpack.prod.js",
     "build-windows": "webpack --config \"events_frontend\\webpack.prod.js\"",
+    "heroku-postbuild": "build && python3 events_backend/manage.py collectstatic --noinput",
     "python-migrate": "python3 events_backend/manage.py makemigrations app && python events_backend/manage.py migrate",
     "python-migrate-windows": "python3 \"events_backend\\manage.py\" makemigrations app && python \"events_backend\\manage.py\" migrate"
   },
