@@ -91,35 +91,26 @@ class Tokens(ViewSet):
     def get_token(self, request, id_token, format=None):
         validated, mobile_id = validate_firebase(id_token)
         if not validated:
-            return HttpResponseBadRequest("Invalid Firebase ID")
-        mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
-        if mobile_user_set.exists():
-            return HttpResponseBadRequest("Token Already Assigned to User")
-        else:
-            # generate username
-            username = generateUserName()
-            user = User.objects.create_user(username=username, password="")
-            user.set_unusable_password()
-            user.save()
-
-            new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
-            new_mobile_user.save()
-
-            # generate token
-            token = Token.objects.get(user=user)
-            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-
-    def reset_token(self, request, id_token, format=None):
-        validated, mobile_id = validate_firebase(id_token)
-        if not validated:
-            return HttpResponseBadRequest("Invalid Firebase ID")
+            return HttpResponseBadRequest("Invalid ID Token")
+        
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
             user = User.objects.get(id=mobile_user_set[0].user_id)
             token = get_object_or_404(Token, user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-        else:
-            return HttpResponse("Reset Token Error")
+        
+        # generate username
+        username = generateUserName()
+        user = User.objects.create_user(username=username)
+        user.set_unusable_password()
+        user.save()
+
+        new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
+        new_mobile_user.save()
+
+        # generate token
+        token = Token.objects.get(user=user)
+        return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
 
 
 # =============================================================
@@ -573,7 +564,6 @@ class UploadImageS3(APIView):
 
         print("reuest data")
         print(list(request.POST.items()))
-
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")

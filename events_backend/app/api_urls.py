@@ -10,8 +10,6 @@ urlpatterns = [
     # tokens
     url(r'^get_token/(?P<id_token>.*)/?$',
         views.Tokens.as_view({'get': 'get_token'}), name='Get-Token'),
-    url(r'^reset_token/(?P<id_token>.*)/?$',
-        views.Tokens.as_view({'get': 'reset_token'}), name='Reset-Token'),
 
     # login/signup/change login credentials
     url(r"^signup/?$", ensure_csrf_cookie(views.SignUp.as_view()), name="Sign-Up"),
