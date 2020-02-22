@@ -8,9 +8,9 @@ from . import views
 
 urlpatterns = [
     # tokens
-    url(r'^get_token/(?P<mobile_id>.*)/?$',
+    url(r'^get_token/(?P<id_token>.*)/?$',
         views.Tokens.as_view({'get': 'get_token'}), name='Get-Token'),
-    url(r'^reset_token/(?P<mobile_id>.*)/?$',
+    url(r'^reset_token/(?P<id_token>.*)/?$',
         views.Tokens.as_view({'get': 'reset_token'}), name='Reset-Token'),
 
     # login/signup/change login credentials

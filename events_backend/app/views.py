@@ -88,15 +88,14 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def get_token(self, request, mobile_id, format=None):
+    def get_token(self, request, id_token, format=None):
+        validated, mobile_id = validate_firebase(id_token)
+        if not validated:
+            return HttpResponseBadRequest("Invalid Firebase ID")
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
             return HttpResponseBadRequest("Token Already Assigned to User")
         else:
-            validated, valid_info = validate_firebase(mobile_id)
-            if not validated:
-                return HttpResponseBadRequest("Invalid Firebase ID")
-
             # generate username
             username = generateUserName()
             user = User.objects.create_user(username=username, password="")
@@ -110,7 +109,10 @@ class Tokens(ViewSet):
             token = Token.objects.get(user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
 
-    def reset_token(self, request, mobile_id, format=None):
+    def reset_token(self, request, id_token, format=None):
+        validated, mobile_id = validate_firebase(id_token)
+        if not validated:
+            return HttpResponseBadRequest("Invalid Firebase ID")
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
             user = User.objects.get(id=mobile_user_set[0].user_id)
@@ -683,9 +685,9 @@ def validate_email(email):
 def validate_firebase(mobile_id):
     try:
         idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
-        return True, ""
-    except Exception as e:
-        return False, mobile_id
+        return True, idinfo['sub']
+    except ValueError:
+        return False, ""
 
 # TODO: FIGURE OUT WHAT THE BOTTOM 3 APIS DO
 
