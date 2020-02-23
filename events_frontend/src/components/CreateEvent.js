@@ -51,7 +51,6 @@ class CreateEvent extends Component {
 
   componentDidUpdate(prevProps) {
     var event = this.props.event;
-
     if (prevProps.event !== event && event !== {}) {
       try {
         event.tags = event.tags.map(tag => ({
@@ -59,7 +58,6 @@ class CreateEvent extends Component {
           label: tag.name
         }));
       } catch (err) {}
-
       this.setState({
         pk: event.pk,
         name: event.name,
@@ -249,9 +247,9 @@ class CreateEvent extends Component {
   onCancelEvent() {
     // restore to old values
     const eve = this.props.event;
-
     this.setState({ name: eve.name, 
                     room: eve.location.room,
+                    selected: {value: eve.location.place_id, label: eve.location.building},
                     location: eve.location.building,
                     place_id: eve.location.place_id,
                     from: new Date((eve.start_date + " " + eve.start_time).replace(/-/g, "/")),
@@ -285,16 +283,6 @@ class CreateEvent extends Component {
             value={this.state.name}
             onChange={e => this.setState({ name: e.target.value })}
           />
-          {/* <Autocomplete
-						label={"Room"}
-						value={this.state.selected}
-						data={this.state.roomSuggestions.map(loc =>
-							({ value: loc.name, label: loc.name }))}
-						onChange={this.autocompleteRoom.bind(this)}
-						onUpdate={val => this.setState({ room: val })}
-						placeholder={"Building + room to display (e.g. Gates G01)"}
-						multiSelect={false}
-						canCreate={true} /> */}
           <TextField
             label={"Room *"}
             value={this.state.room}
@@ -311,7 +299,7 @@ class CreateEvent extends Component {
             }))}
             onChange={this.autocompleteLocation.bind(this)}
             onUpdate={data =>
-              this.setState({ location: data.label, place_id: data.value })
+              this.setState({ selected: data, location: data.label, place_id: data.value })
             }
             placeholder={"Building to navigate to (e.g. Bill and Melinda Gates Hall)"}
             multiSelect={false}
