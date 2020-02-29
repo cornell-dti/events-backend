@@ -12,7 +12,13 @@ class Autocomplete extends Component {
   state = { selected: null };
 
   componentDidMount() {
-    this.setState({selected: this.props.value});
+    if (this.props.value !== this.state.selected && this.props.value !== [])
+      this.setState({selected: this.props.value});
+  }
+
+  componentDidUpdate() {
+    if (this.props.value !== this.state.selected && this.props.value !== [])
+      this.setState({selected: this.props.value});
   }
 
   onSelect(val) {

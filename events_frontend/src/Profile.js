@@ -33,16 +33,16 @@ class Profile extends Component {
     axios
       .get("/api/get_profile/")
       .then(response => {
-        // let org_tags = response.data.tags.map(tag => ({
-        //   value: tag.id,
-        //   label: tag.name
-        // }));
+        let org_tags = response.data.tags.map(tag => ({
+          value: tag.id,
+          label: tag.name
+        }));
         this.setState({
           name: response.data.name,
           website: response.data.website,
           email: response.data.email,
           bio: response.data.bio,
-          tags: response.data.tags,
+          tags: org_tags,
           imageUrl:
             response.data.photo.length > 0
               ? response.data.photo.sort(
@@ -134,7 +134,7 @@ class Profile extends Component {
           website: response.data.website,
           email: response.data.email,
           bio: response.data.bio,
-          tags: response.data.tags,
+          tags: this.state.tags,
           profileUpdated: true,
           imageUrl: imageUrl,
           errors: []

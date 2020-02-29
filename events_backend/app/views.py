@@ -264,11 +264,13 @@ class UserProfile(ViewSet):
         org_set.name = orgData["name"]
         org_set.website = orgData["website"]
         org_set.bio = orgData["bio"]
-        
-        # for t in orgData["tags"]:
-        #     tag = get_object_or_404(Tag, name=t["label"])
-        #     Org_Tags.objects.get_or_create(org=org_set, tags=tag)
 
+        for t in org_set.tags.all():
+            Org_Tags.objects.get(org_id=org_owner_id, tags_id=t.id).delete()
+
+        for t in orgData["tags"]:
+            tag = get_object_or_404(Tag, name=t["label"])
+            Org_Tags.objects.get_or_create(org=org_set, tags=tag)
 
         if orgData["imageUrl"] != "":
             media = Media.objects.create(
@@ -381,7 +383,7 @@ class OrgEvents(ViewSet):
         event.save()
 
         for t in event.tags.all():
-            Event_Tags.objects.get(tags_id=t.id).delete()
+            Event_Tags.objects.get(event_id=eventData["pk"], tags_id=t.id).delete()
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
