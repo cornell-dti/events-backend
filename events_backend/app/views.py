@@ -89,36 +89,29 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def get_token(self, request, mobile_id, format=None):
+    def get_token(self, request, id_token, format=None):
+        validated, mobile_id = validate_firebase(id_token)
+        if not validated:
+            return HttpResponseBadRequest("Invalid ID Token")
+        
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
-            return HttpResponseBadRequest("Token Already Assigned to User")
-        else:
-            validated, valid_info = validate_firebase(mobile_id)
-            if not validated:
-                return HttpResponseBadRequest("Invalid Firebase ID")
-
-            # generate username
-            username = generateUserName()
-            user = User.objects.create_user(username=username, password="")
-            user.set_unusable_password()
-            user.save()
-
-            new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
-            new_mobile_user.save()
-
-            # generate token
-            token = Token.objects.create(user=user)
-            return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-
-    def reset_token(self, request, mobile_id, format=None):
-        mobile_user_set = Mobile_User.objects.filter(token=mobile_id)
-        if mobile_user_set.exists():
-            user = mobile_user_set[0]
+            user = User.objects.get(id=mobile_user_set[0].user_id)
             token = get_object_or_404(Token, user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-        else:
-            return HttpResponse("Reset Token Error")
+        
+        # generate username
+        username = generateUserName()
+        user = User.objects.create_user(username=username)
+        user.set_unusable_password()
+        user.save()
+
+        new_mobile_user = Mobile_User(user=user, mobile_id=mobile_id)
+        new_mobile_user.save()
+
+        # generate token
+        token = Token.objects.get(user=user)
+        return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
 
 
 # =============================================================
@@ -413,14 +406,22 @@ class OrgEvents(ViewSet):
         else:
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
-    # TODO: FIGURE OUT THE PERMISSIONS REQUIRED FOR ATTENDANCE FUNCTIONS
     def increment_attendance(self, request, event_id, format=None):
+        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        if attendance.exists():
+            return HttpResponse("Attendance has already been registered for event with ID: " + event_id, status=status.HTTP_200_OK)
+        attendance = Attendance(event_id=event_id, user_id=request.user.id)
+        attendance.save()
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees + 1
         event.save()
         return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
     def decrement_attendance(self, request, event_id, format=None):
+        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        if not attendance.exists():
+            return HttpResponse("Attendance was not recorded for event with ID: " + event_id, status=status.HTTP_200_OK)
+        attendance.delete()
         event = get_object_or_404(Event, pk=event_id)
         event.num_attendees = event.num_attendees - 1
         event.save()
@@ -577,7 +578,6 @@ class UploadImageS3(APIView):
         print("reuest data")
         print(list(request.POST.items()))
 
-
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
         timeString = dt.now().strftime("%Y%m%d_%H%M%S")
 
@@ -714,9 +714,9 @@ def validate_email(email):
 def validate_firebase(mobile_id):
     try:
         idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
-        return True, ""
-    except Exception as e:
-        return False, mobile_id
+        return True, idinfo['sub']
+    except ValueError:
+        return False, ""
 
 # TODO: FIGURE OUT WHAT THE BOTTOM 3 APIS DO
 
