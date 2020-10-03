@@ -91,6 +91,9 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 
 
 ## Contributors
+**2020**
+* **Jonna Chen** - Front-End Developer
+
 **2018**
 * **Arnav Ghosh** - Back-End Developer
 * **Jessica Zhao** - Back-End Developer
