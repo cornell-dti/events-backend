@@ -11,7 +11,7 @@ django-csp==3.4
 django-simple-history==2.0
 django-storages==1.5.2
 django-webpack-loader==0.6.0
-djangorestframework==3.8.2
+djangorestframework==3.9.1
 docutils==0.14
 google-auth==1.5.1
 gunicorn==19.7.1
