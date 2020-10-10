@@ -64,46 +64,22 @@ class Profile extends Component {
 
   uploadImage(callback) {
     const file = this.state.image;
-    let xhr = new XMLHttpRequest();
-    xhr.open(
-      "GET",
-      "/api/sign_s3/?file_name=" + file.name + "&file_type=" + file.type
-    );
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          xhr = new XMLHttpRequest();
-          xhr.open("POST", response.data.url);
 
-          let postData = new FormData();
-          for (let key in response.data.fields) {
-            postData.append(key, response.data.fields[key]);
-          }
-          postData.append("file", file);
+    if (!file.type.includes("image/")) {
+      alert("Could not upload image. Please use a different file type.");
+    }
 
-          xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-              if (xhr.status === 200 || xhr.status === 204) {
-                console.log("File uploaded!");
-                callback(
-                  response.url
-                    .split("/")
-                    .slice(3)
-                    .join("/")
-                );
-              } else {
-                alert("Could not upload file.");
-              }
-            }
-          };
-          xhr.send(postData);
-        } else {
-          alert("Could not get signed URL.");
-        }
-      }
-    };
-    xhr.send();
+    const data = new FormData();
+    data.append("file", file);
+
+    console.log(file);
+    axios.post(`/api/upload_image_s3/`, data, {
+    }).then(res => {
+      const url = new URL(res.data.url);
+      callback(url.pathname);
+    }).catch(err => {
+      alert(`Could not upload image! Reason: ${err}`);
+    });
   }
 
   async saveProfile() {
