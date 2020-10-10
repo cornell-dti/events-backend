@@ -93,6 +93,8 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 ## Contributors
 **2020**
 * **[Jonna Chen](https://github.com/jonnachen)** - Front-End Developer
+* **[Woosang Kang](https://github.com/paul-kang-1)** - Back-End Developer
+
 
 **2018**
 * **Arnav Ghosh** - Back-End Developer
