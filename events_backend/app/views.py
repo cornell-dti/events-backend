@@ -89,8 +89,8 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def get_token(self, request, id_token, format=None):
-        validated, mobile_id = validate_firebase(id_token)
+    def get_token(self, request, fb_token, format=None):
+        validated, mobile_id = validate_firebase(fb_token)
         if not validated:
             return HttpResponseBadRequest("Invalid ID Token")
         
@@ -715,7 +715,8 @@ def validate_email(email):
 
 def validate_firebase(mobile_id):
     try:
-        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
+        idinfo = id_token.verify_firebase_token(
+            mobile_id, requests.Request(), audience="propane-melody-209519")
         return True, idinfo['sub']
     except ValueError:
         return False, ""
