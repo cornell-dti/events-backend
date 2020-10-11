@@ -716,7 +716,7 @@ def validate_email(email):
 def validate_firebase(mobile_id):
     try:
         idinfo = id_token.verify_firebase_token(
-            mobile_id, requests.Request(), audience="propane-melody-209519")
+            mobile_id, requests.Request(), audience=settings.FIREBASE_PROJECT_ID)
         return True, idinfo['sub']
     except ValueError:
         return False, ""
