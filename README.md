@@ -82,8 +82,6 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 ## Dependencies & Libraries
  * **[Django Rest Framework](http://www.django-rest-framework.org/) v. 3.8.2** - A Django library that provides powerful authentication protocols.
  * **[Django Simple History](https://django-simple-history.readthedocs.io/en/latest/) v. 2.0** - A Django library that provides methods to store changes to models, and thus, is used to create app-specific event, org. feeds.
-  * [react-avatar-editor](https://www.npmjs.com/package/react-avatar-editor) - Similar to Facebook profile picture. Allows you to crop, resize, and rotate an uploaded image. Use for event image upload in event creation.
-
 
 ## API Documentation
 * [Backend API Documentation](https://cuevents.docs.apiary.io/) - An external Apiary documenting the endpoints for our application.

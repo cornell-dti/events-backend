@@ -2,42 +2,29 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button/Button";
 import { withStyles } from "@material-ui/core";
-import AvatarEditor from "react-avatar-editor";
-// import classNames from "classnames";
 
 class ImageUploader extends Component {
-  state = { image_file: null, scaled_image: null };
+  state = { image_file: null, image_preview: null};
 
   onFileChange(e) {
-    const image = e.target.files[0];
-    this.props.onImageChange(image);
-    this.setState({ image_file: image });
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
 
-    if (this.editor) {
-      const canvasScaled = this.editor.getImageScaledToCanvas();
-      this.setState({ scaled_image: canvasScaled });
+    reader.onloadend = () => {
+      this.setState({
+        image_file: file,
+        image_preview: reader.result
+      });
     }
+
+    reader.readAsDataURL(file)
+    this.props.onImageChange(file);
   }
 
   onUploadClick() {
     document.getElementById("fileInput").click();
   }
-
-  classForShape(shape, classes) {
-    switch (shape) {
-      case "circle":
-        return classes.circle;
-      case "rectangle":
-        return classes.rectangle;
-      default:
-        console.log("ImageUploader.classForShape() incorrect shape: " + shape);
-        return null;
-    }
-  }
-
-  setEditorRef = editor => {
-    this.editor = editor;
-  };
 
   render() {
     const { classes } = this.props;
@@ -57,13 +44,9 @@ class ImageUploader extends Component {
             : "Upload image"}
         </Button>
         {this.state.image_file || this.props.image_url ? (
-          <AvatarEditor
-            ref={this.setEditorRef}
-            image={this.state.image_file || this.props.image_url}
-            width={500}
-            height={300}
-            border={0}
-          />
+          <div className={classes.container}>
+            <img className={classes.avatar} src={this.state.image_preview || this.props.image_url}/>
+          </div>
         ) : null}
       </div>
     );
@@ -88,18 +71,15 @@ const styles = theme => ({
   button: {
     width: "100%"
   },
-  imagePreview: {
-    marginTop: theme.spacing(2),
-    backgroundSize: "cover"
+  container: {
+    width: "500px",
+    height: "300px"
   },
-  circle: {
-    width: theme.spacing(50),
-    height: theme.spacing(50),
-    borderRadius: theme.spacing(25)
-  },
-  rectangle: {
+  avatar: {    
     width: "100%",
-    paddingTop: "50%" //2:1 ratio
+    height: "100%",
+    overflow: "hidden",
+    "object-fit": "cover"
   }
 });
 

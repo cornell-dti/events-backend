@@ -68,7 +68,7 @@ const styles = theme => ({
   },
   image: {
     width: "100%",
-    paddingTop: "50%", //2:1 ratio
+    paddingTop: "60%", 
     backgroundColor: theme.palette.primary.main
   },
   actionArea: {

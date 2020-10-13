@@ -6,7 +6,6 @@ import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Button from "@material-ui/core/Button/Button";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import TextField from "@material-ui/core/TextField/TextField";
-
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 
@@ -46,7 +45,8 @@ class CreateEvent extends Component {
     visitedLocations: [], // JS Objects of API Call of All Locations
 
     image: null,
-    imageChanged: false
+    imageChanged: false,
+    loading: false
   };
 
   componentDidUpdate(prevProps) {
@@ -83,7 +83,8 @@ class CreateEvent extends Component {
         selected: {
           value: event.location.place_id,
           label: event.location.building
-        }
+        },
+        loading: false
       });
     }
   }
@@ -176,7 +177,6 @@ class CreateEvent extends Component {
     if (fileType.length == file.type.length) {
       alert("Could not upload image. Please use a different file type");
     }
-
     
     const data = new FormData();
     data.append("file", file);
@@ -192,6 +192,8 @@ class CreateEvent extends Component {
   }
 
   async onPublishEvent() {
+    this.setState({loading: true});
+
     let imageUrl = "";
     const location = {
       building: this.state.location,
@@ -231,7 +233,7 @@ class CreateEvent extends Component {
       action: 'Added an Event'
     });
 
-    this.setState({ imageChanged: false });
+    this.setState({ imageChanged: false});
     this.props.onUpdate(eventData);
   }
 
@@ -276,7 +278,6 @@ class CreateEvent extends Component {
             onImageChange={image =>
               this.setState({ image: image, imageChanged: true })
             }
-            shape={"rectangle"}
           />
           <TextField
             label="Event name *"
@@ -346,8 +347,9 @@ class CreateEvent extends Component {
             Cancel
           </Button>
           <Button
+            ref="btn"
             onClick={this.onPublishEvent.bind(this)}
-            disabled={!this.formComplete()}
+            disabled={!this.formComplete() || this.state.loading}
             color="primary"
           >
             Publish Event
@@ -370,8 +372,8 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
-    width: '36vw',
-    padding: theme.spacing(4)
+    padding: theme.spacing(4),
+    minWidth: "400px"
   }
 });
 
