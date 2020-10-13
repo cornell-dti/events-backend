@@ -72,7 +72,6 @@ class Profile extends Component {
     const data = new FormData();
     data.append("file", file);
 
-    console.log(file);
     axios.post(`/api/upload_image_s3/`, data, {
     }).then(res => {
       const url = new URL(res.data.url);
