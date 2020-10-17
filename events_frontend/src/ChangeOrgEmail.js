@@ -45,25 +45,27 @@ class ChangeOrgEmail extends Component {
         const { classes } = this.props;
         return (
             <div className={classes.root}>
-                {/* <Typography variant={"h4"} className={classes.title}>
-          Account Settings
-        </Typography> 
-        <TextField
-          label="Email Address"
-          className={classes.textField}
-          value={this.state.email}
-          onChange={e => this.setState({ email: e.target.value })}
-          margin={"normal"} />
-        <Typography variant={"body1"} color={"inherit"}>
-          Update your email address on your
-          <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
-        </Typography> */}
+                {/* 
+                    <Typography variant={"h4"} className={classes.title}>
+                        Account Settings
+                    </Typography> 
+                    <TextField
+                        label="Email Address"
+                        className={classes.textField}
+                        value={this.state.email}
+                        onChange={e => this.setState({ email: e.target.value })}
+                        margin={"normal"} />
+                    <Typography variant={"body1"} color={"inherit"}>
+                        Update your email address on your
+                        <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
+                    </Typography> 
+                */}
                 <Typography className={classes.title} variant={"h5"} color={"inherit"}>
                     Change Your Organization Email
-        </Typography>
+                </Typography>
                 <Typography className={classes.disclaimer} color={"primary"}>
                     Warning: Doing so will change your login email as well!
-        </Typography>
+                </Typography>
                 <TextField
                     label="New Organization Email"
                     className={classes.textField}
@@ -93,7 +95,7 @@ class ChangeOrgEmail extends Component {
                     id={"op-button"}
                 >
                     Update Organization Email
-        </Button>
+                </Button>
             </div>
         );
     }
