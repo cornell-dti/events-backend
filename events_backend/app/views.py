@@ -703,9 +703,11 @@ def extractToken(header):
 
 
 def generateUserName():
-    # HANDLE user.obects.latest is null case
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
-    return "user{0}".format(User.objects.latest("pk").pk + 1)
+    user = User.objects.latest("pk")
+    if user is None:
+        return "user0"
+    return "user{0}".format(user.pk + 1)
 
 
 def validate_email(email):
