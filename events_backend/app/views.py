@@ -697,17 +697,14 @@ class GetMinVersionView(APIView):
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
-
-def extractToken(header):
-    return header[header.find(" ") + 1:]
-
-
 def generateUserName():
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
-    user = User.objects.latest("pk")
-    if user is None:
-        return "user0"
-    return "user{0}".format(user.pk + 1)
+    try:
+        latest_pk = User.objects.latest("pk").pk
+    except User.DoesNotExist:
+        latest_pk = 0
+    return "user{0}".format(latest_pk + 1) 
+    
 
 
 def validate_email(email):
