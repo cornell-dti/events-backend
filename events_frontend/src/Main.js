@@ -29,11 +29,11 @@ class Main extends Component {
                 <React.Fragment>
                     <Typography variant={"h6"} color={"inherit"}>
                         Are you an organization?
-          </Typography>
+                    </Typography>
                     <LinkColorless to={routes.noAuth.login.route}>
                         <Button color={"primary"} className={classes.button}>
                             Log in
-            </Button>
+                        </Button>
                     </LinkColorless>
                     <LinkColorless to={routes.noAuth.signup.route}>
                         <Button
@@ -42,7 +42,7 @@ class Main extends Component {
                             className={classes.button}
                         >
                             Sign up
-            </Button>
+                        </Button>
                     </LinkColorless>
                 </React.Fragment>
             );
@@ -52,17 +52,17 @@ class Main extends Component {
                     <LinkColorless to={routes.auth.profile.route}>
                         <Button color={"primary"} className={classes.button}>
                             Profile
-            </Button>
+                        </Button>
                     </LinkColorless>
                     <LinkColorless to={routes.auth.myEventsDefault.route}>
                         <Button color={"primary"} className={classes.button}>
                             My Events
-            </Button>
+                        </Button>
                     </LinkColorless>
                     <LinkColorless to={routes.auth.logout.route} logout={true}>
                         <Button color={"primary"} className={classes.button}>
                             Log Out
-            </Button>
+                        </Button>
                     </LinkColorless>
                 </React.Fragment>
             );
@@ -86,7 +86,7 @@ class Main extends Component {
                 >
                     <Typography variant="h6" color="primary">
                         Contact Us
-          </Typography>
+                    </Typography>
                 </a>
                 <div className={classes.buttonContainer}>
                     <a href={DOWNLOAD_LINK} className={classes.appButton}>

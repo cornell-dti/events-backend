@@ -7,7 +7,6 @@ import TextField from "@material-ui/core/TextField/TextField";
 import { withStyles } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip/Chip";
 
-
 class Autocomplete extends Component {
     state = { selected: null };
 
@@ -135,7 +134,6 @@ const components = {
 };
 
 const styles = theme => ({
-
     input: {
         display: "flex", // causes the thing to go down
         height: "80%",

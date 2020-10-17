@@ -172,16 +172,13 @@ class CreateEvent extends Component {
         const file = this.state.image;
         const fileType = file.type.replace("image/", "");
 
-
         if (fileType.length == file.type.length) {
             alert("Could not upload image. Please use a different file type");
         }
 
-
         const data = new FormData();
         data.append("file", file);
 
-        console.log(file);
         axios.post(`/api/upload_image_s3/?file_name=${file.name}&file_type=${fileType}`, data, {
         }).then(res => {
             console.log(res.data);
@@ -341,20 +338,19 @@ class CreateEvent extends Component {
                 <DialogActions>
                     {this.props.edit ? (
                         <Button onClick={this.onDeleteEvent.bind(this)} color="primary">
-                            {" "}
-Delete{" "}
+                            {" "}Delete{" "}
                         </Button>
                     ) : null}
                     <Button onClick={this.onCancelEvent.bind(this)} color="secondary">
                         Cancel
-</Button>
+                    </Button>
                     <Button
                         onClick={this.onPublishEvent.bind(this)}
                         disabled={!this.formComplete()}
                         color="primary"
                     >
                         Publish Event
-</Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         );

@@ -33,7 +33,7 @@ class EventCard extends Component {
                             <div className={classes.vertLayout}>
                                 <Typography variant={"body1"} className={classes.bold}>
                                     Starts
-                </Typography>
+                                </Typography>
                                 <Typography variant={"body1"} className={classes.num}>
                                     {this.props.startTime}
                                 </Typography>
@@ -41,7 +41,7 @@ class EventCard extends Component {
                             <div className={classes.vertLayout}>
                                 <Typography variant={"body1"} className={classes.bold}>
                                     Going
-                </Typography>
+                                </Typography>
                                 <Typography variant={"body1"} className={classes.num}>
                                     {this.props.numAttendees}
                                 </Typography>

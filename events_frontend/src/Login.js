@@ -60,7 +60,7 @@ class Login extends Component {
             <div className={classes.root}>
                 <Typography variant={"h5"} className={classes.title}>
                     Organization Login
-        </Typography>
+                 </Typography>
                 <FormError errors={this.state.errors} />
                 <TextField
                     label="Email"
@@ -86,7 +86,7 @@ class Login extends Component {
                     onClick={this.onClick.bind(this)}
                 >
                     Login
-        </Button>
+                </Button>
             </div>
         );
     }

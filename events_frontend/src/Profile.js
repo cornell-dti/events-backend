@@ -226,16 +226,16 @@ class Profile extends Component {
                     onClick={this.saveProfile.bind(this)}
                 >
                     Save
-        </Button>
+                </Button>
                 <LinkColorless to={routes.auth.changeOrgEmail.route}>
                     <Button color={"primary"} className={classes.button}>
                         Change Organization Email
-          </Button>
+                    </Button>
                 </LinkColorless>
                 <LinkColorless to={routes.auth.changePassword.route}>
                     <Button color={"primary"} className={classes.button}>
                         Change Password
-          </Button>
+                    </Button>
                 </LinkColorless>
             </div>
         );

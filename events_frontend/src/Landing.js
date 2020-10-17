@@ -19,7 +19,7 @@ class Landing extends Component {
                     <Logo fontSize={150} />
                     <Typography className={classes.tagline}>
                         Discover all the events at Cornell
-          </Typography>
+                    </Typography>
                 </div>
                 <img src={"/static/device.png"} className={classes.image} alt="Phone" />
             </div>

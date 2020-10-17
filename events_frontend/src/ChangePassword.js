@@ -60,23 +60,25 @@ class ChangePassword extends Component {
         const { classes } = this.props;
         return (
             <div className={classes.root}>
-                {/* <Typography variant={"h4"} className={classes.title}>
-          Account Settings
-        </Typography> 
-        <TextField
-          label="Email Address"
-          className={classes.textField}
-          value={this.state.email}
-          onChange={e => this.setState({ email: e.target.value })}
-          margin={"normal"} />
-        <Typography variant={"body1"} color={"inherit"}>
-          Update your email address on your
-          <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
-        </Typography> */}
+                {/*
+                     <Typography variant={"h4"} className={classes.title}>
+                        Account Settings
+                    </Typography> 
+                    <TextField
+                        label="Email Address"
+                        className={classes.textField}
+                        value={this.state.email}
+                        onChange={e => this.setState({ email: e.target.value })}
+                        margin={"normal"} />
+                    <Typography variant={"body1"} color={"inherit"}>
+                        Update your email address on your
+                        <LinkColorless to={routes.profile.route}> profile page </LinkColorless>
+                    </Typography> 
+                */}
                 <FormError errors={this.state.errors} />
                 <Typography className={classes.title} variant={"h5"} color={"inherit"}>
                     Change Your Password
-        </Typography>
+                 </Typography>
                 <TextField
                     label="Old Password"
                     className={classes.textField}
@@ -125,7 +127,7 @@ class ChangePassword extends Component {
                     id={"op-button"}
                 >
                     Update Password
-        </Button>
+                </Button>
             </div>
         );
     }
