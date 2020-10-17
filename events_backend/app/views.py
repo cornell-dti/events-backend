@@ -101,7 +101,7 @@ class Tokens(ViewSet):
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
         
         # generate username
-        username = generateUserName()
+        username = generate_username()
         user = User.objects.create_user(username=username)
         user.set_unusable_password()
         user.save()
@@ -697,7 +697,7 @@ class GetMinVersionView(APIView):
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
-def generateUserName():
+def generate_username():
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
     try:
         latest_pk = User.objects.latest("pk").pk
