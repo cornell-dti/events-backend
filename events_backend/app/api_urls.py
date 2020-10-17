@@ -8,7 +8,7 @@ from . import views
 
 urlpatterns = [
     # tokens
-    url(r'^get_token/(?P<id_token>.*)/?$',
+    url(r'^get_token/(?P<fb_token>.*)/?$',
         views.Tokens.as_view({'get': 'get_token'}), name='Get-Token'),
 
     # login/signup/change login credentials
