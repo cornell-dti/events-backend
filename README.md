@@ -88,11 +88,10 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 ## API Documentation
 * [Backend API Documentation](https://cuevents.docs.apiary.io/) - An external Apiary documenting the endpoints for our application.
 
-
-
 ## Contributors
 **2020**
 * **[Jonna Chen](https://github.com/jonnachen)** - Front-End Developer
+* **[Woosang Kang](https://github.com/paul-kang-1)** - Back-End Developer
 * **[Mena Attia](https://github.com/menaattia)** - Back-End Developer
 
 **2018**
