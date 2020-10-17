@@ -166,7 +166,6 @@ class Profile extends Component {
           onImageChange={image =>
             this.setState({ image: image, imageChanged: true })
           }
-          shape={"rectangle"}
         />
         <TextField
           id="name"
