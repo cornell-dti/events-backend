@@ -6,7 +6,7 @@ from rest_framework import serializers
 from .models import Event, Org, Location, Tag, Org_Tags, Media, Event_Tags, Event_Media
 from django.contrib.auth.models import User
 from django.conf import settings
-
+import re
 
 class OrgSerializer(serializers.ModelSerializer):
     # email = serializers.SerializerMethodField()
@@ -26,12 +26,7 @@ class OrgSerializer(serializers.ModelSerializer):
         """Convert `username` to lowercase."""
         ret = super().to_representation(instance)
         for photo in ret["photo"]:
-            photo["link"] = (
-                "https://"
-                + settings.AWS_STORAGE_BUCKET_NAME
-                + ".s3.amazonaws.com/"
-                + photo["link"]
-            )
+            photo["link"] = "https://" + settings.AWS_S3_CUSTOM_DOMAIN + photo["link"]
         return ret
 
 
@@ -60,13 +55,8 @@ class EventSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         for media in ret["media"]:
             # if the link is from fcbk or localist, then it will have https:// in it so don't do the manual appending stuff
-            if "https://" not in media["link"] and "http://" not in media["link"]:
-                media["link"] = (
-                    "https://"
-                    + settings.AWS_STORAGE_BUCKET_NAME
-                    + ".s3.amazonaws.com/"
-                    + media["link"]
-                )
+            if not re.match("https*:\/\/", media["link"]):
+                media["link"] = "https://" + settings.AWS_S3_CUSTOM_DOMAIN + media["link"]
         return ret
 
 
