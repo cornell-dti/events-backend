@@ -92,8 +92,8 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def get_token(self, request, id_token, format=None):
-        validated, mobile_id = validate_firebase(id_token)
+    def get_token(self, request, fb_token, format=None):
+        validated, mobile_id = validate_firebase(fb_token)
         if not validated:
             return HttpResponseBadRequest("Invalid ID Token")
 
@@ -104,7 +104,7 @@ class Tokens(ViewSet):
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
 
         # generate username
-        username = generateUserName()
+        username = generate_username()
         user = User.objects.create_user(username=username)
         user.set_unusable_password()
         user.save()
@@ -586,15 +586,14 @@ class GetMinVersionView(APIView):
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
-
-def extractToken(header):
-    return header[header.find(" ") + 1:]
-
-
-def generateUserName():
-    # HANDLE user.obects.latest is null case
+def generate_username():
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
-    return "user{0}".format(User.objects.latest("pk").pk + 1)
+    try:
+        latest_pk = User.objects.latest("pk").pk
+    except User.DoesNotExist:
+        latest_pk = 0
+    return "user{0}".format(latest_pk + 1) 
+    
 
 
 def validate_email(email):
@@ -604,7 +603,8 @@ def validate_email(email):
 
 def validate_firebase(mobile_id):
     try:
-        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
+        idinfo = id_token.verify_firebase_token(
+            mobile_id, requests.Request(), audience=settings.FIREBASE_PROJECT_ID)
         return True, idinfo['sub']
     except ValueError:
         return False, ""
