@@ -13,6 +13,9 @@ import ReactGA from "react-ga";
 class MyEvents extends Component {
   state = {
     lastPage: 1,
+    currPage: 1,
+    indexOfFirstEvent: 0,
+    indexOfLastEvent: 6,
     createEvent: false,
     selectedEvent: {},
     editEvent: false,
@@ -138,6 +141,11 @@ class MyEvents extends Component {
   render() {
     const { classes } = this.props;
     const currPage = parseInt(this.props.match.params.id) || 1;
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(this.state.events.length / 6); i++) {
+      pageNumbers.push(i);
+    }
+    var currentEvents = this.state.events.slice(this.state.indexOfFirstEvent, this.state.indexOfLastEvent);
     const newEvent = {
       image: null,
       name: "",
@@ -171,14 +179,14 @@ class MyEvents extends Component {
         >
           <Icon>add</Icon>
         </Fab>
-        {this.state.events.length > 0 && (
+        {currentEvents.length > 0 && (
           <GridList
             className={classes.cardsContainer}
             cellHeight={"auto"}
             cols={3}
             spacing={50}
           >
-            {this.state.events.map(event => {
+            {currentEvents.map(event => {
               let imageUrl =
                 event.media.length > 0
                   ? event.media.sort(
@@ -203,6 +211,22 @@ class MyEvents extends Component {
             })}
           </GridList>
         )}
+        <div className={classes.pageNumContainer}>
+          {pageNumbers.length > 1 &&
+            pageNumbers.map(number => {
+              return (
+                <div className={number == this.state.currPage ? classes.activePageNum : classes.pageNum} key={number} id={number} onClick={() => {
+                  this.setState({ currPage: number });
+
+                  this.setState({ indexOfLastEvent: number * 6 }, function () {
+                    this.setState({ indexOfFirstEvent: this.state.indexOfLastEvent - 6 });
+                  });
+                }}>
+                  {number}
+                </div>
+              );
+            })}
+        </div>
         {this.state.lastPage !== 1 && currPage <= this.state.lastPage && (
           <PageNavigator
             currPage={currPage}
@@ -236,6 +260,22 @@ const styles = theme => ({
   fab: {
     position: "absolute",
     right: theme.spacing(4)
+  },
+  pageNumContainer: {
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    fontSize: "1.5rem"
+  },
+  pageNum: {
+    padding: theme.spacing(3),
+    paddingBottom: 0
+  },
+  activePageNum: {
+    padding: theme.spacing(3),
+    paddingBottom: 0,
+    color: theme.palette.primary.main
   }
 });
 
