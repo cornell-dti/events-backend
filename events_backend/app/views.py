@@ -63,14 +63,17 @@ import os
 import re
 
 from math import ceil
+from botocore.exceptions import ClientError
+import logging
 
 User = get_user_model()
 EVENTS_PER_PAGE = 15
 
-
 # =============================================================
 #                    AASA
 # =============================================================
+
+
 class AppleAppSite(APIView):
     permission_classes = (AllowAny,)
 
@@ -89,19 +92,19 @@ class Tokens(ViewSet):
     # TODO: alter classes to token and admin?
     permission_classes = (AllowAny,)
 
-    def get_token(self, request, id_token, format=None):
-        validated, mobile_id = validate_firebase(id_token)
+    def get_token(self, request, fb_token, format=None):
+        validated, mobile_id = validate_firebase(fb_token)
         if not validated:
             return HttpResponseBadRequest("Invalid ID Token")
-        
+
         mobile_user_set = Mobile_User.objects.filter(mobile_id=mobile_id)
         if mobile_user_set.exists():
             user = User.objects.get(id=mobile_user_set[0].user_id)
             token = get_object_or_404(Token, user=user)
             return JsonResponse({"token": token.key}, status=status.HTTP_200_OK)
-        
+
         # generate username
-        username = generateUserName()
+        username = generate_username()
         user = User.objects.create_user(username=username)
         user.set_unusable_password()
         user.save()
@@ -368,7 +371,7 @@ class OrgEvents(ViewSet):
             building=eventData["location"]["building"],
             place_id=eventData["location"]["place_id"],
         )
-    
+
         event.name = eventData["name"]
         event.location = loc[0]
         event.start_date = dt.strptime(
@@ -383,7 +386,8 @@ class OrgEvents(ViewSet):
         event.save()
 
         for t in event.tags.all():
-            Event_Tags.objects.get(event_id=eventData["pk"], tags_id=t.id).delete()
+            Event_Tags.objects.get(
+                event_id=eventData["pk"], tags_id=t.id).delete()
 
         for t in eventData["tags"]:
             tag = get_object_or_404(Tag, name=t["label"])
@@ -409,7 +413,8 @@ class OrgEvents(ViewSet):
             return HttpResponse(status=status.HTTP_401_UNAUTHORIZED)
 
     def increment_attendance(self, request, event_id, format=None):
-        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        attendance = Attendance.objects.filter(
+            event_id=event_id, user_id=request.user.id)
         if attendance.exists():
             return HttpResponse("Attendance has already been registered for event with ID: " + event_id, status=status.HTTP_200_OK)
         attendance = Attendance(event_id=event_id, user_id=request.user.id)
@@ -420,7 +425,8 @@ class OrgEvents(ViewSet):
         return HttpResponse("Attendance incremented for event with ID: " + event_id, status=status.HTTP_200_OK)
 
     def decrement_attendance(self, request, event_id, format=None):
-        attendance = Attendance.objects.filter(event_id=event_id, user_id=request.user.id)
+        attendance = Attendance.objects.filter(
+            event_id=event_id, user_id=request.user.id)
         if not attendance.exists():
             return HttpResponse("Attendance was not recorded for event with ID: " + event_id, status=status.HTTP_200_OK)
         attendance.delete()
@@ -482,164 +488,46 @@ class Feeds(ViewSet):
 #                          MEDIA
 # =============================================================
 
-# TODO: DEAL WITH THIS AFTER SCOTT IS DONE WITH HIS S3 FIX
 
-
-class GetSignedRequest(APIView):
+class UploadImageS3(APIView):
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
-        S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
-        timeString = dt.now().strftime("%Y%m%d_%H%M%S")
-        file_name = (
-            "user_media/"
-            + str(request.user.id)
-            + "/"
-            + timeString
-            + "_"
-            + request.GET.get("file_name")
-        )
-        file_type = request.GET.get("file_type")
-
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        )
-
-        presigned_post = s3.generate_presigned_post(
-            Bucket=S3_BUCKET,
-            Key=file_name,
-            Fields={"acl": "public-read", "Content-Type": file_type},
-            Conditions=[{"acl": "public-read"}, {"Content-Type": file_type}],
-            ExpiresIn=3600,
-        )
-
-        return JsonResponse(
-            {
-                "data": presigned_post,
-                "url": "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name),
-            },
-            status=status.HTTP_200_OK,
-        )
-
-
-class ImageDetail(APIView):
-    # TODO: alter classes to token and admin?
-    authentication_classes = ()  # (TokenAuthentication, )
-    permission_classes = ()  # (IsAuthenticated, )
-
-    def get(self, request, img_id, format=None):
-        media = Media.objects.filter(pk=img_id)[0].file.name
-        name, extension = os.path.splitext(media)
-        s3 = S3Connection(settings.AWS_ACCESS_KEY_ID,
-                          settings.AWS_SECRET_ACCESS_KEY)
-        s3bucket = s3.get_bucket(settings.AWS_STORAGE_BUCKET_NAME)
-        s3key = s3bucket.get_key(media)
-        response = HttpResponse(
-            s3key.read(), status=status.HTTP_200_OK, content_type="image/" + extension
-        )  # what if its not jpg
-        response["Content-Disposition"] = "inline; filename=" + media
-        return response
-
-
-def upload_image(s3, bucket_name, filename_path, file_data):
-
-    try:
-        print("\nattempting to upload:")
-        print(filename_path)
-        s3.put_object(Bucket=bucket_name, Key=filename_path, Body=file_data.file)
-    except ClientError as e:
-        logging.error(e)
-        return False, ""
-    finally:
-        return True, filename_path
-
-def make_public(s3, bucket_name, filename_path):
-    try:
-        s3.put_object_acl(ACL="public-read",
-        Bucket=bucket_name)
-    except ClientError as e:
-        logging.error(e)
-        return False
-    finally:
-        return True
-
-class UploadImageS3(APIView):
-    authentication_classes = ()
-    permission_classes = ()
-
     def post(self, request):
-        user_id = str(request.user.id)
-        file_type = request.GET.get("file_type").replace('"', '')
-        uploaded_file_name = request.GET.get("file_name").replace('"', '')
-        
-        fileData = request.data["file"]
-
-        print("reuest data")
-        print(list(request.POST.items()))
+        user_id = request.user.id
+        req_data = request.data["file"]
+        uploaded_file_name = req_data.name
+        file_data = req_data.file
 
         S3_BUCKET = settings.AWS_STORAGE_BUCKET_NAME
-        timeString = dt.now().strftime("%Y%m%d_%H%M%S")
-
-
         s3 = boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
 
+        timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
+        file_name = "user_media/%s/%s_%s" % (user_id,
+                                             timestamp, uploaded_file_name)
+        file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, file_name)
 
-        file_name = ("user_media/"
-            + user_id + '/'
-            + timeString
-            + '_'
-            + str(uploaded_file_name))
-
-
-        upload_success, s3_url = upload_image(s3, S3_BUCKET, file_name, fileData)
-
-        file_url = "https://%s.s3.amazonaws.com/%s" % (S3_BUCKET, s3_url)
-
-        make_public_success = False
-        if upload_success:
-
-
-            make_public_success = make_public(s3, S3_BUCKET, file_name)
-
-            if (make_public_success):
-                print("successfully make public")
-            else:
-                print("failure to make public")
-        else:
-            print("failure to make upload")
+        try:
+            s3.put_object(Bucket=S3_BUCKET, Key=file_name,
+                          Body=file_data, ACL="public-read")
+        except ClientError as e:
+            logging.error(e)
 
         return JsonResponse(
             {
-                "potato": 123,
-                "url": file_url,
-                "bucket": S3_BUCKET,
-                "filename": file_name,
-                "upload_success": upload_success,
-                "make_public_success": make_public_success,
-                "s3_url": s3_url
+                "url": file_url
             },
             status=status.HTTP_200_OK
         )
 
-def uploadToS3(file_name, bucket, object_name):
-    s3_client = boto3.client('s3')
-    try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-    except ClientError as e:
-        logging.error(e)
-        return False
-    return True
-
 # =============================================================
 #                       VERSIONING
 # =============================================================
+
 
 class GetMinVersionView(APIView):
 
@@ -651,7 +539,7 @@ class GetMinVersionView(APIView):
         versionSplits = version.split(".")
         plat = platform.lower()
         if plat != "android" and plat != "ios":
-            return JsonResponse ({ 'passed': False })
+            return JsonResponse({'passed': False})
         if plat == "android":
             minVersionSplits = minAndroidVersion.split(".")
         elif plat == "ios":
@@ -659,9 +547,9 @@ class GetMinVersionView(APIView):
 
         for i in range(0, len(minVersionSplits)):
             if int(versionSplits[i]) >= int(minVersionSplits[i]):
-                return JsonResponse({ 'passed': True })
+                return JsonResponse({'passed': True})
 
-        return JsonResponse({ 'passed': False })
+        return JsonResponse({'passed': False})
 
 
 # =============================================================
@@ -684,9 +572,9 @@ class GetMinVersionView(APIView):
 
         for i in range(0, len(minVersionSplits)):
             if int(versionSplits[i]) < int(minVersionSplits[i]):
-                return JsonResponse({ 'passed': False })
+                return JsonResponse({'passed': False})
 
-        return JsonResponse({ 'passed': True })
+        return JsonResponse({'passed': True})
 
 # =============================================================
 
@@ -694,18 +582,18 @@ class GetMinVersionView(APIView):
 #                        HELPERS
 # =============================================================
 
+
 def check_login_status(request):
     return JsonResponse({"status": request.user.is_authenticated})
 
-
-def extractToken(header):
-    return header[header.find(" ") + 1:]
-
-
-def generateUserName():
-    # HANDLE user.obects.latest is null case
+def generate_username():
     # Safe: pk < 2147483647 and max(len(username)) == 150 [16/9/2018]
-    return "user{0}".format(User.objects.latest("pk").pk + 1)
+    try:
+        latest_pk = User.objects.latest("pk").pk
+    except User.DoesNotExist:
+        latest_pk = 0
+    return "user{0}".format(latest_pk + 1) 
+    
 
 
 def validate_email(email):
@@ -715,7 +603,8 @@ def validate_email(email):
 
 def validate_firebase(mobile_id):
     try:
-        idinfo = id_token.verify_oauth2_token(mobile_id, requests.Request())
+        idinfo = id_token.verify_firebase_token(
+            mobile_id, requests.Request(), audience=settings.FIREBASE_PROJECT_ID)
         return True, idinfo['sub']
     except ValueError:
         return False, ""
