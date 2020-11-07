@@ -1,8 +1,8 @@
 <img src="https://raw.githubusercontent.com/cornell-dti/events-manager-android/master/cue_text_red.png" width="80" height="35"> (Cornell University Events) Backend + Website v1.0
 ======
-Backend: A system that supports APIs to access data about Events and Organizations etc. on Cornell's Ithaca campus. 
+Backend: A system that supports APIs to access data about Events and Organizations etc. on Cornell's Ithaca campus.
 
-Website: A **web** app for student organizations to add events for cue. Here is a list of related repositories: 
+Website: A **web** app for student organizations to add events for cue. Here is a list of related repositories:
 - [events manager android](https://github.com/cornell-dti/events-manager-android)
 - [events manager ios](https://github.com/cornell-dti/events-manager-ios)
 
@@ -15,7 +15,7 @@ Website: A **web** app for student organizations to add events for cue. Here is 
   - [Contributors](#contributors)
 
 ## Getting Started
-You will need **Python 3.6** to run the latest version of this app, which uses Django 2.0.1. Django can be installed using python's inbuilt _pip_ function. 
+You will need **Python 3.6** to run the latest version of this app, which uses Django 2.0.1. Django can be installed using python's inbuilt _pip_ function.
 
 You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, which uses the following:
 - React.js v.16.4.2
@@ -53,7 +53,7 @@ Before you run anything, do this right after `git pull`:
     - Linux/Mac, python 2 is default: `npm run start3`
     - Windows, python 3 is default: `npm run start-windows`
     - Windows, python 2 is default: `npm run start3-windows`
-    
+
     This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
 
 The front-end website will be located at `127.0.0.1:8000`.
@@ -63,7 +63,7 @@ After pushing any changes to the codebase, let's get your code reviewed. Some ge
 - Before you start changing any code, make sure you're synced with the master branch.
 - Create a new branch off master, and give it an informative name.
 - Commit your changes to this feature branch. Commit often so that you don't accidentally lose your progress!
-- Open a pull request (PR), give it a meaningful title and describe the changes that you made. Take note of any future improvements or any existing bugs with the changes you made. Give some steps as to how to test the changes you've made. 
+- Open a pull request (PR), give it a meaningful title and describe the changes that you made. Take note of any future improvements or any existing bugs with the changes you made. Give some steps as to how to test the changes you've made.
 - Notify others of the PR you created, and ask the relevant people to review it for you. They may leave comments and request changes, in which case you should make changes and push new commits to the same branch; the PR will update automatically!
 - Finally, when the change is approved by the reviewer, you can go ahead and merge the branch into the master branch.
 
@@ -88,11 +88,15 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 ## API Documentation
 * [Backend API Documentation](https://cuevents.docs.apiary.io/) - An external Apiary documenting the endpoints for our application.
 
-
-
 ## Contributors
 **2020**
+<<<<<<< HEAD
 * **Jonna Chen** - Front-End Developer
+=======
+* **[Jonna Chen](https://github.com/jonnachen)** - Front-End Developer
+* **[Woosang Kang](https://github.com/paul-kang-1)** - Back-End Developer
+* **[Mena Attia](https://github.com/menaattia)** - Back-End Developer
+>>>>>>> b447438e9b80d71b096cd53cb78c35074da2a3c1
 
 **2018**
 * **Arnav Ghosh** - Back-End Developer

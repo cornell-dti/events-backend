@@ -8,7 +8,7 @@ from . import views
 
 urlpatterns = [
     # tokens
-    url(r'^get_token/(?P<id_token>.*)/?$',
+    url(r'^get_token/(?P<fb_token>.*)/?$',
         views.Tokens.as_view({'get': 'get_token'}), name='Get-Token'),
 
     # login/signup/change login credentials
@@ -63,6 +63,4 @@ urlpatterns = [
     # feeds
     url(r'^get_event_feed/?$',
         views.Feeds.as_view({'get': 'get_event_feed'}), name='Get-Event-Feed'),
-
-    url(r"^sign_s3/?$", views.GetSignedRequest.as_view(), name="Get-Signed-Request"),
 ]
