@@ -23,38 +23,19 @@ You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, whi
 
 ### Setup
 #### Installing requirements
-If typing `python` gives you version 3.x):
 - `pip install -r requirements.txt`
 
-Otherwise:
-- `pip3 install -r requirements.txt`
-
-#### Copy settings from dev-settings
-Linux/Mac:
-- `npm run copy-settings`
-
-Windows:
-- `npm run copy-settings-windows`
-
 #### Make migrations
-If typing `python` gives you version 3.x):
-- `python manage.py makemigrations`
-- `python manage.py migrate`
-
-Otherwise:
-- `python3 manage.py makemigrations`
-- `python3 manage.py migrate`
+- `npm run python-migrate` 
 
 ### Everyday
 Before you run anything, do this right after `git pull`:
 1. Run `npm i` in the project directory to install any additional front-end frameworks.
 2. Run depending on platform:
-    - Linux/Mac, python 3 is default: `npm run start`
-    - Linux/Mac, python 2 is default: `npm run start3`
-    - Windows, python 3 is default: `npm run start-windows`
-    - Windows, python 2 is default: `npm run start3-windows`
+    - Linux/Mac: `npm run start`
+    - Windows: `npm run start-windows`
 
-    This will copy `dev_settings.py` over to `settings.py` in `events_backend`, then start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
+    This will start Webpack to hot-reload front-end changes as well as starting the Django server to hot-reload back-end changes. Isn't this an amazing script? (You can find it in `package.json`). Thank David later.
 
 The front-end website will be located at `127.0.0.1:8000`.
 
@@ -75,8 +56,8 @@ Some things to watch out for when reviewing someone else's code:
 - Are there redundancies in your code?
 
 ### Database
-If at any point, your database becomes corrupted or you no longer have `db.sqlite3` in the directory:
-1. [Copy settings](#copy-settings-from-dev-settings)
+If at any point, your database becomes corrupted or you no longer have `db.sqlite3` in the `/events_backend` directory:
+1. Ensure that the `DATABASE_URL` has the value `sqlite:///events_backend/db.sqlite3` (for local development only)
 2. [Make migrations](#make-migrations)
 
 ## Dependencies & Libraries
@@ -90,6 +71,9 @@ If at any point, your database becomes corrupted or you no longer have `db.sqlit
 
 ## Contributors
 **2020**
+* **[Shi Chong Zhao](https://github.com/shichong-97)** - Technical Project Manager
+* **[Stacy Wei](https://github.com/stacywei)** - Front-End Developer
+* **[Enoch Chen](https://github.com/Enochen)** - Back-End Developer
 * **[Jonna Chen](https://github.com/jonnachen)** - Front-End Developer
 * **[Woosang Kang](https://github.com/paul-kang-1)** - Back-End Developer
 * **[Mena Attia](https://github.com/menaattia)** - Back-End Developer
