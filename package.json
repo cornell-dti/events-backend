@@ -65,17 +65,13 @@
   },
   "scripts": {
     "start": "npm run frontend & npm run backend",
-    "start-windows": "start /B npm run frontend-windows && npm run backend-windows",
+    "start-windows": "start /B npm run frontend && npm run backend",
     "frontend": "webpack --config events_frontend/webpack.dev.js --watch",
-    "frontend-windows": "webpack --config \"events_frontend\\webpack.dev.js\" --watch",
     "lint": "eslint .",
     "backend": "python3 events_backend/manage.py runserver",
-    "backend-windows": "python3 \"events_backend\\manage.py\" runserver",
     "build": "webpack --config events_frontend/webpack.prod.js",
-    "build-windows": "webpack --config \"events_frontend\\webpack.prod.js\"",
     "heroku-postbuild": "npm run build && python3 events_backend/manage.py collectstatic --noinput",
-    "python-migrate": "python3 events_backend/manage.py makemigrations app && python events_backend/manage.py migrate",
-    "python-migrate-windows": "python3 \"events_backend\\manage.py\" makemigrations app && python \"events_backend\\manage.py\" migrate"
+    "python-migrate": "python3 events_backend/manage.py makemigrations app && python3 events_backend/manage.py migrate"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
