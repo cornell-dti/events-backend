@@ -23,7 +23,7 @@ You will need IntelliJ IDEA v2018.2.5 to run the latest version of this app, whi
 
 ### Setup
 #### Installing requirements
-- `pip install -r requirements.txt`
+- `pip3 install -r requirements.txt`
 
 #### Make migrations
 - `npm run python-migrate` 
